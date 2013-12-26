@@ -1,0 +1,31 @@
+Name: harbour-snowglobe
+Summary: SnowGlobe
+Version: 0.1
+Release: 1
+Group: Qt/Qt
+License: LICENSE
+Sources:
+- '%{name}-%{version}.tar.bz2'
+Description: |
+  Short description of my SailfishOS Application
+Configure: none
+Builder: qtc5
+PkgConfigBR:
+- sailfishapp
+- Qt5Quick
+- Qt5Qml
+- Qt5Core
+- Qt53D
+Requires:
+- sailfishsilica-qt5
+- qt5-qt3d
+Files:
+- /usr/share/icons/hicolor/86x86/apps
+- '%{_bindir}'
+- '%{_datadir}/%{name}/qml'
+- '%{_datadir}/applications/%{name}.desktop'
+- /usr/bin
+- /usr/share/harbour-snowglobe
+- /usr/share/applications
+- /usr/share/harbour-snowglobe/
+PkgBR: []

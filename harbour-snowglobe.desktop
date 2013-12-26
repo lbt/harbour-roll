@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Name=harbour-snowglobe
+Icon=/usr/share/icons/hicolor/90x90/apps/harbour-snowglobe.png
+Exec=harbour-snowglobe
+
