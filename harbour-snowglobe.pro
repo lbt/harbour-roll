@@ -16,7 +16,7 @@ SOURCES += src/harbour-snowglobe.cpp \
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
-glsl.files = src/sq_vert.glsl src/sq_shad.glsl
+glsl.files = src/sq_vert.glsl src/sq_shad.glsl src/sq_geom.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
 image.files = src/cube.png
@@ -34,7 +34,8 @@ OTHER_FILES += qml/harbour-snowglobe.qml \
     src/vshad.glsl \
     src/fshad.glsl \
     src/sq_shad.glsl \
-    src/sq_vert.glsl
+    src/sq_vert.glsl \
+    src/sq_geom.glsl
 
 HEADERS += \
     src/squircle.h \

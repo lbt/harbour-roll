@@ -49,6 +49,10 @@ Page {
 
         // This Item is not rendered; it simply draws into the window
         Squircle {
+            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: label.top
             SequentialAnimation on t {
                 NumberAnimation { to: 1; duration: 2500; easing.type: Easing.InQuad }
                 NumberAnimation { to: 0; duration: 2500; easing.type: Easing.OutQuad }
@@ -57,12 +61,24 @@ Page {
             }
         }
         Rectangle {
+            x:50
+            y:50
+            width:200
+            height:200
+            color: "blue"
+        }
+
+        Rectangle {
             color: Qt.rgba(1, 1, 1, 0.7)
             radius: 10
             border.width: 1
             border.color: "white"
-            anchors.fill: label
+            //anchors.fill: label
             anchors.margins: -10
+            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            height: 200
         }
         Text {
             id: label

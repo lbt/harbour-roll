@@ -53,10 +53,6 @@ void Squircle::handleWindowChanged(QQuickWindow *win)
        // If we allow QML to do the clearing, they would clear what we paint
         // and nothing would show.
         win->setClearBeforeRendering(false);
-
-        qDebug() << "handled";
-    } else {
-        qDebug() << "unhandled";
     }
 }
 
@@ -69,6 +65,8 @@ void Squircle::paint()
                                            DEPLOYPATH "sq_vert.glsl");
         m_program->addShaderFromSourceFile(QOpenGLShader::Fragment,
                                            DEPLOYPATH "sq_shad.glsl");
+//        m_program->addShaderFromSourceFile(QOpenGLShader::Geometry,
+//                                           DEPLOYPATH "sq_geom.glsl");
 
         m_program->bindAttributeLocation("vertices", 0);
         m_program->link();
@@ -83,9 +81,11 @@ void Squircle::paint()
         initializeOpenGLFunctions();
         prepC();
     }
-    glViewport(0, 0, window()->width(), window()->height());
-//    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_DEPTH_TEST);
+    QRectF vpr = mapRectToScene(QRectF(0.0,0.0,width(),height()));
+    glViewport(vpr.x(), vpr.y(), vpr.width(), vpr.height());
+//    glViewport(0, 0, window()->width(), window()->height());
+    glDisable(GL_DEPTH_TEST);
+//    glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glClearColor(0, 0, 0, 1);
     // From Cube
@@ -163,48 +163,90 @@ void Squircle::prepC()
 
     VertexData vertices[] = {
         // Vertex data for face 0
-        {QVector3D(-1.0, -1.0,  1.0), QVector2D(0.0, 0.0)},  // v0
-        {QVector3D( 1.0, -1.0,  1.0), QVector2D(0.33, 0.0)}, // v1
-        {QVector3D(-1.0,  1.0,  1.0), QVector2D(0.0, 0.5)},  // v2
+        {QVector3D( 0.9,  0.9,  1.0), QVector2D(0.0, 0.0)},  // v0
+        {QVector3D( 1.0,  0.9,  1.0), QVector2D(0.33, 0.0)}, // v1
+        {QVector3D( 0.9,  1.0,  1.0), QVector2D(0.0, 0.5)},  // v2
         {QVector3D( 1.0,  1.0,  1.0), QVector2D(0.33, 0.5)}, // v3
 
         // Vertex data for face 1
-        {QVector3D( 1.0, -1.0,  1.0), QVector2D( 0.0, 0.5)}, // v4
-        {QVector3D( 1.0, -1.0, -1.0), QVector2D(0.33, 0.5)}, // v5
+        {QVector3D( 1.0,  0.9,  1.0), QVector2D( 0.0, 0.5)}, // v4
+        {QVector3D( 1.0,  0.9,  0.9), QVector2D(0.33, 0.5)}, // v5
         {QVector3D( 1.0,  1.0,  1.0), QVector2D(0.0, 1.0)},  // v6
-        {QVector3D( 1.0,  1.0, -1.0), QVector2D(0.33, 1.0)}, // v7
+        {QVector3D( 1.0,  1.0,  0.9), QVector2D(0.33, 1.0)}, // v7
 
         // Vertex data for face 2
-        {QVector3D( 1.0, -1.0, -1.0), QVector2D(0.66, 0.5)}, // v8
+        {QVector3D( 1.0,  0.9,  0.9), QVector2D(0.66, 0.5)}, // v8
+        {QVector3D( 0.9,  0.9,  0.9), QVector2D(1.0, 0.5)},  // v9
+        {QVector3D( 1.0,  1.0,  0.9), QVector2D(0.66, 1.0)}, // v10
+        {QVector3D( 0.9,  1.0,  0.9), QVector2D(1.0, 1.0)},  // v11
+
+        // Vertex data for face 3
+        {QVector3D( 0.9,  0.9,  0.9), QVector2D(0.66, 0.0)}, // v12
+        {QVector3D( 0.9,  0.9,  1.0), QVector2D(1.0, 0.0)},  // v13
+        {QVector3D( 0.9,  1.0,  0.9), QVector2D(0.66, 0.5)}, // v14
+        {QVector3D( 0.9,  1.0,  1.0), QVector2D(1.0, 0.5)},  // v15
+
+        // Vertex data for face 4
+        {QVector3D( 0.9,  0.9,  0.9), QVector2D(0.33, 0.0)}, // v16
+        {QVector3D( 1.0,  0.9,  0.9), QVector2D(0.66, 0.0)}, // v17
+        {QVector3D( 0.9,  0.9,  1.0), QVector2D(0.33, 0.5)}, // v18
+        {QVector3D( 1.0,  0.9,  1.0), QVector2D(0.66, 0.5)}, // v19
+
+        // Vertex data for face 5
+        {QVector3D( 0.9,  1.0,  1.0), QVector2D(0.33, 0.5)}, // v20
+        {QVector3D( 1.0,  1.0,  1.0), QVector2D(0.66, 0.5)}, // v21
+        {QVector3D( 0.9,  1.0,  0.9), QVector2D(0.33, 1.0)}, // v22
+        {QVector3D( 1.0,  1.0,  0.9), QVector2D(0.66, 1.0)}, // v23
+
+        // Vertex data for face 0
+        {QVector3D(-1.0, -1.0, -0.9), QVector2D(0.0, 0.0)},  // v0
+        {QVector3D(-0.9, -1.0, -0.9), QVector2D(0.33, 0.0)}, // v1
+        {QVector3D(-1.0, -0.9, -0.9), QVector2D(0.0, 0.5)},  // v2
+        {QVector3D(-0.9, -0.9, -0.9), QVector2D(0.33, 0.5)}, // v3
+
+        // Vertex data for face 1
+        {QVector3D(-0.9, -1.0, -0.9), QVector2D( 0.0, 0.5)}, // v4
+        {QVector3D(-0.9, -1.0, -1.0), QVector2D(0.33, 0.5)}, // v5
+        {QVector3D(-0.9, -0.9, -0.9), QVector2D(0.0, 1.0)},  // v6
+        {QVector3D(-0.9, -0.9, -1.0), QVector2D(0.33, 1.0)}, // v7
+
+        // Vertex data for face 2
+        {QVector3D(-0.9, -1.0, -1.0), QVector2D(0.66, 0.5)}, // v8
         {QVector3D(-1.0, -1.0, -1.0), QVector2D(1.0, 0.5)},  // v9
-        {QVector3D( 1.0,  1.0, -1.0), QVector2D(0.66, 1.0)}, // v10
-        {QVector3D(-1.0,  1.0, -1.0), QVector2D(1.0, 1.0)},  // v11
+        {QVector3D(-0.9, -0.9, -1.0), QVector2D(0.66, 1.0)}, // v10
+        {QVector3D(-1.0, -0.9, -1.0), QVector2D(1.0, 1.0)},  // v11
 
         // Vertex data for face 3
         {QVector3D(-1.0, -1.0, -1.0), QVector2D(0.66, 0.0)}, // v12
-        {QVector3D(-1.0, -1.0,  1.0), QVector2D(1.0, 0.0)},  // v13
-        {QVector3D(-1.0,  1.0, -1.0), QVector2D(0.66, 0.5)}, // v14
-        {QVector3D(-1.0,  1.0,  1.0), QVector2D(1.0, 0.5)},  // v15
+        {QVector3D(-1.0, -1.0, -0.9), QVector2D(1.0, 0.0)},  // v13
+        {QVector3D(-1.0, -0.9, -1.0), QVector2D(0.66, 0.5)}, // v14
+        {QVector3D(-1.0, -0.9, -0.9), QVector2D(1.0, 0.5)},  // v15
 
         // Vertex data for face 4
         {QVector3D(-1.0, -1.0, -1.0), QVector2D(0.33, 0.0)}, // v16
-        {QVector3D( 1.0, -1.0, -1.0), QVector2D(0.66, 0.0)}, // v17
-        {QVector3D(-1.0, -1.0,  1.0), QVector2D(0.33, 0.5)}, // v18
-        {QVector3D( 1.0, -1.0,  1.0), QVector2D(0.66, 0.5)}, // v19
+        {QVector3D(-0.9, -1.0, -1.0), QVector2D(0.66, 0.0)}, // v17
+        {QVector3D(-1.0, -1.0, -0.9), QVector2D(0.33, 0.5)}, // v18
+        {QVector3D(-0.9, -1.0, -0.9), QVector2D(0.66, 0.5)}, // v19
 
         // Vertex data for face 5
-        {QVector3D(-1.0,  1.0,  1.0), QVector2D(0.33, 0.5)}, // v20
-        {QVector3D( 1.0,  1.0,  1.0), QVector2D(0.66, 0.5)}, // v21
-        {QVector3D(-1.0,  1.0, -1.0), QVector2D(0.33, 1.0)}, // v22
-        {QVector3D( 1.0,  1.0, -1.0), QVector2D(0.66, 1.0)}  // v23
+        {QVector3D(-1.0, -0.9, -0.9), QVector2D(0.33, 0.5)}, // v20
+        {QVector3D(-0.9, -0.9, -0.9), QVector2D(0.66, 0.5)}, // v21
+        {QVector3D(-1.0, -0.9, -1.0), QVector2D(0.33, 1.0)}, // v22
+        {QVector3D(-0.9, -0.9, -1.0), QVector2D(0.66, 1.0)}  // v23
     };
     GLushort indices[] = {
-         0,  1,  2,  3,  3,     // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
-         4,  4,  5,  6,  7,  7, // Face 1 - triangle strip ( v4,  v5,  v6,  v7)
-         8,  8,  9, 10, 11, 11, // Face 2 - triangle strip ( v8,  v9, v10, v11)
-        12, 12, 13, 14, 15, 15, // Face 3 - triangle strip (v12, v13, v14, v15)
-        16, 16, 17, 18, 19, 19, // Face 4 - triangle strip (v16, v17, v18, v19)
-        20, 20, 21, 22, 23      // Face 5 - triangle strip (v20, v21, v22, v23)
+        0,  1,  2,  3,  3,     // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
+        4,  4,  5,  6,  7,  7, // Face 1 - triangle strip ( v4,  v5,  v6,  v7)
+        8,  8,  9, 10, 11, 11, // Face 2 - triangle strip ( v8,  v9, v10, v11)
+       12, 12, 13, 14, 15, 15, // Face 3 - triangle strip (v12, v13, v14, v15)
+       16, 16, 17, 18, 19, 19, // Face 4 - triangle strip (v16, v17, v18, v19)
+       20, 20, 21, 22, 23,      // Face 5 - triangle strip (v20, v21, v22, v23)
+        0,  1,  2,  3,  3,     // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
+        4,  4,  5,  6,  7,  7, // Face 1 - triangle strip ( v4,  v5,  v6,  v7)
+        8,  8,  9, 10, 11, 11, // Face 2 - triangle strip ( v8,  v9, v10, v11)
+       12, 12, 13, 14, 15, 15, // Face 3 - triangle strip (v12, v13, v14, v15)
+       16, 16, 17, 18, 19, 19, // Face 4 - triangle strip (v16, v17, v18, v19)
+       20, 20, 21, 22, 23      // Face 5 - triangle strip (v20, v21, v22, v23)
     };
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
@@ -215,16 +257,16 @@ void Squircle::prepC()
 
 void Squircle::renderC()
 {
-    glViewport(0, 0, window()->width(), window()->height());
-    glDisable(GL_DEPTH_TEST);
+//    glViewport(0, 0, window()->width(), window()->height());
+//    glDisable(GL_DEPTH_TEST);
 
-    glClear(GL_COLOR_BUFFER_BIT);
+//    glClear(GL_COLOR_BUFFER_BIT);
 
     m_program->bind();
 
     QMatrix4x4 matrix;
     matrix.perspective(60, 4.0/3.0, 0.1, 100.0);
-    matrix.translate(0, 0, -5);
+    matrix.translate(0, 0, -3);
     matrix.rotate(100.0f * m_frame / 60, 0, 1, 0);
     matrix.rotate(100.0f * m_frame / 400, 0, 0, 1);
     matrix.rotate(100.0f * m_frame / 100, 1, 0, 0);
@@ -233,11 +275,6 @@ void Squircle::renderC()
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
-    GLfloat colors[] = {
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
-    };
 
     // Because we're using VBOs this is pointer into them
     glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
@@ -250,6 +287,31 @@ void Squircle::renderC()
 
 //    glDrawArrays(GL_TRIANGLE_STRIP, 0, 23);
     glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+
+    matrix.translate(0, 0.2, 0);
+    m_program->setUniformValue(m_matrixUniform, matrix);
+    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+
+    matrix.translate(0, -0.4, 0);
+    m_program->setUniformValue(m_matrixUniform, matrix);
+    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+
+    matrix.translate(0.2, 0.2, 0);
+    m_program->setUniformValue(m_matrixUniform, matrix);
+    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+
+    matrix.translate(-0.4, 0, 0);
+    m_program->setUniformValue(m_matrixUniform, matrix);
+    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+
+    matrix.translate(0.2, 0, 0.2);
+    m_program->setUniformValue(m_matrixUniform, matrix);
+    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+
+    matrix.translate(0, 0, -0.4);
+    m_program->setUniformValue(m_matrixUniform, matrix);
+    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+
 
 //    glDisableVertexAttribArray(1);
 //    glDisableVertexAttribArray(0);
