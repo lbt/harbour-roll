@@ -1,14 +1,15 @@
-#include "squircle.h"
+#include "glitem.h"
 
 #include <QtQuick/qquickwindow.h>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLContext>
+#include <QFile>
 
 #include <QDebug>
 
-#include <QFile>
 
 #define DEPLOYPATH "/opt/sdk/harbour-snowglobe/usr/share/harbour-snowglobe/"
+
 struct VertexData
 {
 #define VertexData_0 (0)
@@ -18,7 +19,7 @@ struct VertexData
 #define VertexData_2 (Vertex_Data_2+sizeof(QVector2D))
 };
 
-Squircle::Squircle()
+GLItem::GLItem()
     : m_program(0)
     , m_t(0)
     , m_thread_t(0)
@@ -28,7 +29,7 @@ Squircle::Squircle()
     qDebug() << "Created";
 }
 
-void Squircle::setT(qreal t)
+void GLItem::setT(qreal t)
 {
     if (t == m_t)
         return;
@@ -40,7 +41,7 @@ void Squircle::setT(qreal t)
 //    qDebug() << "setT";
 }
 
-void Squircle::handleWindowChanged(QQuickWindow *win)
+void GLItem::handleWindowChanged(QQuickWindow *win)
 {
     if (win) {
         // Connect the beforeRendering signal to our paint function.
@@ -56,7 +57,7 @@ void Squircle::handleWindowChanged(QQuickWindow *win)
     }
 }
 
-void Squircle::paint()
+void GLItem::paint()
 {
     if (!m_program) {
         qDebug() << "create program";
@@ -65,8 +66,6 @@ void Squircle::paint()
                                            DEPLOYPATH "sq_vert.glsl");
         m_program->addShaderFromSourceFile(QOpenGLShader::Fragment,
                                            DEPLOYPATH "sq_shad.glsl");
-//        m_program->addShaderFromSourceFile(QOpenGLShader::Geometry,
-//                                           DEPLOYPATH "sq_geom.glsl");
 
         m_program->bindAttributeLocation("vertices", 0);
         m_program->link();
@@ -77,87 +76,29 @@ void Squircle::paint()
 
         connect(window()->openglContext(), SIGNAL(aboutToBeDestroyed()),
                 this, SLOT(cleanup()), Qt::DirectConnection);
-        window()->setClearBeforeRendering(false);
+        //window()->setClearBeforeRendering(false);
+        window()->setClearBeforeRendering(true);
         initializeOpenGLFunctions();
-        prepC();
+        prep();
     }
     QRectF vpr = mapRectToScene(QRectF(0.0,0.0,width(),height()));
-    glViewport(vpr.x(), vpr.y(), vpr.width(), vpr.height());
-//    glViewport(0, 0, window()->width(), window()->height());
+//    qDebug()<< "Item width "<< width()<< "height "<< height();
+//    qDebug()<< "transform  x "<< vpr.x()<< "y "<< vpr.y()<< "width "<< vpr.width()<< "height "<< vpr.height();
+//    qDebug()<< "Window width "<< window()->width()<< "height "<< window()->height();
+    glViewport( vpr.x(), (window()->height() -( vpr.y() + vpr.height())),
+                vpr.width(), vpr.height());
+
+    //    glViewport(0, 0, window()->width(), window()->height());
+//    glViewport(200, 10, 100, 800 );
     glDisable(GL_DEPTH_TEST);
 //    glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glClearColor(0, 0, 0, 1);
+//    glClearColor(0, 0, 0, 1);
     // From Cube
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//    glClear(GL_COLOR_BUFFER_BIT);
-
-//    renderA();
-    renderC();
+  glClear(GL_DEPTH_BUFFER_BIT);
+    render();
 }
-void Squircle::renderA(){
-    m_program->bind();
-
-    m_program->enableAttributeArray(0);
-
-    float values[] = {
-        -1, -1,
-        1, -1,
-        -1, 1,
-        1, 1
-    };
-    m_program->setAttributeArray(0, GL_FLOAT, values, 2);
-    m_program->setUniformValue("t", (float) m_thread_t);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    m_program->disableAttributeArray(0);
-    m_program->release();
-}
-
-void Squircle::renderB()
-{
-    m_program->bind();
-
-    QMatrix4x4 matrix;
-    matrix.perspective(60, 960.0/540.0, 0.1, 10.0);
-    matrix.translate(0, 0, -2);
-    matrix.rotate(100.0f * m_frame / 60, 0, 1, 0);
-    matrix.rotate(100.0f * m_frame / 40, 0, 0, 1);
-    matrix.rotate(100.0f * m_frame / 50, 1, 0, 0);
-
-    m_program->setUniformValue(m_matrixUniform, matrix);
-
-    GLfloat vertices[] = {
-        0.0f, 0.707f,
-        -0.5f, -0.5f,
-        0.5f, -0.5f
-    };
-
-    GLfloat colors[] = {
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
-    };
-
-    glVertexAttribPointer(m_posAttr, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-    glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, 0, colors);
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
-
-    m_program->release();
-
-}
-void Squircle::prepC()
+void GLItem::prep()
 {
     glGenBuffers(2, m_vboIds);
 
@@ -255,17 +196,13 @@ void Squircle::prepC()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 34 * sizeof(GLushort), indices, GL_STATIC_DRAW);
 }
 
-void Squircle::renderC()
+void GLItem::render()
 {
-//    glViewport(0, 0, window()->width(), window()->height());
-//    glDisable(GL_DEPTH_TEST);
-
-//    glClear(GL_COLOR_BUFFER_BIT);
 
     m_program->bind();
 
     QMatrix4x4 matrix;
-    matrix.perspective(60, 4.0/3.0, 0.1, 100.0);
+    matrix.perspective(60, 540.0/960.0, 0.1, 100.0);
     matrix.translate(0, 0, -3);
     matrix.rotate(100.0f * m_frame / 60, 0, 1, 0);
     matrix.rotate(100.0f * m_frame / 400, 0, 0, 1);
@@ -313,14 +250,18 @@ void Squircle::renderC()
     glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
 
 
-//    glDisableVertexAttribArray(1);
-//    glDisableVertexAttribArray(0);
-
+    glDisableVertexAttribArray(m_posAttr);
+    glDisableVertexAttribArray(m_colAttr);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//    glClearDepthf(0.0);
+//    glClear(GL_DEPTH_BUFFER_BIT);
+//    glFlush();
     m_program->release();
 
 }
 
-void Squircle::cleanup()
+void GLItem::cleanup()
 {
     if (m_program) {
         qDebug() << "cleanup program";
@@ -329,7 +270,7 @@ void Squircle::cleanup()
     }
 }
 
-void Squircle::sync()
+void GLItem::sync()
 {
     m_thread_t = m_t;
     ++m_frame;

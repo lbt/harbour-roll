@@ -2,7 +2,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 // our class defines this
-import OpenGLUnderQML 1.0
+import GLItem 1.0
 //import Qt3D 2.0
 //import Qt3D.Shapes 2.0
 
@@ -47,12 +47,9 @@ Page {
         //            }
         //        }
 
-        // This Item is not rendered; it simply draws into the window
-        Squircle {
-            anchors.right: parent.right
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.bottom: label.top
+        // Note that a GLItem is always rendered on top of anything else.
+        GLItem {
+            anchors.fill: blue
             SequentialAnimation on t {
                 NumberAnimation { to: 1; duration: 2500; easing.type: Easing.InQuad }
                 NumberAnimation { to: 0; duration: 2500; easing.type: Easing.OutQuad }
@@ -61,11 +58,20 @@ Page {
             }
         }
         Rectangle {
+            id: blue
             x:50
             y:50
-            width:200
-            height:200
+            width:300
+            height:500
             color: "blue"
+            MouseArea {
+                anchors.fill: parent
+                drag.target: parent
+                drag.minimumX: 0
+                drag.maximumX: page.width - parent.width
+                drag.minimumY: 0
+                drag.maximumY: page.height - parent.height
+                }
         }
 
         Rectangle {
@@ -73,12 +79,12 @@ Page {
             radius: 10
             border.width: 1
             border.color: "white"
-            //anchors.fill: label
-            anchors.margins: -10
-            anchors.right: parent.right
-            anchors.left: parent.left
-            anchors.bottom: parent.bottom
-            height: 200
+                anchors.fill: label
+//            anchors.margins: -10
+//            anchors.right: parent.right
+//            anchors.left: parent.left
+//            anchors.bottom: parent.bottom
+//            height: 200
         }
         Text {
             id: label

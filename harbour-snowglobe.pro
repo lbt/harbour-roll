@@ -11,8 +11,9 @@ TARGET = harbour-snowglobe
 CONFIG += sailfishapp
 
 SOURCES += src/harbour-snowglobe.cpp \
-    src/squircle.cpp \
-    src/globegeometry.cpp
+    src/globegeometry.cpp \
+    src/flakes.cpp \
+    src/glitem.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -38,6 +39,7 @@ OTHER_FILES += qml/harbour-snowglobe.qml \
     src/sq_geom.glsl
 
 HEADERS += \
-    src/squircle.h \
-    src/globegeometry.h
+    src/globegeometry.h \
+    src/flakes.h \
+    src/glitem.h
 
