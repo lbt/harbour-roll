@@ -33,9 +33,12 @@
 #endif
 #include <QtQuick/QQuickView>
 
+#include <QTimer>
 #include <sailfishapp.h>
 
-#include "glitem.h"
+#include "cube.h"
+#include "flakes.h"
+#include "swarm.h"
 
 int main(int argc, char *argv[])
 {
@@ -49,18 +52,19 @@ int main(int argc, char *argv[])
     // To display the view, call "show()" (will show fullscreen on device).
 
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
-
-    qmlRegisterType<GLItem>("GLItem", 1, 0, "GLItem");
-
     QScopedPointer<QQuickView> view(SailfishApp::createView());
 
-    view->setSource(SailfishApp::pathTo("qml/harbour-snowglobe.qml"));
+    qmlRegisterType<Cube>("Cube", 1, 0, "Cube");
+    qmlRegisterType<Flakes>("Flakes", 1, 0, "Flakes");
+    qmlRegisterType<Swarm>("Swarm", 1, 0, "Swarm");
 
-    // The ViewManager will handle the close/show
+    view->setSource(SailfishApp::pathTo("qml/harbour-snowglobe.qml"));
     view->show();
 
-//    QObject::connect(shot, SIGNAL(shotDone()),
-//                     vm, SLOT(show()));
+//    QObject::connect(app.data(), SIGNAL(aboutToQuit()), app.data(), SLOT(aboutQt()));
+
+  //  QTimer::singleShot(5000, app.data(), SLOT(quit()));
+
     return app->exec();
 }
 

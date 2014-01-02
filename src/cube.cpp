@@ -1,4 +1,4 @@
-#include "flakes.h"
+#include "cube.h"
 #include <QtQuick/qquickwindow.h>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLContext>
@@ -14,15 +14,16 @@ struct VertexData
 #define VertexData_2 (Vertex_Data_2+sizeof(QVector2D))
 };
 
-Flakes::Flakes(QObject *parent) :
+Cube::Cube(QObject *parent) :
     GLItem()
   , m_t(0)
+  , m_d(0)
   , m_thread_t(0)
   , m_frame(0)
 {
 }
 
-void Flakes::setT(qreal t)
+void Cube::setT(qreal t)
 {
     if (t == m_t)
         return;
@@ -31,16 +32,22 @@ void Flakes::setT(qreal t)
     if (window())
         window()->update();
 
-    //    qDebug() << "setT";
+}
+void Cube::setD(qreal d)
+{
+    if (d == m_d)
+        return;
+    m_d = d;
+    emit dChanged();
 }
 
-void Flakes::prep()
+void Cube::prep()
 {
     // prep must add and link any shaders
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                       DEPLOYPATH "sq_vert.glsl");
+                                       DEPLOYPATH "cube_vert.glsl");
     m_program->addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                       DEPLOYPATH "sq_shad.glsl");
+                                       DEPLOYPATH "cube_frag.glsl");
 
     // prep must bind any attributes
     m_program->bindAttributeLocation("vertices", 0);
@@ -150,16 +157,14 @@ void Flakes::prep()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 34 * sizeof(GLushort), indices, GL_STATIC_DRAW);
 }
 
-void Flakes::render()
+void Cube::render()
 {
     QMatrix4x4 matrix;
     matrix.perspective(60, 540.0/960.0, 0.1, 100.0);
-    matrix.translate(0, 0, -3);
+    matrix.translate(0, 0, m_d);
     matrix.rotate(100.0f * m_frame / 60, 0, 1, 0);
     matrix.rotate(100.0f * m_frame / 400, 0, 0, 1);
     matrix.rotate(100.0f * m_frame / 100, 1, 0, 0);
-
-    m_program->setUniformValue(m_matrixUniform, matrix);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
@@ -174,6 +179,7 @@ void Flakes::render()
     glEnableVertexAttribArray(m_colAttr);
 
 //    glDrawArrays(GL_TRIANGLE_STRIP, 0, 23);
+    m_program->setUniformValue(m_matrixUniform, matrix);
     glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
 
     matrix.translate(0, 0.2, 0);
@@ -210,7 +216,7 @@ void Flakes::render()
 //    glFlush();
 
 }
-void Flakes::sync()
+void Cube::sync()
 {
     m_thread_t = m_t;
     ++m_frame;

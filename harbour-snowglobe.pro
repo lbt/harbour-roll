@@ -13,11 +13,17 @@ CONFIG += sailfishapp
 SOURCES += src/harbour-snowglobe.cpp \
     src/globegeometry.cpp \
     src/flakes.cpp \
-    src/glitem.cpp
+    src/cube.cpp \
+    src/swarm.cpp \
+    src/glitem.cpp \
+    src/gparticle.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
-glsl.files = src/sq_vert.glsl src/sq_shad.glsl src/sq_geom.glsl
+glsl.files = \
+    src/cube_vert.glsl src/cube_frag.glsl \
+    src/swarm_vert.glsl src/swarm_frag.glsl
+
 glsl.path = $$DEPLOYMENT_PATH
 
 image.files = src/cube.png
@@ -28,18 +34,24 @@ INSTALLS += glsl image
 OTHER_FILES += qml/harbour-snowglobe.qml \
     qml/cover/CoverPage.qml \
     qml/pages/FirstPage.qml \
-    qml/pages/SecondPage.qml \
+    qml/pages/CubePage.qml \
+    qml/pages/FlakesPage.qml \
+    qml/pages/SwarmPage.qml \
     rpm/harbour-snowglobe.spec \
     rpm/harbour-snowglobe.yaml \
     harbour-snowglobe.desktop \
-    src/vshad.glsl \
-    src/fshad.glsl \
-    src/sq_shad.glsl \
-    src/sq_vert.glsl \
-    src/sq_geom.glsl
+    src/cube_frag.glsl \
+    src/cube_vert.glsl \
+    src/flakes_frag.glsl \
+    src/flakes_vert.glsl \
+    src/swarm_frag.glsl \
+    src/swarm_vert.glsl
 
 HEADERS += \
     src/globegeometry.h \
     src/flakes.h \
-    src/glitem.h
+    src/cube.h \
+    src/swarm.h \
+    src/glitem.h \
+    src/gparticle.h
 
