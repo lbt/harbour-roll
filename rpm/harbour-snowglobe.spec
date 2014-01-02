@@ -19,9 +19,7 @@ Group:      Qt/Qt
 License:    LICENSE
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-snowglobe.yaml
-Requires:   qt5-qt3d
 Requires:   sailfishsilica-qt5
-BuildRequires:  pkgconfig(Qt53D)
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)

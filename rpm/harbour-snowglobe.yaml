@@ -11,13 +11,11 @@ Description: |
 Configure: none
 Builder: qtc5
 PkgConfigBR:
-- Qt53D
 - Qt5Core
 - Qt5Qml
 - Qt5Quick
 - sailfishapp
 Requires:
-- qt5-qt3d
 - sailfishsilica-qt5
 Files:
 - /usr/share/harbour-snowglobe/
