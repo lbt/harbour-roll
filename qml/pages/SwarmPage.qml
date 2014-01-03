@@ -3,8 +3,6 @@ import Sailfish.Silica 1.0
 
 // our class defines this
 import Swarm 1.0
-//import Qt3D 2.0
-//import Qt3D.Shapes 2.0
 
 Page {
     id: page
@@ -14,29 +12,38 @@ Page {
 
         // Note that a GLItem is always rendered on top of anything else.
         Swarm {
-            anchors.fill: blue
+            id: aswarm
+            anchors.fill: bg
             t: slide.sliderValue
             running : true
+            x: bgMA.mouseX
+            y: bgMA.mouseY
+            pressed: bgMA.pressed
         }
         Rectangle {
-            id: blue
+            id: bg
             anchors.fill: parent
             color: "black"
             MouseArea {
+                id: bgMA
                 anchors.fill: parent
-//                drag.target: parent
-//                drag.minimumX: 0
-//                drag.maximumX: page.width - parent.width
-//                drag.minimumY: 0
-//                drag.maximumY: page.height - parent.height
+                preventStealing: true
+                //                drag.target: parent
+                //                drag.minimumX: 0
+                //                drag.maximumX: page.width - parent.width
+                //                drag.minimumY: 0
+                //                drag.maximumY: page.height - parent.height
+                //                Connections {
+                //                    target: aswarm;
+                //                    onPositionChanged: { aswarm.handlePosition(MouseArea.mouseX); }
             }
         }
         Slider {
             id: slide
             anchors.bottom: label.top
             width: parent.width
-            minimumValue: -40
-            maximumValue: 10
+            minimumValue: -60
+            maximumValue: 20
             value: -25
             valueText: value.toFixed(2);
         }

@@ -21,12 +21,15 @@ GParticle::GParticle(float radius, float theta, float phi,
   , m_rzv(rzv)      // orientation z velocity
   , m_scale(scale)  // scale (xyz)
 {
-    update(0); // set xyz
+    update(0, {0.0,0.0,0.0,0.0}); // set xyz
 }
 #define RADIUS 5.0
 #define PI 3.14159265
 #define PI180 (180/PI)
-void GParticle::update(float deltaTime){
+void GParticle::update(float deltaTime, Wind w){
+
+
+
     m_r     += m_vr  * deltaTime;
     // bounce off RADIUS and origin
     if (m_r > RADIUS) {
@@ -41,7 +44,7 @@ void GParticle::update(float deltaTime){
     if (m_theta > 2*PI) m_theta -= 2*PI;
     m_phi   += m_vph * deltaTime;
     if (m_phi > 2*PI) m_phi -= 2*PI;
-// Tumbling
+    // Tumbling
     m_rx += m_rxv * deltaTime;
     if (m_rx > 2*PI) m_rx -= 2*PI;
     m_ry += m_ryv * deltaTime;
@@ -49,10 +52,7 @@ void GParticle::update(float deltaTime){
     m_rz += m_rzv * deltaTime;
     if (m_rz > 2*PI) m_rz -= 2*PI;
 
-    // All velocities calculated
-//    m_x = m_r * cos(m_theta) * cos(m_phi);
-//    m_y = m_r * cos(m_theta) * sin(m_phi);
-//    m_z = m_r * sin(m_theta);
+    // All velocities calculated; determine location in cartesian
     m_x = m_r * cos(m_theta) * cos(m_phi);
     m_z = m_r * cos(m_theta) * sin(m_phi);
     m_y = m_r * sin(m_theta);

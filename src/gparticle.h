@@ -5,13 +5,21 @@
 class GParticle
 {
 public:
+    struct Wind {
+        float x;
+        float y;
+        float vx;
+        float vy;
+    };
+
+public:
     GParticle(float radius, float theta, float phi,
               float vr, float vth, float vph,
               float rx, float ry, float rz,
               float rvx, float ryv, float rzv,
               float scale);
 
-    void update(float dt);
+    void update(float dt, Wind w);
     QMatrix4x4 matrix(QMatrix4x4 input);
     float x();
     float y();

@@ -2,9 +2,9 @@
 #include <QtQuick/qquickwindow.h>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLContext>
-#include <QTimer>
+#include <sailfishapp.h>
 
-#define DEPLOYPATH "/opt/sdk/harbour-snowglobe/usr/share/harbour-snowglobe/"
+#include "math.h"
 
 #define RADIUS 5.0
 #define PI 3.1415926535
@@ -19,8 +19,11 @@
 Swarm::Swarm(QObject *parent) :
     GLItem()
   , m_t(0)
-  , m_thread_t(0)
+  , m_x(0)
+  , m_y(0)
   , m_frame(0)
+  , m_thread_t(0)
+  , m_pressed(false)
 {
     m_timer.setInterval(TICK);
     m_pcount = COUNT;
@@ -43,10 +46,30 @@ void Swarm::setT(qreal t)
         return;
     m_t = t;
     emit tChanged();
-    if (window())
-        window()->update();
+}
+void Swarm::setX(qreal x)
+{
+    if (x == m_x)
+        return;
+    m_x = x;
+    emit xChanged();
+}
+void Swarm::setY(qreal y)
+{
+    if (y == m_y)
+        return;
+    m_y = y;
+    emit yChanged();
+}
 
-    //    qDebug() << "setT";
+void Swarm::setPressed(bool pressed)
+{
+    if (pressed == m_pressed)
+        return;
+    m_pressed = pressed;
+    if (!m_pressed)
+        m_lastTime.invalidate(); // set touch velocity timer off
+    emit pressedChanged();
 }
 
 void Swarm::setRunning(bool running)
@@ -69,9 +92,9 @@ void Swarm::prep()
 
     // prep must add and link any shaders
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                       DEPLOYPATH "swarm_vert.glsl");
+                                       SailfishApp::pathTo("swarm_vert.glsl").toLocalFile());
     m_program->addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                       DEPLOYPATH "swarm_frag.glsl");
+                                       SailfishApp::pathTo("swarm_frag.glsl").toLocalFile());
 
     // prep must bind any attributes
     m_program->bindAttributeLocation("vertices", 0);
@@ -143,12 +166,14 @@ void Swarm::prep()
 
 void Swarm::render()
 {
+#define FOVY 60
+#define ASPECT (540.0/960.0)
     QMatrix4x4 matrix;
-    matrix.perspective(60, 540.0/960.0, 0.1, 50.0);
-    matrix.translate(0, 0, m_t);
-    //        matrix.rotate(100.0f * m_frame / 60, 0, 1, 0);
-    //        matrix.rotate(100.0f * m_frame / 400, 0, 0, 1);
-    //        matrix.rotate(100.0f * m_frame / 100, 1, 0, 0);
+    // Invert the perspective matrix for mousemapping
+    bool wasInverted;
+    matrix.perspective(FOVY, ASPECT, 0.1, 100.0);
+    matrix.translate(0, 0, m_t); // This is essentially a camera translate...
+    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
@@ -162,13 +187,58 @@ void Swarm::render()
     glEnableVertexAttribArray(m_posAttr);
     glEnableVertexAttribArray(m_colAttr);
 
+    GParticle::Wind wind = {0,0,0,0};
+//    if (m_pressed and m_lastTime.isValid()) {
+    if (m_pressed) {
+        QMatrix4x4 cubeM ;
+        // take X, Y, calculate the vpx and vpy
+        float xvp = (m_x-(width()/2)) / (width()/2);
+        float yvp = ((height()/2)-m_y) / (height()/2);
+
+        // We've moved the world in by m_t so scale
+
+        float f = 1/tan((FOVY/2)*PI/180);
+
+        wind.y = (yvp/f) * m_t * -1;
+        wind.x = (xvp/f) * m_t * ASPECT * -1;
+
+        int timeDelta=m_lastTime.nsecsElapsed();
+        wind.vx = (m_lastx - wind.x) / timeDelta;
+        wind.vy = (m_lasty - wind.y) / timeDelta;
+
+//        qDebug() << "XY (" << m_wind.x << "," << m_wind.y << ")"
+//                 << "Wind (" << wind.vx << "," << wind.vy << ")" << timeDelta;
+        // These are the 'world points'
+
+        cubeM = matrix;
+        cubeM.translate(wind.x, wind.y, 0);
+//        cubeM.scale(wind.vx, wind.vy, 0);
+        m_program->setUniformValue(m_matrixUniform, cubeM);
+        glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+
+        // Matrix inversion approach seems not to work. Not sure why
+        //        QVector3D glSpaceXYZ = inverse.map(QVector3D(xvp, yvp, -m_t));
+
+        //        qDebug()
+        //                << "Manual Screen (" << m_x << "," << m_y << ")"
+        //                << "vp(" << xvp << "," << yvp << ") "
+        //                   //                << "world(" << xw << "," <<  yw << ","<< -m_t<<")"
+        //                << "Matrix world("
+        //                << glSpaceXYZ.x() << "," <<  glSpaceXYZ.y() << ","<< glSpaceXYZ.z()<<")";
+
+        //        cubeM = matrix;
+        //        cubeM.translate(glSpaceXYZ);
+
+        //        m_program->setUniformValue(m_matrixUniform, cubeM);
+        //        glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+    }
+
     QList<GParticle>::iterator i;
     for (i = m_swarm.begin(); i != m_swarm.end(); ++i) {
-        i->update(TICK/1000.0);
+        i->update(TICK/1000.0, wind);
         m_program->setUniformValue(m_matrixUniform, i->matrix(matrix));
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
-
 
     glDisableVertexAttribArray(m_posAttr);
     glDisableVertexAttribArray(m_colAttr);
