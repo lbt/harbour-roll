@@ -20,7 +20,6 @@ Page {                                          id: page
             depth: dSlide.sliderValue
             numParticles: nSlide.sliderValue
             running : true
-            pressed: bgMA.pressed
             // this may need to be a state which handles animations between 270 and 0 correctly
             orientationInDegrees: (function() { switch(page.orientation) {
                 case Orientation.Landscape: return 270;
@@ -34,6 +33,8 @@ Page {                                          id: page
                 preventStealing: true
                 Connections {
                     onPositionChanged: aswarm.handlePositionChanged(mouse.x,mouse.y)
+                    onPressed: aswarm.handlePressed(mouse.x,mouse.y)
+                    onReleased: aswarm.handleReleased(mouse.x,mouse.y)
                 }
             }
         }

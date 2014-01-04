@@ -33,7 +33,6 @@ class Swarm : public GLItem
     Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
-    Q_PROPERTY(bool pressed READ pressed WRITE setPressed NOTIFY pressedChanged)
 
 public:
     explicit Swarm(QObject *parent = 0);
@@ -50,8 +49,6 @@ public:
     void setY(qreal y);
     bool running() const { return m_running; }
     void setRunning(bool running);
-    bool pressed() const { return p_pressed; }
-    void setPressed(bool pressed);
 
     void prep();
     void render();
@@ -67,7 +64,9 @@ signals:
 
 public slots:
     void sync();
+    void handlePressed(int x, int y);
     void handlePositionChanged(int x, int y);
+    void handleReleased(int x, int y);
     void handleOrientationChanged(int orientation);
 
 
@@ -86,6 +85,7 @@ private:
     qreal p_y;
     qreal m_lastx;
     qreal m_lasty;
+    qint64 m_XYdeltaTime;
     qreal m_thread_t;
     Model m_model;
     QList<GParticle> m_swarm;

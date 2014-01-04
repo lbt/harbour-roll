@@ -28,6 +28,7 @@ Swarm::Swarm(QObject *parent) :
   , m_wind({0,0,0,0})
   , m_lastWind({0,0,0,0})
 {
+    Q_UNUSED(parent)
     m_timer.setInterval(TICK);;
     for (int n=0; n<p_numParticles; n++ ) {
         m_swarm << GParticle(RADIUS - rnd(RADIUS/2.0), rnd(PI2), rnd(PI2),  // location
@@ -43,21 +44,6 @@ float Swarm::rnd(float max) {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max);
 }
 
-void Swarm::handlePositionChanged(int x, int y)
-{
-    if (x != p_x) {
-        p_x = x;
-        emit xChanged();
-    }
-    if (y != p_y) {
-        p_y = y;
-        emit yChanged();
-    }
-    if (!m_lastTime.isValid()) {
-        m_lastTime.start();
-        return;
-    }
-}
 void Swarm::handleOrientationChanged(int orientation) {
     m_orientationInDegrees=0;
     while ( orientation && !((1 << m_orientationInDegrees++) & orientation));
@@ -122,17 +108,36 @@ void Swarm::setY(qreal y)
     p_y = y;
     emit yChanged();
 }
-
-void Swarm::setPressed(bool pressed) {
-    if (pressed == p_pressed)
-        return;
-    p_pressed = pressed;
-    if (!p_pressed) {
-        m_lastTime.invalidate(); // set touch velocity timer off
-        m_wind.vx = 0;
-        m_wind.vy = 0;
+void Swarm::handlePositionChanged(int x, int y)
+{
+    m_lastx = x;
+    m_lasty = y;
+    m_XYdeltaTime = m_lastTime.restart();
+    if (x != p_x) {
+        p_x = x;
+        emit xChanged();
     }
-    emit pressedChanged();
+    if (y != p_y) {
+        p_y = y;
+        emit yChanged();
+    }
+}
+
+void Swarm::handlePressed(int x, int y) {
+    p_pressed = true;
+    m_lastTime.start(); // set touch velocity timer on when touched
+    p_x = x;
+    p_y = y;
+    m_XYdeltaTime = 0;
+}
+void Swarm::handleReleased(int x, int y) {
+    Q_UNUSED(x)
+    Q_UNUSED(y)
+    p_pressed = false;
+    m_lastTime.invalidate(); // set touch velocity timer off when released
+    m_wind.vx = 0;
+    m_wind.vy = 0;
+    m_XYdeltaTime = 0;
 }
 
 void Swarm::setRunning(bool running)
@@ -227,17 +232,17 @@ void Swarm::prep()
 
 void Swarm::render()
 {
-#define WIND_R 0.2
+#define WIND_R 0.1
 #define FOVY 70
 #define ASPECT (540.0/960.0)
 #define MAXV 1.5
     QMatrix4x4 matrix;
     // Invert the perspective matrix for mousemapping
-    bool wasInverted;
-    matrix.perspective(FOVY, ASPECT, 0.1, 100.0);
+    //    bool wasInverted;
+    matrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
     matrix.rotate(m_orientationInDegrees,0,0,1);
     matrix.translate(0, 0, p_depth); // This is essentially a camera translate...
-//    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
+    //    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
@@ -258,6 +263,7 @@ void Swarm::render()
     if (p_pressed) {
         // Some finger movement has started - where are we?
         // take X, Y, calculate the vpx and vpy
+        // This is broken for non-portrait orientation
         xvp = (p_x-(width()/2)) / (width()/2);
         yvp = ((height()/2)-p_y) / (height()/2);
 
@@ -272,9 +278,9 @@ void Swarm::render()
         // how big an area does the wind affect at depth
         wind_r = (WIND_R/f) * p_depth * -1;
     }
-    if (p_pressed and m_lastTime.isValid()) {
+    if (p_pressed and m_XYdeltaTime != 0) {
         // Some finger movement has happened - calculate some wind.
-        float timeDelta=m_lastTime.nsecsElapsed()/100000000.0;
+        float timeDelta=m_XYdeltaTime/100.0;
         m_wind.vx = (m_lastWind.x - m_wind.x) / timeDelta;
         m_wind.vy = (m_lastWind.y - m_wind.y) / timeDelta;
 
