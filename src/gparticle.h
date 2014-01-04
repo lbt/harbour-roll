@@ -19,7 +19,7 @@ public:
               float rvx, float ryv, float rzv,
               float scale);
 
-    void update(float dt, Wind w);
+    void update(float dt, Wind w, float wind_r);
     QMatrix4x4 matrix(QMatrix4x4 input);
     float x();
     float y();

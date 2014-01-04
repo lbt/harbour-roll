@@ -10,7 +10,7 @@
 #define PI 3.1415926535
 #define PI2 6.283185307
 
-#define COUNT 400
+#define COUNT 1
 
 #define TICK 17
 #define VMIN -1.0
@@ -18,20 +18,23 @@
 
 Swarm::Swarm(QObject *parent) :
     GLItem()
-  , m_t(0)
-  , m_x(0)
-  , m_y(0)
   , m_frame(0)
+  , p_numParticles(0)
+  , p_depth(0)
+  , p_x(0)
+  , p_y(0)
   , m_thread_t(0)
-  , m_pressed(false)
+  , p_pressed(false)
+  , m_wind({0,0,0,0})
+  , m_lastWind({0,0,0,0})
 {
-    m_timer.setInterval(TICK);
-    m_pcount = COUNT;
-    for (int n=0; n<m_pcount; n++ ) {
+    m_timer.setInterval(TICK);;
+    for (int n=0; n<p_numParticles; n++ ) {
         m_swarm << GParticle(RADIUS - rnd(RADIUS/2.0), rnd(PI2), rnd(PI2),  // location
-                             rnd(1.0), rnd(0.4), 1+rnd(3.0), // radius + angular velocity
-                             rnd(PI2), rnd(PI2), rnd(PI2),
-                             rnd(10), rnd(10), rnd(10),
+                             0, 0, 1+rnd(3.0), // radial + angular velocity
+                             //                             0, rnd(0.4), 1+rnd(3.0), // radial + angular velocity
+                             rnd(PI2), rnd(PI2), rnd(PI2), // initial orientation
+                             rnd(10), rnd(10), rnd(10), // tumble speed
                              rnd(0.3)
                              );
     }
@@ -40,35 +43,87 @@ float Swarm::rnd(float max) {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max);
 }
 
-void Swarm::setT(qreal t)
+void Swarm::handlePositionChanged(int x, int y)
 {
-    if (t == m_t)
+    if (x != p_x) {
+        p_x = x;
+        emit xChanged();
+    }
+    if (y != p_y) {
+        p_y = y;
+        emit yChanged();
+    }
+    if (!m_lastTime.isValid()) {
+        m_lastTime.start();
         return;
-    m_t = t;
-    emit tChanged();
+    }
+}
+void Swarm::handleOrientationChanged(int orientation) {
+    m_orientationInDegrees=0;
+    while ( orientation && !((1 << m_orientationInDegrees++) & orientation));
+    m_orientationInDegrees-=1;
+    m_orientationInDegrees = (4-m_orientationInDegrees) * 90;
+    qDebug() << "Orientation set to " << m_orientationInDegrees << " by " << orientation;
+}
+
+void Swarm::setNumParticles(int n)
+{
+    if (n<=0) return;
+    if (n == p_numParticles)
+        return;
+    m_swarmMutex.lock();
+    if (n > p_numParticles) {
+        for (int c=0; c<n-p_numParticles; c++ ) {
+            m_swarm << GParticle(RADIUS - rnd(RADIUS/2.0), rnd(PI2), rnd(PI2),  // location
+                                 0, 0, 1+rnd(3.0), // radial + angular velocity
+                                 //                             0, rnd(0.4), 1+rnd(3.0), // radial + angular velocity
+                                 rnd(PI2), rnd(PI2), rnd(PI2), // initial orientation
+                                 rnd(10), rnd(10), rnd(10), // tumble speed
+                                 rnd(0.3)
+                                 );
+        }
+    } else {
+        while (m_swarm.size() > n) {
+
+            m_swarm.removeAt(rand() % (m_swarm.size()-1));
+        }
+    }
+    m_swarmMutex.unlock();
+    p_numParticles = n;
+    qDebug() << "Particles now " << m_swarm.size() << " == " << n;
+    emit numParticlesChanged();
+}
+void Swarm::setDepth(qreal d)
+{
+    if (d == p_depth)
+        return;
+    p_depth = d;
+    emit depthChanged();
 }
 void Swarm::setX(qreal x)
 {
-    if (x == m_x)
+    if (x == p_x)
         return;
-    m_x = x;
+    p_x = x;
     emit xChanged();
 }
 void Swarm::setY(qreal y)
 {
-    if (y == m_y)
+    if (y == p_y)
         return;
-    m_y = y;
+    p_y = y;
     emit yChanged();
 }
 
-void Swarm::setPressed(bool pressed)
-{
-    if (pressed == m_pressed)
+void Swarm::setPressed(bool pressed) {
+    if (pressed == p_pressed)
         return;
-    m_pressed = pressed;
-    if (!m_pressed)
+    p_pressed = pressed;
+    if (!p_pressed) {
         m_lastTime.invalidate(); // set touch velocity timer off
+        m_wind.vx = 0;
+        m_wind.vy = 0;
+    }
     emit pressedChanged();
 }
 
@@ -82,8 +137,6 @@ void Swarm::setRunning(bool running)
         m_timer.stop();
     emit runningChanged();
 }
-
-
 
 void Swarm::prep()
 {
@@ -166,14 +219,17 @@ void Swarm::prep()
 
 void Swarm::render()
 {
-#define FOVY 60
+#define WIND_R 0.2
+#define FOVY 70
 #define ASPECT (540.0/960.0)
+#define MAXV 1.5
     QMatrix4x4 matrix;
     // Invert the perspective matrix for mousemapping
     bool wasInverted;
     matrix.perspective(FOVY, ASPECT, 0.1, 100.0);
-    matrix.translate(0, 0, m_t); // This is essentially a camera translate...
-    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
+    matrix.rotate(m_orientationInDegrees,0,0,1);
+    matrix.translate(0, 0, p_depth); // This is essentially a camera translate...
+//    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
@@ -187,32 +243,46 @@ void Swarm::render()
     glEnableVertexAttribArray(m_posAttr);
     glEnableVertexAttribArray(m_colAttr);
 
-    GParticle::Wind wind = {0,0,0,0};
-//    if (m_pressed and m_lastTime.isValid()) {
-    if (m_pressed) {
-        QMatrix4x4 cubeM ;
+    float xvp,yvp,f;
+    float wind_r = 0;
+    m_wind.y = 0;
+    m_wind.x = 0;
+    if (p_pressed) {
+        // Some finger movement has started - where are we?
         // take X, Y, calculate the vpx and vpy
-        float xvp = (m_x-(width()/2)) / (width()/2);
-        float yvp = ((height()/2)-m_y) / (height()/2);
+        xvp = (p_x-(width()/2)) / (width()/2);
+        yvp = ((height()/2)-p_y) / (height()/2);
 
         // We've moved the world in by m_t so scale
 
-        float f = 1/tan((FOVY/2)*PI/180);
+        f = 1/tan((FOVY/2)*PI/180);
 
-        wind.y = (yvp/f) * m_t * -1;
-        wind.x = (xvp/f) * m_t * ASPECT * -1;
+        m_wind.y = (yvp/f) * p_depth * -1;
+        m_wind.x = (xvp/f) * p_depth * ASPECT * -1;
+        m_wind.vx = 0;
+        m_wind.vy = 0;
+        // how big an area does the wind affect at depth
+        wind_r = (WIND_R/f) * p_depth * -1;
+    }
+    if (p_pressed and m_lastTime.isValid()) {
+        // Some finger movement has happened - calculate some wind.
+        float timeDelta=m_lastTime.nsecsElapsed()/100000000.0;
+        m_wind.vx = (m_lastWind.x - m_wind.x) / timeDelta;
+        m_wind.vy = (m_lastWind.y - m_wind.y) / timeDelta;
 
-        int timeDelta=m_lastTime.nsecsElapsed();
-        wind.vx = (m_lastx - wind.x) / timeDelta;
-        wind.vy = (m_lasty - wind.y) / timeDelta;
+        qDebug() << "XY (" << m_wind.x << "," << m_wind.y << ")"
+                 << "Wind (" << m_wind.vx << "," << m_wind.vy << ")" << timeDelta;
+        if (m_wind.vx > MAXV) m_wind.vx = MAXV;
+        if (m_wind.vx < -MAXV) m_wind.vx = -MAXV;
+        if (m_wind.vy > MAXV) m_wind.vy = MAXV;
+        if (m_wind.vy < -MAXV) m_wind.vy = -MAXV;
 
-//        qDebug() << "XY (" << m_wind.x << "," << m_wind.y << ")"
-//                 << "Wind (" << wind.vx << "," << wind.vy << ")" << timeDelta;
         // These are the 'world points'
 
+        QMatrix4x4 cubeM ;
         cubeM = matrix;
-        cubeM.translate(wind.x, wind.y, 0);
-//        cubeM.scale(wind.vx, wind.vy, 0);
+        cubeM.translate(m_wind.x, m_wind.y, 0);
+        //        cubeM.scale(m_wind.vx, m_wind.vy, 0);
         m_program->setUniformValue(m_matrixUniform, cubeM);
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
 
@@ -233,13 +303,21 @@ void Swarm::render()
         //        glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
 
+    // Update and draw the particles.
+    m_swarmMutex.lock();
     QList<GParticle>::iterator i;
     for (i = m_swarm.begin(); i != m_swarm.end(); ++i) {
-        i->update(TICK/1000.0, wind);
+        i->update(TICK/1000.0, m_wind, wind_r );
         m_program->setUniformValue(m_matrixUniform, i->matrix(matrix));
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
-
+    m_swarmMutex.unlock();
+    if (p_pressed) {
+        m_lastWind.x = m_wind.x;
+        m_lastWind.y = m_wind.y;
+        m_lastWind.vx = m_wind.vx;
+        m_lastWind.vy = m_wind.vy;
+    }
     glDisableVertexAttribArray(m_posAttr);
     glDisableVertexAttribArray(m_colAttr);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

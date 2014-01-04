@@ -13,17 +13,19 @@ Page {
         anchors.fill: parent
 
         Button {
+            anchors.horizontalCenter: parent.horizontalCenter
             text:"Cube"
             onClicked: pageStack.push("CubePage.qml")
         }
         Button {
+            anchors.horizontalCenter: parent.horizontalCenter
             text:"Flakes"
             onClicked: pageStack.push("FlakesPage.qml")
         }
         Button {
+            anchors.horizontalCenter: parent.horizontalCenter
             text:"Swarm"
             onClicked: pageStack.push("SwarmPage.qml")
         }
     }
-
 }
