@@ -65,6 +65,14 @@ void Swarm::handleOrientationChanged(int orientation) {
     m_orientationInDegrees = (4-m_orientationInDegrees) * 90;
     qDebug() << "Orientation set to " << m_orientationInDegrees << " by " << orientation;
 }
+void Swarm::setOrientationInDegrees(int d)
+{
+    if (d == p_orientationInDegrees)
+        return;
+    p_orientationInDegrees = d;
+    m_orientationInDegrees = p_orientationInDegrees;
+    emit orientationInDegreesChanged();
+}
 
 void Swarm::setNumParticles(int n)
 {

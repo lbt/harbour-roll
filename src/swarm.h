@@ -29,6 +29,7 @@ class Swarm : public GLItem
 
     Q_PROPERTY(int numParticles READ numParticles WRITE setNumParticles NOTIFY numParticlesChanged)
     Q_PROPERTY(qreal depth READ depth WRITE setDepth NOTIFY depthChanged)
+    Q_PROPERTY(int orientationInDegrees READ orientationInDegrees WRITE setOrientationInDegrees NOTIFY orientationInDegreesChanged)
     Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
@@ -41,6 +42,8 @@ public:
     void setNumParticles(int numParticles);
     qreal depth() const { return p_depth; }
     void setDepth(qreal depth);
+    int orientationInDegrees() const { return p_orientationInDegrees; }
+    void setOrientationInDegrees(int orientationInDegrees);
     qreal x() const { return p_x; }
     void setX(qreal x);
     qreal y() const { return p_y; }
@@ -56,6 +59,7 @@ public:
 signals:
     void numParticlesChanged();
     void depthChanged();
+    void orientationInDegreesChanged();
     void xChanged();
     void yChanged();
     void runningChanged();
@@ -74,6 +78,7 @@ private:
     QMatrix4x4 m_currMatrix;
     int m_frame;
     int m_orientationInDegrees;
+    int p_orientationInDegrees;
     GLuint m_vboIds[2];
     int p_numParticles;
     qreal p_depth;
