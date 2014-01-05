@@ -8,6 +8,8 @@
 #         - icon definition filename in desktop file must be changed
 TARGET = harbour-snowglobe
 
+QT += sensors
+
 CONFIG += sailfishapp
 
 SOURCES += src/harbour-snowglobe.cpp \

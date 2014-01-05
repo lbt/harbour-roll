@@ -28,7 +28,7 @@ GParticle::GParticle(float radius, float theta, float phi,
 #define RADIUS 5.0
 #define PI 3.14159265
 #define PI180 (180/PI)
-#define DECEL 0.99
+#define DECEL 0.999
 void GParticle::update(float deltaTime, Wind w, float wind_r){
 
 #define MAXV 10.0

@@ -41,6 +41,7 @@ Swarm::Swarm(QObject *parent) :
                              rnd(0.3)
                              );
     }
+    m_sensor.start();
 }
 float Swarm::rnd(float max) {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max);
@@ -357,6 +358,18 @@ void Swarm::render()
         //        glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
 
+
+    // Some accel based colour
+    QAccelerometerReading *reading = m_sensor.reading();
+    qreal r = reading->x()/10.0;
+    qreal g = reading->y()/10.0;
+    qreal b = reading->z()/10.0;
+
+//    qDebug() << "colour (" << r <<","
+//             << g<< ","
+//             << b <<","
+//             << 1.0 << ")";
+
     // Update and draw the particles.
     m_swarmMutex.lock();
     QList<GParticle>::iterator i;
@@ -364,14 +377,12 @@ void Swarm::render()
     for (i = m_swarm.begin(); i != m_swarm.end(); ++i,++modelN) {
 
         i->update(TICK/1000.0, m_wind, wind_r );
-        m_program->setUniformValue(m_modelCol_U, QVector4D(((modelN%10) + 1)*0.1,
-                                                           (((modelN/10)%10) +1)*0.1,
-                                                           (((modelN/100)%10) +1)*0.1,
-                                                           0.5));
-        //        qDebug() << "colour (" << ((modelN%10) + ) * 0.1) <<","
-        //                 << (((modelN/10)%10) +1) << ","
-        //                 << (((modelN/100)%10) +1) <<","
-        //                 << 1.0 << ")";
+        m_program->setUniformValue(m_modelCol_U, QVector4D(r,g,b, 0.5));
+//        m_program->setUniformValue(m_modelCol_U, QVector4D(((modelN%10) + 1)*0.1,
+//                                                           (((modelN/10)%10) +1)*0.1,
+//                                                           (((modelN/100)%10) +1)*0.1,
+//                                                           0.5));
+
         m_program->setUniformValue(m_matrixUniform, i->matrix(matrix));
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }

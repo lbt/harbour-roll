@@ -5,7 +5,7 @@ import Sailfish.Silica 1.0
 import Swarm 1.0
 
 Page {                                          id: page
-    allowedOrientations: Orientation.All
+//    allowedOrientations: Orientation.All
     Rectangle {
         //        contentHeight: childrenRect.height
         anchors.bottom: parent.bottom

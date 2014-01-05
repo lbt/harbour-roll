@@ -12,5 +12,5 @@ varying lowp vec4 col;
 
 void main() {
 //    gl_FragColor = col;
-    gl_FragColor = texture2D(texture, v_texcoord)+vec4(0.2,0.2,0.2,1.0);
+    gl_FragColor = (texture2D(texture, v_texcoord)+vec4(0.2,0.2,0.2,1.0))*col;
 }

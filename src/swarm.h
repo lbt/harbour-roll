@@ -8,6 +8,8 @@
 #include <QMouseEvent>
 #include <QMutex>
 #include <QSGTexture>
+#include <QtSensors/QAccelerometer>
+
 
 class Swarm : public GLItem
 {
@@ -103,6 +105,7 @@ private:
     GParticle::Wind m_lastWind;
     QElapsedTimer m_lastTime;
 
+    QAccelerometer m_sensor;
 };
 
 #endif // SWARM_H

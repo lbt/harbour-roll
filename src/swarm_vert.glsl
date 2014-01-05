@@ -15,6 +15,8 @@ struct DirectionalLight
 {
     vec3 Color;
     float AmbientIntensity;
+    vec3 Direction;
+    float DiffuseIntensity;
 };
 
 uniform DirectionalLight gDirectionalLight;
@@ -24,10 +26,10 @@ varying vec2 v_texcoord;
 
 void main() {
 //    col = colAttr;
-//    col = modelCol;
+    col = modelCol;
     gl_Position = matrix * posAttr;
-    highp vec4 pos = clamp(gl_Position, 0.0, 1.0);
-    col = clamp(pos, 0.0, 1.0);
+//    highp vec4 pos = clamp(gl_Position, 0.0, 1.0);
+//    col = clamp(pos, 0.0, 1.0);
 //    col = modelCol;
     // Pass texture coordinate to fragment shader
     // Value will be automatically interpolated to fragments inside polygon faces
