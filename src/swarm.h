@@ -7,6 +7,7 @@
 #include <QElapsedTimer>
 #include <QMouseEvent>
 #include <QMutex>
+#include <QSGTexture>
 
 class Swarm : public GLItem
 {
@@ -74,11 +75,15 @@ private:
     GLuint m_posAttr;
     GLuint m_colAttr;
     GLuint m_matrixUniform;
+    GLuint m_modelCol_U;
     QMatrix4x4 m_currMatrix;
+    GLuint m_vboIds[2];
+    QSGTexture *m_texture;
+    QOpenGLShaderProgram *m_programPointer;
+
     int m_frame;
     int m_orientationInDegrees;
     int p_orientationInDegrees;
-    GLuint m_vboIds[2];
     int p_numParticles;
     qreal p_depth;
     qreal p_x;

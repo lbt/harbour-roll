@@ -2,6 +2,8 @@
 #include <QtQuick/qquickwindow.h>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLContext>
+#include <QImage>
+
 #include <sailfishapp.h>
 
 #include "math.h"
@@ -156,6 +158,8 @@ void Swarm::prep()
     // we don't have a window to connect the timer to until now
     connect(&m_timer, SIGNAL(timeout()), this->window(), SLOT(update()) );
 
+    m_programPointer = new QOpenGLShaderProgram();
+
     // prep must add and link any shaders
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex,
                                        SailfishApp::pathTo("swarm_vert.glsl").toLocalFile());
@@ -172,6 +176,7 @@ void Swarm::prep()
     m_posAttr = m_program->attributeLocation("posAttr");
     m_colAttr = m_program->attributeLocation("colAttr");
     m_matrixUniform = m_program->uniformLocation("matrix");
+    m_modelCol_U = m_program->uniformLocation("modelCol");
 
     // and then prepare any one-time data like VBOs
     glGenBuffers(2, m_vboIds);
@@ -228,6 +233,32 @@ void Swarm::prep()
     glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(VertexData), vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 34 * sizeof(GLushort), indices, GL_STATIC_DRAW);
+
+    // Load cube.png image
+    glEnable(GL_TEXTURE_2D);
+    m_texture = window()->
+                createTextureFromImage(QImage(SailfishApp::pathTo("cube.png")
+                                                .toLocalFile()));
+    if (m_texture->isAtlasTexture()) {
+        qDebug() << "Removed texture from Atlas";
+        m_texture = m_texture->removedFromAtlas();
+    }
+
+    m_texture->setFiltering(QSGTexture::Linear);
+    m_texture->setHorizontalWrapMode(QSGTexture::Repeat);
+    m_texture->setVerticalWrapMode(QSGTexture::Repeat);
+
+    // Set nearest filtering mode for texture minification
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // Set bilinear filtering mode for texture magnification
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Wrap texture coordinates by repeating
+    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
 }
 
 void Swarm::render()
@@ -243,6 +274,11 @@ void Swarm::render()
     matrix.rotate(m_orientationInDegrees,0,0,1);
     matrix.translate(0, 0, p_depth); // This is essentially a camera translate...
     //    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
+
+    // Bind the texture
+    m_texture->bind();
+    // Use texture unit 0 which contains cube.png
+    m_program->setUniformValue("texture", 0);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
@@ -298,6 +334,10 @@ void Swarm::render()
         cubeM.translate(m_wind.x, m_wind.y, 0);
         //        cubeM.scale(m_wind.vx, m_wind.vy, 0);
         m_program->setUniformValue(m_matrixUniform, cubeM);
+        m_program->setUniformValue(m_modelCol_U, QVector4D(1.0,
+                                                           0,
+                                                           0,
+                                                           1.0));
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
 
         // Matrix inversion approach seems not to work. Not sure why
@@ -320,8 +360,18 @@ void Swarm::render()
     // Update and draw the particles.
     m_swarmMutex.lock();
     QList<GParticle>::iterator i;
-    for (i = m_swarm.begin(); i != m_swarm.end(); ++i) {
+    int modelN=0;
+    for (i = m_swarm.begin(); i != m_swarm.end(); ++i,++modelN) {
+
         i->update(TICK/1000.0, m_wind, wind_r );
+        m_program->setUniformValue(m_modelCol_U, QVector4D(((modelN%10) + 1)*0.1,
+                                                           (((modelN/10)%10) +1)*0.1,
+                                                           (((modelN/100)%10) +1)*0.1,
+                                                           0.5));
+        //        qDebug() << "colour (" << ((modelN%10) + ) * 0.1) <<","
+        //                 << (((modelN/10)%10) +1) << ","
+        //                 << (((modelN/100)%10) +1) <<","
+        //                 << 1.0 << ")";
         m_program->setUniformValue(m_matrixUniform, i->matrix(matrix));
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }

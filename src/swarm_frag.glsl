@@ -6,8 +6,11 @@
 //    i = floor(i * 20.) / 20.;
 //    gl_FragColor = vec4(coords * .5 + .5, i, i);
 //}
-
+uniform sampler2D texture;
+varying vec2 v_texcoord;
 varying lowp vec4 col;
+
 void main() {
-    gl_FragColor = col;
+//    gl_FragColor = col;
+    gl_FragColor = texture2D(texture, v_texcoord)+vec4(0.2,0.2,0.2,1.0);
 }
