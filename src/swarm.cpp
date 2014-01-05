@@ -176,10 +176,18 @@ void Swarm::prep()
     }
 
     m_pos_A = m_program->attributeLocation("posA");
-    m_col_A = m_program->attributeLocation("colA");
+    m_tex_A = m_program->attributeLocation("texA");
     m_normal_A = m_program->attributeLocation("normalA");
-    m_matrixUniform = m_program->uniformLocation("matrixU");
-    m_modelCol_U = m_program->uniformLocation("modelColU");
+
+    m_modelMatrix_U = m_program->uniformLocation("modelMatrixU");
+    m_worldMatrix_U = m_program->uniformLocation("worldMatrixU");
+    //m_modelCol_U = m_program->uniformLocation("modelColU");
+//    m_texture_U = m_program->uniformLocation("textureU");
+
+    m_directionalLight_Color_U = m_program->uniformLocation("directionalLightU.Color");
+    m_directionalLight_AmbientIntensity_U = m_program->uniformLocation("directionalLightU.AmbientIntensity");
+    m_directionalLight_Direction_U = m_program->uniformLocation("directionalLightU.Direction");
+    m_directionalLight_DiffuseIntensity_U = m_program->uniformLocation("directionalLightU.DiffuseIntensity");
 
     // and then prepare any one-time data like VBOs
     glGenBuffers(2, m_vboIds);
@@ -243,22 +251,29 @@ void Swarm::render()
     matrix.translate(0, 0, p_depth); // This is essentially a camera translate...
     //    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
 
+    // This is not the worldMatrix for this frame (I think)
+    m_program->setUniformValue(m_worldMatrix_U, matrix);
+
     // Bind the texture
     m_texture->bind();
     // Use texture unit 0 which contains cube.png
-    m_program->setUniformValue("texture", 0);
+//    m_program->setUniformValue("textureU", 0);
+    m_program->setUniformValue("textureU", 0);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
 
-    // Because we're using VBOs this is pointer into them
+    // Because we're using VBOs for vertex, tex and normals this is pointer into them
     glVertexAttribPointer(m_pos_A, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
                           (const void *)VertexData_0);
-    glVertexAttribPointer(m_col_A, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+    glVertexAttribPointer(m_tex_A, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData),
                           (const void *)VertexData_1);
+    glVertexAttribPointer(m_normal_A, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+                          (const void *)VertexData_2);
 
     glEnableVertexAttribArray(m_pos_A);
-    glEnableVertexAttribArray(m_col_A);
+    glEnableVertexAttribArray(m_tex_A);
+    glEnableVertexAttribArray(m_normal_A);
 
     float xvp,yvp,f;
     float wind_r = 0;
@@ -301,7 +316,7 @@ void Swarm::render()
         cubeM = matrix;
         cubeM.translate(m_wind.x, m_wind.y, 0);
         //        cubeM.scale(m_wind.vx, m_wind.vy, 0);
-        m_program->setUniformValue(m_matrixUniform, cubeM);
+        m_program->setUniformValue(m_modelMatrix_U, cubeM);
         m_program->setUniformValue(m_modelCol_U, QVector4D(1.0,
                                                            0,
                                                            0,
@@ -326,40 +341,41 @@ void Swarm::render()
     }
 
 
-    // Some accel based colour
-    QAccelerometerReading *reading = m_sensor.reading();
-    qreal r = reading->x()/10.0;
-    qreal g = reading->y()/10.0;
-    qreal b = reading->z()/10.0;
 
 
-    struct DirectionalLight
-    {
-        QVector3D Color;
-        qreal AmbientIntensity;
-        QVector3D Direction;
-        qreal DiffuseIntensity;
-    };
 
 //    qDebug() << "colour (" << r <<","
 //             << g<< ","
 //             << b <<","
 //             << 1.0 << ")";
 
+    // Some accel based colour
+    QAccelerometerReading *reading = m_sensor.reading();
+
+    DirectionalLight aLight;
+    aLight.Color = QVector3D(reading->x()/10.0, reading->y()/10.0, reading->z()/10.0);
+    aLight.AmbientIntensity = 0.5;
+    aLight.Direction = QVector3D(0.5, 0.5, 0.5);
+    aLight.DiffuseIntensity = 0.8;
+    m_program->setUniformValue(m_directionalLight_Color_U, aLight.Color);
+    m_program->setUniformValue(m_directionalLight_AmbientIntensity_U, aLight.AmbientIntensity);
+    m_program->setUniformValue(m_directionalLight_Direction_U, aLight.Direction);
+    m_program->setUniformValue(m_directionalLight_DiffuseIntensity_U, aLight.DiffuseIntensity);
+
     // Update and draw the particles.
+
     m_swarmMutex.lock();
     QList<GParticle>::iterator i;
     int modelN=0;
     for (i = m_swarm.begin(); i != m_swarm.end(); ++i,++modelN) {
 
         i->update(TICK/1000.0, m_wind, wind_r );
-        m_program->setUniformValue(m_modelCol_U, QVector4D(r,g,b, 0.5));
 //        m_program->setUniformValue(m_modelCol_U, QVector4D(((modelN%10) + 1)*0.1,
 //                                                           (((modelN/10)%10) +1)*0.1,
 //                                                           (((modelN/100)%10) +1)*0.1,
 //                                                           0.5));
 
-        m_program->setUniformValue(m_matrixUniform, i->matrix(matrix));
+        m_program->setUniformValue(m_modelMatrix_U, i->matrix(matrix));
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
     m_swarmMutex.unlock();
@@ -370,7 +386,8 @@ void Swarm::render()
         m_lastWind.vy = m_wind.vy;
     }
     glDisableVertexAttribArray(m_pos_A);
-    glDisableVertexAttribArray(m_col_A);
+    glDisableVertexAttribArray(m_tex_A);
+    glDisableVertexAttribArray(m_normal_A);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     //    glClearDepthf(0.0);

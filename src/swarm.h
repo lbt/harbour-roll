@@ -21,15 +21,22 @@ class Swarm : public GLItem
         QVector3D position;
 #define VertexData_1 (sizeof(QVector3D))
         QVector2D texCoord;
-#define VertexData_2 (Vertex_Data_2+sizeof(QVector2D))
+#define VertexData_2 (VertexData_1+sizeof(QVector2D))
         QVector3D normal;
-#define VertexData_3 (sizeof(QVector3D))
+#define VertexData_3 (VertexData_2+sizeof(QVector3D))
     };
 
     struct Model
     {
         VertexData* vertices;
         GLushort* indices;
+    };
+    struct DirectionalLight
+    {
+        QVector3D Color;
+        qreal AmbientIntensity;
+        QVector3D Direction;
+        qreal DiffuseIntensity;
     };
 
     Q_PROPERTY(int numParticles READ numParticles WRITE setNumParticles NOTIFY numParticlesChanged)
@@ -77,10 +84,16 @@ public slots:
 
 private:
     GLuint m_pos_A;
-    GLuint m_col_A;
+    GLuint m_tex_A;
     GLuint m_normal_A;
-    GLuint m_matrixUniform;
+    GLuint m_modelMatrix_U;
+    GLuint m_worldMatrix_U;
+    GLuint m_directionalLight_Color_U;
+    GLuint m_directionalLight_AmbientIntensity_U;
+    GLuint m_directionalLight_Direction_U;
+    GLuint m_directionalLight_DiffuseIntensity_U;
     GLuint m_modelCol_U;
+    GLuint m_texture_U;
     QMatrix4x4 m_currMatrix;
     GLuint m_vboIds[2];
     QSGTexture *m_texture;

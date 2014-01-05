@@ -5,33 +5,30 @@
 //    coords = vertices.xy;
 //}
 
-attribute highp vec4 posA;
-attribute lowp vec2 colA;
-varying lowp vec4 col;
-uniform highp mat4 matrixU;
-uniform lowp vec4 modelColU;
+// These attributes are set in the GL_ARRAY_BUFFER
+attribute highp vec3 posA;
+attribute lowp vec2 texA;
+attribute lowp vec3 normalA;
 
-struct DirectionalLight
-{
-    vec3 Color;
-    float AmbientIntensity;
-    vec3 Direction;
-    float DiffuseIntensity;
-};
+uniform highp mat4 modelMatrixU;
+uniform highp mat4 worldMatrixU;
+//uniform lowp vec4 modelColU;
 
-uniform DirectionalLight gDirectionalLight;
-
-varying vec2 v_texcoord;
-
+varying lowp vec2 texcoordV;
+varying lowp vec3 normalV;
+varying lowp vec4 colV;
 
 void main() {
 //    col = colA;
-    col = modelColU;
-    gl_Position = matrixU * posA;
+//    col = modelColU;
+    gl_Position = modelMatrixU * vec4(posA, 1.0);
 //    highp vec4 pos = clamp(gl_Position, 0.0, 1.0);
 //    col = clamp(poAs, 0.0, 1.0);
 //    col = modelColU;
+
     // Pass texture coordinate to fragment shader
     // Value will be automatically interpolated to fragments inside polygon faces
-    v_texcoord = colA;
+    texcoordV = texA;
+    normalV = vec3(worldMatrixU * vec4(normalA, 0.0));
+//    normalV = vec3(0.0,0.0,0.0);
 }
