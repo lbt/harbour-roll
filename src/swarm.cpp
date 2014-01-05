@@ -354,7 +354,7 @@ void Swarm::render()
 
     DirectionalLight aLight;
     aLight.Color = QVector3D(reading->x()/10.0, reading->y()/10.0, reading->z()/10.0);
-    aLight.AmbientIntensity = 0.5;
+    aLight.AmbientIntensity = 0.1;
     aLight.Direction = QVector3D(0.5, 0.5, 0.5);
     aLight.DiffuseIntensity = 0.8;
     m_program->setUniformValue(m_directionalLight_Color_U, aLight.Color);

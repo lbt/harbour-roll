@@ -29,6 +29,6 @@ void main() {
     // Pass texture coordinate to fragment shader
     // Value will be automatically interpolated to fragments inside polygon faces
     texcoordV = texA;
-    normalV = vec3(worldMatrixU * vec4(normalA, 0.0));
+    normalV = vec3(modelMatrixU * vec4(normalA, 0.0));
 //    normalV = vec3(0.0,0.0,0.0);
 }

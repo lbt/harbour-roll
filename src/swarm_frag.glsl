@@ -24,12 +24,12 @@ varying lowp vec4 colV;
 void main() {
     //    gl_FragColor = col;
 
-    lowp vec4 ambientColor = vec4(directionalLightU.Color, 1.0) * directionalLightU.AmbientIntensity;
+    lowp vec4 ambientColor = vec4(directionalLightU.Color * directionalLightU.AmbientIntensity, 1.0);
     float diffuseFactor = dot(normalize(normalV), -directionalLightU.Direction);
 
     lowp vec4 diffuseColor;
     if (diffuseFactor > 0.0) {
-        diffuseColor = vec4(directionalLightU.Color, 1.0) * directionalLightU.DiffuseIntensity * diffuseFactor;
+        diffuseColor = vec4(directionalLightU.Color * directionalLightU.DiffuseIntensity * diffuseFactor, 1.0);
     }
     else {
         diffuseColor = vec4(0.0, 0.0, 0.0, 0.0);
