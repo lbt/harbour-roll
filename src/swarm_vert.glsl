@@ -5,11 +5,11 @@
 //    coords = vertices.xy;
 //}
 
-attribute highp vec4 posAttr;
-attribute lowp vec2 colAttr;
+attribute highp vec4 posA;
+attribute lowp vec2 colA;
 varying lowp vec4 col;
-uniform highp mat4 matrix;
-uniform lowp vec4 modelCol;
+uniform highp mat4 matrixU;
+uniform lowp vec4 modelColU;
 
 struct DirectionalLight
 {
@@ -25,13 +25,13 @@ varying vec2 v_texcoord;
 
 
 void main() {
-//    col = colAttr;
-    col = modelCol;
-    gl_Position = matrix * posAttr;
+//    col = colA;
+    col = modelColU;
+    gl_Position = matrixU * posA;
 //    highp vec4 pos = clamp(gl_Position, 0.0, 1.0);
-//    col = clamp(pos, 0.0, 1.0);
-//    col = modelCol;
+//    col = clamp(poAs, 0.0, 1.0);
+//    col = modelColU;
     // Pass texture coordinate to fragment shader
     // Value will be automatically interpolated to fragments inside polygon faces
-    v_texcoord = colAttr;
+    v_texcoord = colA;
 }

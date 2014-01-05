@@ -3,6 +3,7 @@
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLContext>
 #include <QImage>
+#include <QVector3D>
 
 #include <sailfishapp.h>
 
@@ -174,52 +175,18 @@ void Swarm::prep()
         qDebug() << "Linking failed\n" << m_program->log();
     }
 
-    m_posAttr = m_program->attributeLocation("posAttr");
-    m_colAttr = m_program->attributeLocation("colAttr");
-    m_matrixUniform = m_program->uniformLocation("matrix");
-    m_modelCol_U = m_program->uniformLocation("modelCol");
+    m_pos_A = m_program->attributeLocation("posA");
+    m_col_A = m_program->attributeLocation("colA");
+    m_normal_A = m_program->attributeLocation("normalA");
+    m_matrixUniform = m_program->uniformLocation("matrixU");
+    m_modelCol_U = m_program->uniformLocation("modelColU");
 
     // and then prepare any one-time data like VBOs
     glGenBuffers(2, m_vboIds);
 
 
     VertexData vertices[] = {
-        // Vertex data for face 0
-        {QVector3D( VMIN,  VMIN,  VMAX), QVector2D(0.0, 0.0)},  // v0
-        {QVector3D( VMAX,  VMIN,  VMAX), QVector2D(0.33, 0.0)}, // v1
-        {QVector3D( VMIN,  VMAX,  VMAX), QVector2D(0.0, 0.5)},  // v2
-        {QVector3D( VMAX,  VMAX,  VMAX), QVector2D(0.33, 0.5)}, // v3
-
-        // Vertex data for face 1
-        {QVector3D( VMAX,  VMIN,  VMAX), QVector2D( 0.0, 0.5)}, // v4
-        {QVector3D( VMAX,  VMIN,  VMIN), QVector2D(0.33, 0.5)}, // v5
-        {QVector3D( VMAX,  VMAX,  VMAX), QVector2D(0.0, 1.0)},  // v6
-        {QVector3D( VMAX,  VMAX,  VMIN), QVector2D(0.33, 1.0)}, // v7
-
-        // Vertex data for face 2
-        {QVector3D( VMAX,  VMIN,  VMIN), QVector2D(0.66, 0.5)}, // v8
-        {QVector3D( VMIN,  VMIN,  VMIN), QVector2D(1.0, 0.5)},  // v9
-        {QVector3D( VMAX,  VMAX,  VMIN), QVector2D(0.66, 1.0)}, // v10
-        {QVector3D( VMIN,  VMAX,  VMIN), QVector2D(1.0, 1.0)},  // v11
-
-        // Vertex data for face 3
-        {QVector3D( VMIN,  VMIN,  VMIN), QVector2D(0.66, 0.0)}, // v12
-        {QVector3D( VMIN,  VMIN,  VMAX), QVector2D(1.0, 0.0)},  // v13
-        {QVector3D( VMIN,  VMAX,  VMIN), QVector2D(0.66, 0.5)}, // v14
-        {QVector3D( VMIN,  VMAX,  VMAX), QVector2D(1.0, 0.5)},  // v15
-
-        // Vertex data for face 4
-        {QVector3D( VMIN,  VMIN,  VMIN), QVector2D(0.33, 0.0)}, // v16
-        {QVector3D( VMAX,  VMIN,  VMIN), QVector2D(0.66, 0.0)}, // v17
-        {QVector3D( VMIN,  VMIN,  VMAX), QVector2D(0.33, 0.5)}, // v18
-        {QVector3D( VMAX,  VMIN,  VMAX), QVector2D(0.66, 0.5)}, // v19
-
-        // Vertex data for face 5
-        {QVector3D( VMIN,  VMAX,  VMAX), QVector2D(0.33, 0.5)}, // v20
-        {QVector3D( VMAX,  VMAX,  VMAX), QVector2D(0.66, 0.5)}, // v21
-        {QVector3D( VMIN,  VMAX,  VMIN), QVector2D(0.33, 1.0)}, // v22
-        {QVector3D( VMAX,  VMAX,  VMIN), QVector2D(0.66, 1.0)}, // v23
-
+#include "cube_vertices_vec_tex_norm.data"
     };
     GLushort indices[] = {
         0,  1,  2,  3,  3,     // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
@@ -285,13 +252,13 @@ void Swarm::render()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
 
     // Because we're using VBOs this is pointer into them
-    glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+    glVertexAttribPointer(m_pos_A, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
                           (const void *)VertexData_0);
-    glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+    glVertexAttribPointer(m_col_A, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
                           (const void *)VertexData_1);
 
-    glEnableVertexAttribArray(m_posAttr);
-    glEnableVertexAttribArray(m_colAttr);
+    glEnableVertexAttribArray(m_pos_A);
+    glEnableVertexAttribArray(m_col_A);
 
     float xvp,yvp,f;
     float wind_r = 0;
@@ -365,6 +332,15 @@ void Swarm::render()
     qreal g = reading->y()/10.0;
     qreal b = reading->z()/10.0;
 
+
+    struct DirectionalLight
+    {
+        QVector3D Color;
+        qreal AmbientIntensity;
+        QVector3D Direction;
+        qreal DiffuseIntensity;
+    };
+
 //    qDebug() << "colour (" << r <<","
 //             << g<< ","
 //             << b <<","
@@ -393,8 +369,8 @@ void Swarm::render()
         m_lastWind.vx = m_wind.vx;
         m_lastWind.vy = m_wind.vy;
     }
-    glDisableVertexAttribArray(m_posAttr);
-    glDisableVertexAttribArray(m_colAttr);
+    glDisableVertexAttribArray(m_pos_A);
+    glDisableVertexAttribArray(m_col_A);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     //    glClearDepthf(0.0);

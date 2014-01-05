@@ -22,6 +22,8 @@ class Swarm : public GLItem
 #define VertexData_1 (sizeof(QVector3D))
         QVector2D texCoord;
 #define VertexData_2 (Vertex_Data_2+sizeof(QVector2D))
+        QVector3D normal;
+#define VertexData_3 (sizeof(QVector3D))
     };
 
     struct Model
@@ -74,8 +76,9 @@ public slots:
 
 
 private:
-    GLuint m_posAttr;
-    GLuint m_colAttr;
+    GLuint m_pos_A;
+    GLuint m_col_A;
+    GLuint m_normal_A;
     GLuint m_matrixUniform;
     GLuint m_modelCol_U;
     QMatrix4x4 m_currMatrix;
