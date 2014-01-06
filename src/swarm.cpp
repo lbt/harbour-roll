@@ -1,6 +1,7 @@
 #include "swarm.h"
 #include <QtQuick/qquickwindow.h>
 #include <QtGui/QOpenGLShaderProgram>
+#include <QOpenGLShader>
 #include <QtGui/QOpenGLContext>
 #include <QImage>
 #include <QVector3D>
@@ -173,6 +174,12 @@ void Swarm::prep()
 
     if (! m_program->link()) {
         qDebug() << "Linking failed\n" << m_program->log();
+        QList<QOpenGLShader *>::iterator i;
+        for (i = m_program->shaders().begin(); i != m_program->shaders().end(); ++i) {
+            if ((*i)->isCompiled())
+                qDebug() << "Shader compile log: \n" << (*i)->log();
+        }
+
     }
 
     m_pos_A = m_program->attributeLocation("posA");

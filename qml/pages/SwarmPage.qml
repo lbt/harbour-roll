@@ -85,7 +85,7 @@ Page {                                          id: page
                 Slider {                        id: dSlide
                     width: parent.width
                     minimumValue: -60; maximumValue: 20
-                    value: -25
+                    value: -17
                     valueText: value.toFixed(2);
                 }
                 Slider {                        id: nSlide

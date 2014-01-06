@@ -45,6 +45,8 @@ protected:
     float m_rzv;
     float m_scale;
 
+    float m_elastic;
+
     float m_vx;
     float m_vy;
     float m_vz;
