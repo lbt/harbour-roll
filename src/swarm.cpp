@@ -34,7 +34,7 @@ Swarm::Swarm(QObject *parent) :
     Q_UNUSED(parent)
     m_timer.setInterval(TICK);;
     for (int n=0; n<p_numParticles; n++ ) {
-        m_swarm << GParticle(RADIUS - rnd(RADIUS/2.0), rnd(PI2), rnd(PI2),  // location
+        m_swarm << GParticle2(RADIUS - rnd(RADIUS/2.0), rnd(PI2), rnd(PI2),  // location
                              0, 0, 1+rnd(3.0), // radial + angular velocity
                              //                             0, rnd(0.4), 1+rnd(3.0), // radial + angular velocity
                              rnd(PI2), rnd(PI2), rnd(PI2), // initial orientation
@@ -72,7 +72,7 @@ void Swarm::setNumParticles(int n)
     m_swarmMutex.lock();
     if (n > p_numParticles) {
         for (int c=0; c<n-p_numParticles; c++ ) {
-            m_swarm << GParticle(RADIUS - rnd(RADIUS/2.0), rnd(PI2), rnd(PI2),  // location
+            m_swarm << GParticle2(RADIUS - rnd(RADIUS/2.0), rnd(PI2), rnd(PI2),  // location
                                  0, 0, 1+rnd(3.0), // radial + angular velocity
                                  //                             0, rnd(0.4), 1+rnd(3.0), // radial + angular velocity
                                  rnd(PI2), rnd(PI2), rnd(PI2), // initial orientation
@@ -353,7 +353,7 @@ void Swarm::render()
     QAccelerometerReading *reading = m_sensor.reading();
 
     DirectionalLight aLight;
-    aLight.Color = QVector3D(reading->x()/10.0, reading->y()/10.0, reading->z()/10.0);
+    aLight.Color = QVector3D(fabs(reading->x()/10.0), fabs(reading->y()/10.0), fabs(10-reading->z()/10.0))*5;
     aLight.AmbientIntensity = 0.1;
     aLight.Direction = QVector3D(0.5, 0.5, 0.5);
     aLight.DiffuseIntensity = 0.8;
@@ -363,17 +363,18 @@ void Swarm::render()
     m_program->setUniformValue(m_directionalLight_DiffuseIntensity_U, aLight.DiffuseIntensity);
 
     // Update and draw the particles.
-
+    GParticle2::Accel a= {reading->x(), reading->y(), reading->z()};
+//    qDebug() << "Accel a(" << a.x << "," << a.y<<"," << a.z << ")";
     m_swarmMutex.lock();
-    QList<GParticle>::iterator i;
+    QList<GParticle2>::iterator i;
     int modelN=0;
     for (i = m_swarm.begin(); i != m_swarm.end(); ++i,++modelN) {
 
-        i->update(TICK/1000.0, m_wind, wind_r );
+        i->update(TICK/1000.0, m_wind, wind_r, a );
 //        m_program->setUniformValue(m_modelCol_U, QVector4D(((modelN%10) + 1)*0.1,
 //                                                           (((modelN/10)%10) +1)*0.1,
 //                                                           (((modelN/100)%10) +1)*0.1,
-//                                                           0.5));
+//                                                           0.5,));
 
         m_program->setUniformValue(m_modelMatrix_U, i->matrix(matrix));
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);

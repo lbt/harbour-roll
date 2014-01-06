@@ -3,6 +3,7 @@
 
 #include "glitem.h"
 #include "gparticle.h"
+#include "gparticle2.h"
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QMouseEvent>
@@ -111,14 +112,14 @@ private:
     qint64 m_XYdeltaTime;
     qreal m_thread_t;
     Model m_model;
-    QList<GParticle> m_swarm;
+    QList<GParticle2> m_swarm;
     QMutex m_swarmMutex;
     int m_pcount;
     QTimer m_timer;
     bool m_running;
     bool p_pressed;
-    GParticle::Wind m_wind;
-    GParticle::Wind m_lastWind;
+    GParticle2::Wind m_wind;
+    GParticle2::Wind m_lastWind;
     QElapsedTimer m_lastTime;
 
     QAccelerometer m_sensor;

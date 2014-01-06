@@ -18,7 +18,8 @@ SOURCES += src/harbour-snowglobe.cpp \
     src/cube.cpp \
     src/swarm.cpp \
     src/glitem.cpp \
-    src/gparticle.cpp
+    src/gparticle.cpp \
+    src/gparticle2.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -55,5 +56,6 @@ HEADERS += \
     src/cube.h \
     src/swarm.h \
     src/glitem.h \
-    src/gparticle.h
+    src/gparticle.h \
+    src/gparticle2.h
 
