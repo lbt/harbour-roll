@@ -78,7 +78,7 @@ void Swarm::setNumParticles(int n)
                                  //                             0, rnd(0.4), 1+rnd(3.0), // radial + angular velocity
                                  rnd(PI2), rnd(PI2), rnd(PI2), // initial orientation
                                  rnd(10), rnd(10), rnd(10), // tumble speed
-                                 rnd(0.3)
+                                 rnd(1.0) // scale
                                  );
         }
     } else {
@@ -186,8 +186,9 @@ void Swarm::prep()
     m_tex_A = m_program->attributeLocation("texA");
     m_normal_A = m_program->attributeLocation("normalA");
 
-    m_modelMatrix_U = m_program->uniformLocation("modelMatrixU");
     m_worldMatrix_U = m_program->uniformLocation("worldMatrixU");
+    m_viewMatrix_U = m_program->uniformLocation("viewMatrixU");
+    m_projMatrix_U = m_program->uniformLocation("projMatrixU");
     //m_modelCol_U = m_program->uniformLocation("modelColU");
 //    m_texture_U = m_program->uniformLocation("textureU");
 
@@ -250,16 +251,18 @@ void Swarm::render()
 #define FOVY 70
 #define ASPECT (540.0/960.0)
 #define MAXV 1.5
-    QMatrix4x4 matrix;
+    QMatrix4x4 projMatrix;
     // Invert the perspective matrix for mousemapping
     //    bool wasInverted;
-    matrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
-    matrix.rotate(m_orientationInDegrees,0,0,1);
-    matrix.translate(0, 0, p_depth); // This is essentially a camera translate...
-    //    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
+    projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
+    m_program->setUniformValue(m_projMatrix_U, projMatrix);
 
-    // This is not the worldMatrix for this frame (I think)
-    m_program->setUniformValue(m_worldMatrix_U, matrix);
+    QMatrix4x4 viewMatrix;
+    viewMatrix.rotate(m_orientationInDegrees,0,0,1); // handle device rotation
+    viewMatrix.translate(0, 0, p_depth); // This is essentially a camera translate...
+    m_program->setUniformValue(m_viewMatrix_U, viewMatrix);
+
+    //    QMatrix4x4 inverse = matrix.inverted(&wasInverted) ;
 
     // Bind the texture
     m_texture->bind();
@@ -319,11 +322,10 @@ void Swarm::render()
 
         // These are the 'world points'
 
-        QMatrix4x4 cubeM ;
-        cubeM = matrix;
+        QMatrix4x4 cubeM;
         cubeM.translate(m_wind.x, m_wind.y, 0);
         //        cubeM.scale(m_wind.vx, m_wind.vy, 0);
-        m_program->setUniformValue(m_modelMatrix_U, cubeM);
+        m_program->setUniformValue(m_worldMatrix_U, cubeM);
         m_program->setUniformValue(m_modelCol_U, QVector4D(1.0,
                                                            0,
                                                            0,
@@ -360,9 +362,9 @@ void Swarm::render()
     QAccelerometerReading *reading = m_sensor.reading();
 
     DirectionalLight aLight;
-    aLight.Color = QVector3D(fabs(reading->x()/10.0), fabs(reading->y()/10.0), fabs(10-reading->z()/10.0))*5;
-    aLight.AmbientIntensity = 0.1;
-    aLight.Direction = QVector3D(0.5, 0.5, 0.5);
+    aLight.Color = QVector3D(1.0-fabs(reading->x()/10.0), 1.0-fabs(reading->y()/10.0), 1.0-(10.0-fabs(reading->z()))/10.0);
+    aLight.AmbientIntensity = 0.3;
+    aLight.Direction = QVector3D(0.7, 0.7, -0.5).normalized();
     aLight.DiffuseIntensity = 0.8;
     m_program->setUniformValue(m_directionalLight_Color_U, aLight.Color);
     m_program->setUniformValue(m_directionalLight_AmbientIntensity_U, aLight.AmbientIntensity);
@@ -383,7 +385,7 @@ void Swarm::render()
 //                                                           (((modelN/100)%10) +1)*0.1,
 //                                                           0.5,));
 
-        m_program->setUniformValue(m_modelMatrix_U, i->matrix(matrix));
+        m_program->setUniformValue(m_worldMatrix_U, i->worldMatrix());
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
     m_swarmMutex.unlock();

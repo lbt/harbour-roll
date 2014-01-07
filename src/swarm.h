@@ -87,8 +87,9 @@ private:
     GLuint m_pos_A;
     GLuint m_tex_A;
     GLuint m_normal_A;
-    GLuint m_modelMatrix_U;
     GLuint m_worldMatrix_U;
+    GLuint m_viewMatrix_U;
+    GLuint m_projMatrix_U;
     GLuint m_directionalLight_Color_U;
     GLuint m_directionalLight_AmbientIntensity_U;
     GLuint m_directionalLight_Direction_U;

@@ -26,6 +26,7 @@ public:
 
     void update(float dt, Wind w, float wind_r, Accel a);
     QMatrix4x4 matrix(QMatrix4x4 input);
+    QMatrix4x4 worldMatrix();
     float x();
     float y();
     float z();

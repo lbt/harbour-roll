@@ -148,5 +148,14 @@ QMatrix4x4 GParticle2::matrix(QMatrix4x4 input){
     input.rotate(m_rz*PI180, 0,0,1);
     return input;
 }
+QMatrix4x4 GParticle2::worldMatrix(){
+    QMatrix4x4 world;
+    world.translate(m_x, m_y, m_z);
+    world.scale(m_scale,m_scale,m_scale);
+    world.rotate(m_rx*PI180, 1,0,0);
+    world.rotate(m_ry*PI180, 0,1,0);
+    world.rotate(m_rz*PI180, 0,0,1);
+    return world;
+}
 
 

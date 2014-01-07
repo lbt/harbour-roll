@@ -12,6 +12,7 @@ struct DirectionalLight
     lowp float AmbientIntensity;
     lowp vec3 Direction;
     lowp float DiffuseIntensity;
+//    lowp float SpecularIntensity;
 };
 
 uniform sampler2D textureU;
@@ -25,8 +26,8 @@ void main() {
     //    gl_FragColor = col;
 
     lowp vec4 ambientColor = vec4(directionalLightU.Color * directionalLightU.AmbientIntensity, 1.0);
-    float diffuseFactor = dot(normalize(normalV), -directionalLightU.Direction);
 
+    float diffuseFactor = dot(normalize(normalV), -directionalLightU.Direction);
     lowp vec4 diffuseColor;
     if (diffuseFactor > 0.0) {
         diffuseColor = vec4(directionalLightU.Color * directionalLightU.DiffuseIntensity * diffuseFactor, 1.0);
@@ -35,6 +36,16 @@ void main() {
         diffuseColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
 
+//    float specularFactor = dot(normalize(normalV), -directionalLightU.Direction);
+//    lowp vec4 reflectedRay = reflect(directionalLightU.Direction, normalV);
+//    lowp vec4 specularColor;
+//    if (specularFactor > 0.0) {
+//        specularColor = vec4(directionalLightU.Color * directionalLightU.SpecularIntensity * specularFactor, 1.0) * dot(reflectedRay,(0.0, 0.0, 0.0));
+//    }
+//    else {
+//        specularColor = vec4(0.0, 0.0, 0.0, 0.0);
+//    }
 //    gl_FragColor = (texture2D(textureU, texcoordV)+vec4(0.2,0.2,0.2,1.0));
+//    gl_FragColor = texture2D(textureU, texcoordV) * (ambientColor + diffuseColor + specularColor);
     gl_FragColor = texture2D(textureU, texcoordV) * (ambientColor + diffuseColor);
 }
