@@ -95,9 +95,9 @@ void GParticle2 ::update(float deltaTime, Wind w, float wind_r, Accel a){
     //    m_phi = atan2(m_y, m_x);
     //    qDebug() << "reverse r = " << m_r << " theta = " << m_theta <<" phi = " << m_phi;
 
-    m_vx -= a.x * deltaTime * 10;
-    m_vy -= a.y * deltaTime * 10;
-    m_vz -= a.z * deltaTime * 10;
+    m_vx -= a.x * deltaTime * 40;
+    m_vy -= a.y * deltaTime * 40;
+    m_vz -= a.z * deltaTime * 40;
 
     m_x += m_vx * deltaTime;
     m_z += m_vz * deltaTime;

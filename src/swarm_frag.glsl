@@ -1,51 +1,68 @@
-//uniform lowp float t;
-//varying highp vec2 coords;
-//void main() {
-//    lowp float i = 1. - (pow(abs(coords.x), 4.) + pow(abs(coords.y), 4.));
-//    i = smoothstep(t - 0.8, t + 0.8, i);
-//    i = floor(i * 20.) / 20.;
-//    gl_FragColor = vec4(coords * .5 + .5, i, i);
-//}
 struct DirectionalLight
 {
-    lowp vec3 Color;
-    lowp float AmbientIntensity;
-    lowp vec3 Direction;
-    lowp float DiffuseIntensity;
-//    lowp float SpecularIntensity;
+    highp vec3 Color;
+    highp float AmbientIntensity;
+    highp vec3 Direction;
+    highp float DiffuseIntensity;
 };
 
 uniform sampler2D textureU;
 uniform DirectionalLight directionalLightU;
 
-varying lowp vec2 texcoordV;
-varying lowp vec3 normalV;
-varying lowp vec4 colV;
+uniform highp vec3 eyeWorldPosU;
+uniform highp float matSpecularIntensityU;
+uniform highp float specularPowerU;
+
+varying highp vec2 texcoordV;
+varying highp vec3 normalV;
+varying highp vec3 posV;
+
+void main2() {
+
+    highp vec3 ambientColor = vec3(directionalLightU.Color * directionalLightU.AmbientIntensity);
+
+    highp vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
+    highp vec3 lightDirection = -directionalLightU.Direction;
+    highp vec3 normal = normalize(normalV);
+    highp float diffuseFactor = dot(normal, lightDirection);
+    diffuseFactor *= (0.5 + 0.5 * sign(diffuseFactor)) ; // 0 if < 0
+    diffuseColor = directionalLightU.Color * directionalLightU.DiffuseIntensity * diffuseFactor;
+
+    highp vec3 specularColor = vec3(0.0, 0.0, 0.0);
+    highp vec3 vertexToEye = normalize(eyeWorldPosU - posV);
+    highp vec3 lightReflect = normalize(reflect(directionalLightU.Direction, normal));
+    highp float specularFactor = dot(vertexToEye, lightReflect);
+    specularFactor = pow(specularFactor, specularPowerU);
+    specularFactor *= (0.5 + 0.5 * sign(specularFactor)) ; // 0 if < 0
+    specularColor = directionalLightU.Color * matSpecularIntensityU * specularFactor;
+    highp vec4 mix = vec4(ambientColor + diffuseColor + specularColor, 1.0);
+    gl_FragColor = texture2D(textureU, texcoordV) * mix;
+    return;
+}
 
 void main() {
-    //    gl_FragColor = col;
 
-    lowp vec4 ambientColor = vec4(directionalLightU.Color * directionalLightU.AmbientIntensity, 1.0);
+    highp vec4 c;
 
-    float diffuseFactor = dot(normalize(normalV), -directionalLightU.Direction);
-    lowp vec4 diffuseColor;
-    if (diffuseFactor > 0.0) {
-        diffuseColor = vec4(directionalLightU.Color * directionalLightU.DiffuseIntensity * diffuseFactor, 1.0);
-    }
-    else {
-        diffuseColor = vec4(0.0, 0.0, 0.0, 0.0);
-    }
+    highp vec3 ambientColor = vec3(directionalLightU.Color * directionalLightU.AmbientIntensity);
 
-//    float specularFactor = dot(normalize(normalV), -directionalLightU.Direction);
-//    lowp vec4 reflectedRay = reflect(directionalLightU.Direction, normalV);
-//    lowp vec4 specularColor;
-//    if (specularFactor > 0.0) {
-//        specularColor = vec4(directionalLightU.Color * directionalLightU.SpecularIntensity * specularFactor, 1.0) * dot(reflectedRay,(0.0, 0.0, 0.0));
-//    }
-//    else {
-//        specularColor = vec4(0.0, 0.0, 0.0, 0.0);
-//    }
-//    gl_FragColor = (texture2D(textureU, texcoordV)+vec4(0.2,0.2,0.2,1.0));
-//    gl_FragColor = texture2D(textureU, texcoordV) * (ambientColor + diffuseColor + specularColor);
-    gl_FragColor = texture2D(textureU, texcoordV) * (ambientColor + diffuseColor);
+    highp vec3 lightDirection = -directionalLightU.Direction;
+    highp vec3 normal = normalize(normalV);
+    highp float diffuseFactor = dot(normal, lightDirection);
+    highp vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
+
+    diffuseFactor *= (0.5 + 0.5 * sign(diffuseFactor)) ; // 0 if < 0
+    diffuseColor = vec3(directionalLightU.Color * directionalLightU.DiffuseIntensity * diffuseFactor);
+
+    highp vec3 specularColor = highp vec3(0.0, 0.0, 0.0);
+    highp float specularFactor ;
+    highp vec3 vertexToEye = normalize(eyeWorldPosU - posV);
+    highp vec3 lightReflect = normalize(reflect(directionalLightU.Direction, normal));
+    specularFactor = dot(vertexToEye, lightReflect);
+    specularFactor *= (0.5 + 0.5 * sign(specularFactor)) ; // 0 if < 0
+    specularFactor = pow(specularFactor, specularPowerU); // pow param *must* be > 0
+    specularColor = directionalLightU.Color * matSpecularIntensityU * specularFactor;
+
+    gl_FragColor = texture2D(textureU, texcoordV) * vec4(ambientColor + diffuseColor + specularColor, 1.0);
 }
+

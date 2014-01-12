@@ -4,6 +4,7 @@
 #include "glitem.h"
 #include "gparticle.h"
 #include "gparticle2.h"
+#include "glprogram.h"
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QMouseEvent>
@@ -84,9 +85,10 @@ public slots:
 
 
 private:
-    GLuint m_pos_A;
-    GLuint m_tex_A;
-    GLuint m_normal_A;
+    // vars in the "particle" shader program
+//    GLuint m_pos_A;
+//    GLuint m_tex_A;
+//    GLuint m_normal_A;
     GLuint m_worldMatrix_U;
     GLuint m_viewMatrix_U;
     GLuint m_projMatrix_U;
@@ -94,12 +96,20 @@ private:
     GLuint m_directionalLight_AmbientIntensity_U;
     GLuint m_directionalLight_Direction_U;
     GLuint m_directionalLight_DiffuseIntensity_U;
+    GLuint m_matSpecularIntensity_U;
+    GLuint m_specularPower_U;
+    GLuint m_eyeWorldPos_U;
+
+    // vars in the "line" shader program
+    GLuint m_col_Uline;
+
     GLuint m_modelCol_U;
     GLuint m_texture_U;
     QMatrix4x4 m_currMatrix;
-    GLuint m_vboIds[2];
+    GLuint m_vboIds[4];
     QSGTexture *m_texture;
-    QOpenGLShaderProgram *m_programPointer;
+    GLProgram *m_program_line;
+    GLProgram *m_program_particle;
 
     int m_frame;
     int m_orientationInDegrees;

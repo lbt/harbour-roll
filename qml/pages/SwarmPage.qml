@@ -90,7 +90,7 @@ Page {                                          id: page
                 }
                 Slider {                        id: nSlide
                     width: parent.width
-                    minimumValue: 0; maximumValue: 1000
+                    minimumValue: 0; maximumValue: 30
                     value: 20
                     stepSize: value <= 10 ? 1 : 10
                     valueText: value

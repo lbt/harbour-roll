@@ -19,13 +19,14 @@ SOURCES += src/harbour-snowglobe.cpp \
     src/swarm.cpp \
     src/glitem.cpp \
     src/gparticle.cpp \
-    src/gparticle2.cpp
+    src/gparticle2.cpp \
+    src/glprogram.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
 glsl.files = \
     src/cube_vert.glsl src/cube_frag.glsl \
-    src/swarm_vert.glsl src/swarm_frag.glsl
+    src/swarm_vert.glsl src/swarm_frag.glsl src/swarm_line_frag.glsl
 
 glsl.path = $$DEPLOYMENT_PATH
 
@@ -48,6 +49,7 @@ OTHER_FILES += qml/harbour-snowglobe.qml \
     src/flakes_frag.glsl \
     src/flakes_vert.glsl \
     src/swarm_frag.glsl \
+    src/swarm_line_frag.glsl \
     src/swarm_vert.glsl
 
 HEADERS += \
@@ -57,5 +59,6 @@ HEADERS += \
     src/swarm.h \
     src/glitem.h \
     src/gparticle.h \
-    src/gparticle2.h
+    src/gparticle2.h \
+    src/glprogram.h
 
