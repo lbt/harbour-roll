@@ -31,6 +31,12 @@ Swarm::Swarm(QObject *parent) :
   , p_pressed(false)
   , m_wind({0,0,0,0})
   , m_lastWind({0,0,0,0})
+  , m_cameraPos({0,0,0.2})
+  , m_cameraRot({0,0,0})
+  , m_lightCol1({1,1,1})
+  , m_lightCol2({0.1,0.1,1})
+  , m_lightDir1({0.2, -0.2, -0.5})
+  , m_lightDir2({-0.2, -0.2, -0.5})
 {
     Q_UNUSED(parent)
     m_timer.setInterval(TICK);;
@@ -104,15 +110,57 @@ void Swarm::setX(qreal x)
     if (x == p_x)
         return;
     p_x = x;
-    emit xChanged();
+    emit xChanged(x);
 }
 void Swarm::setY(qreal y)
 {
     if (y == p_y)
         return;
     p_y = y;
-    emit yChanged();
+    emit yChanged(y);
 }
+void Swarm::setZ(qreal z)
+{
+    if (z == p_z)
+        return;
+    p_z = z;
+    emit zChanged(z);
+}
+void Swarm::setXYZ(QVector3D v) {
+    setX(v.x());
+    setY(v.y());
+    setZ(v.z());
+}
+
+void Swarm::useXYZ(QString use) {
+    m_use = use;
+    if (m_use == "light1 col") {
+        setXYZ(m_lightCol1);
+    } else if (m_use == "light1 dir") {
+        setXYZ((m_lightDir1+QVector3D(1,1,1))*QVector3D(0.5,0.5,0.5));
+    } else if (m_use == "light2 col") {
+        setXYZ(m_lightCol2);
+    } else if (m_use == "light2 dir") {
+        setXYZ((m_lightDir2+QVector3D(1,1,1))*QVector3D(0.5,0.5,0.5));
+    }
+}
+
+void Swarm::handleUse() {
+    if (m_use == "light1 col") {
+        m_lightCol1=QVector3D(p_x, p_y, p_z);
+    } else if (m_use == "light1 dir") {
+        m_lightDir1=QVector3D((p_x - 0.5)*2,
+                              (p_y - 0.5)*2,
+                              (p_z - 0.5)*2);
+    } else if (m_use == "light2 col") {
+        m_lightCol2=QVector3D(p_x, p_y, p_z);
+    } else if (m_use == "light2 dir") {
+        m_lightDir2=QVector3D((p_x - 0.5)*2,
+                              (p_y - 0.5)*2,
+                              (p_z - 0.5)*2);
+    }
+}
+
 void Swarm::handlePositionChanged(int x, int y)
 {
     m_lastx = x;
@@ -120,11 +168,11 @@ void Swarm::handlePositionChanged(int x, int y)
     m_XYdeltaTime = m_lastTime.restart();
     if (x != p_x) {
         p_x = x;
-        emit xChanged();
+        emit xChanged(p_x);
     }
     if (y != p_y) {
         p_y = y;
-        emit yChanged();
+        emit yChanged(p_y);
     }
 }
 
@@ -175,7 +223,7 @@ void Swarm::prep()
                                             SailfishApp::pathTo("swarm_line_frag.glsl").toLocalFile());
 
     // prep must bind any attributes
-//    m_program_particle->bindAttributeLocation("vertices", 0);
+    //    m_program_particle->bindAttributeLocation("vertices", 0);
 
 
     if (! m_program_particle->link()) {
@@ -211,18 +259,18 @@ void Swarm::prep()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 34 * sizeof(GLushort), indices, GL_STATIC_DRAW);
 
-    #define AXIS_LEN 1
-        QVector3D axes[] = {
-            QVector3D(-AXIS_LEN, 0, 0), QVector3D(AXIS_LEN, 0, 0),
-            QVector3D(0, -AXIS_LEN, 0), QVector3D(0, AXIS_LEN, 0),
-            QVector3D(0, 0, -AXIS_LEN), QVector3D(0, 0, AXIS_LEN),
-        };
-        GLushort axesorder[] = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5};
+#define AXIS_LEN 1
+    QVector3D axes[] = {
+        QVector3D(-AXIS_LEN, 0, 0), QVector3D(AXIS_LEN, 0, 0),
+        QVector3D(0, -AXIS_LEN, 0), QVector3D(0, AXIS_LEN, 0),
+        QVector3D(0, 0, -AXIS_LEN), QVector3D(0, 0, AXIS_LEN),
+    };
+    GLushort axesorder[] = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5};
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[2]);
-        glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(QVector3D), axes, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[3]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 10 * sizeof(GLushort), axesorder, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[2]);
+    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(QVector3D), axes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[3]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 10 * sizeof(GLushort), axesorder, GL_STATIC_DRAW);
 
     // Load cube.png image
     glEnable(GL_TEXTURE_2D);
@@ -256,23 +304,23 @@ void Swarm::render()
 #define FOVY 70
 #define ASPECT (540.0/960.0)
 #define MAXV 1.5
+
+    handleUse();
+
     GLProgram *p = m_program_particle;
     p->bind();
     QMatrix4x4 projMatrix;
-    // Invert the perspective matrix for mousemapping
-    //    bool wasInverted;
     projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
     p->setUniformValue(p->getU("projMatrixU"), projMatrix);
 
     QMatrix4x4 viewMatrix;
     viewMatrix.rotate(m_orientationInDegrees,0,0,1); // handle device rotation
-    viewMatrix.translate(1.0, -1.0, p_depth); // This is essentially a camera translate...
+    viewMatrix.translate(0.0, -0.0, p_depth); // This is essentially a camera translate...
     p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
 
     // Bind the texture
     m_texture->bind();
     // Use texture unit 0 which contains cube.png
-    //    m_program->setUniformValue("textureU", 0);
     p->setUniformValue(p->getU("textureU"), 0);
 
 
@@ -354,18 +402,31 @@ void Swarm::render()
 
     // Some accel based colour
     QAccelerometerReading *reading = m_sensor.reading();
+    //    aLight.Color = QVector3D(1.0-fabs(reading->x()/10.0), 1.0-fabs(reading->y()/10.0), 1.0-(10.0-fabs(reading->z()))/10.0);
     DirectionalLight aLight;
-//    aLight.Color = QVector3D(1.0-fabs(reading->x()/10.0), 1.0-fabs(reading->y()/10.0), 1.0-(10.0-fabs(reading->z()))/10.0);
-    aLight.Color = QVector3D(1.0, 1.0, 1.0);
+    aLight.Color = m_lightCol1;
     aLight.AmbientIntensity = 0.3;
-    aLight.Direction = QVector3D(0.0, -0.2, -1).normalized();
+    aLight.Direction = m_lightDir1.normalized();
     aLight.DiffuseIntensity = 0.6;
+
+    DirectionalLight bLight;
+    bLight.Color = m_lightCol2;
+    bLight.AmbientIntensity = 0.3;
+    bLight.Direction = m_lightDir2.normalized();
+    bLight.DiffuseIntensity = 0.4;
+    // Set up scene lighting
     p->setUniformValue(p->getU("directionalLightU.Color"), aLight.Color);
     p->setUniformValue(p->getU("directionalLightU.AmbientIntensity"), aLight.AmbientIntensity);
     p->setUniformValue(p->getU("directionalLightU.Direction"), aLight.Direction);
     p->setUniformValue(p->getU("directionalLightU.DiffuseIntensity"), aLight.DiffuseIntensity);
+
+    p->setUniformValue(p->getU("directional2LightU.Color"), bLight.Color);
+    p->setUniformValue(p->getU("directional2LightU.AmbientIntensity"), bLight.AmbientIntensity);
+    p->setUniformValue(p->getU("directional2LightU.Direction"), bLight.Direction);
+    p->setUniformValue(p->getU("directional2LightU.DiffuseIntensity"), bLight.DiffuseIntensity);
+
     p->setUniformValue(p->getU("matSpecularIntensityU"), 2.0f);
-    p->setUniformValue(p->getU("specularPowerU"), 16.0f);
+    p->setUniformValue(p->getU("specularPowerU"), 32.0f);
     p->setUniformValue(p->getU("eyeWorldPosU"), QVector3D(-1.0, 1.0, -p_depth));
 
     // Update and draw the particles.
@@ -375,7 +436,8 @@ void Swarm::render()
     QList<GParticle2>::iterator i;
     int modelN=0;
     for (i = m_swarm.begin(); i != m_swarm.end(); ++i,++modelN) {
-        i->update(TICK/1000.0, m_wind, wind_r, a );
+        //        i->update(TICK/1000.0, m_wind, wind_r, a );
+        i->update(TICK/1000.0, m_wind, wind_r, {0,0,0} );
         p->setUniformValue(p->getU("worldMatrixU"), i->worldMatrix());
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
@@ -392,7 +454,6 @@ void Swarm::render()
     glDisableVertexAttribArray(p->getA("normalA"));
 
 
-
     // Now draw some axes
     p = m_program_line;
     p->bind();
@@ -400,9 +461,9 @@ void Swarm::render()
     p->setUniformValue(p->getU("projMatrixU"), projMatrix);
     p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
 
+    // This bit draws lines by assigning them to a VBO
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[2]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[3]);
-
     // Because we're using VBOs for vertex, tex and normals this is pointer into them
     glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), 0);
     glEnableVertexAttribArray(p->getA("posA"));
@@ -412,28 +473,39 @@ void Swarm::render()
 
     glDisable(GL_DEPTH_TEST);
     glLineWidth(3);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), axes);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, axes);
-//    glDrawElements(GL_LINE_STRIP, 10, GL_UNSIGNED_SHORT, axesorder);
-    glDrawArrays(GL_LINES, 0, 6);
+    glDrawElements(GL_LINE_STRIP, 10, GL_UNSIGNED_SHORT, 0);
+    //    glDrawArrays(GL_LINES, 0, 6);
+
+
+    // This bit draws a line directly from a Qt array
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // use CPU-side data
+    glEnableVertexAttribArray(p->getA("posA"));
 
 
     QVector3D diag[] = {
         QVector3D(0, 0, 0), QVector3D(0, 0, 0)
     };
-    diag[0]= aLight.Direction;
-    p->setUniformValue(p->getU("colU"), QVector4D(1, 0, 0, 1));
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Set a colour for the shader
+    p->setUniformValue(p->getU("colU"), QVector4D(aLight.Color, 1));
+    diag[0]= aLight.Direction;
     glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-    glEnableVertexAttribArray(p->getA("posA"));
     glDrawArrays(GL_LINES, 0, 2);
 
+    p->setUniformValue(p->getU("colU"), QVector4D(bLight.Color, 1));
+    diag[0]= bLight.Direction;
+    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+    glDrawArrays(GL_LINES, 0, 2);
 
     p->release();
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    // Multiple draw types
+    // 1. Static World in a static VBO. Rare changes
+    // 2. Many moving objects in a dynamic VBO. Changes every frame
+    // 3. Ad-hoc drawing
 
 }
 void Swarm::sync()

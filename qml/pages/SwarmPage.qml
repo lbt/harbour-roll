@@ -1,11 +1,11 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-
+import ".."
 // our class defines this
 import Swarm 1.0
 
 Page {                                          id: page
-//    allowedOrientations: Orientation.All
+    //    allowedOrientations: Orientation.All
     Rectangle {
         //        contentHeight: childrenRect.height
         anchors.bottom: parent.bottom
@@ -19,6 +19,9 @@ Page {                                          id: page
 
             depth: dSlide.sliderValue
             numParticles: nSlide.sliderValue
+            x: slideX.sliderValue
+            y: slideY.sliderValue
+            z: slideZ.sliderValue
             running : true
             // this may need to be a state which handles animations between 270 and 0 correctly
             orientationInDegrees: (function() { switch(page.orientation) {
@@ -51,7 +54,8 @@ Page {                                          id: page
             MouseArea { anchors.fill: parent
                 onClicked: {panel.open = !panel.open; console.log("clicked header panel:" + panel.open) }
             }
-            visible: page.isLandscape || !panel.open
+//            visible: page.isLandscape || !panel.open
+            visible: page.isLandscape
         }
     }
 
@@ -64,8 +68,12 @@ Page {                                          id: page
         dock: page.isPortrait ? Dock.Top : Dock.Left
         open: false
         PageHeader {title: "Swarm"
-            anchors.bottom:panelFlick.bottom;
+            anchors.top:panelFlick.bottom
+            anchors.topMargin: 20
             width:panelFlick.width; visible: page.isPortrait
+            MouseArea { anchors.fill: parent
+                onClicked: {panel.open = !panel.open; console.log("clicked header panel:" + panel.open) }
+            }
         }
         Rectangle {color:"green";
             anchors.right:panelFlick.right; width: 30;
@@ -83,17 +91,59 @@ Page {                                          id: page
                 anchors.top: parent.top
                 width: parent.width
                 Slider {                        id: dSlide
-                    width: parent.width
+                    width: parent.width*0.8
                     minimumValue: -60; maximumValue: 20
                     value: -17
                     valueText: value.toFixed(2);
                 }
                 Slider {                        id: nSlide
-                    width: parent.width
+                    width: parent.width*0.8
                     minimumValue: 0; maximumValue: 30
                     value: 20
                     stepSize: value <= 10 ? 1 : 10
                     valueText: value
+                }
+                Row { width: parent.width
+                    height: childrenRect.height
+                    Column {
+                        height: childrenRect.height
+                        width: parent.width*0.5
+                        Slider {                        id: slideX
+                            width: parent.width
+                            minimumValue: 0; maximumValue: 1
+                            value: aswarm.x; stepSize: 0.01
+                            valueText: value.toFixed(2);
+                        }
+                        Slider {                        id: slideY
+                            width: parent.width
+                            minimumValue: 0; maximumValue: 1
+                            value: aswarm.y; stepSize: 0.01
+                            valueText: value.toFixed(2);
+                        }
+                        Slider {                        id: slideZ
+                            width: parent.width
+                            minimumValue: 0; maximumValue: 1
+                            value: aswarm.z; stepSize: 0.01
+                            valueText: value.toFixed(2);
+                        }
+                    }
+                    Column { width: parent.width *0.5
+                        height: childrenRect.height
+                        id: buttonCol
+                        property string use : "camera"
+                        XYZButton { text: "camera pos" }
+                        XYZButton { text: "camera rot" }
+                        XYZButton { text: "light1 col" }
+                        XYZButton { text: "light1 dir" }
+                        XYZButton { text: "light2 col" }
+                        XYZButton { text: "light2 dir" }
+
+                        function useXYZ(s) {
+                            console.log("Using " + s)
+                            use=s;
+                            aswarm.useXYZ(s);
+                        }
+                    }
                 }
             }
         }

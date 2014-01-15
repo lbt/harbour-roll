@@ -1,10 +1,3 @@
-//attribute highp vec4 vertices;
-//varying highp vec2 coords;
-//void main() {
-//    gl_Position = vertices;
-//    coords = vertices.xy;
-//}
-
 // These attributes are set in the GL_ARRAY_BUFFER
 attribute highp vec3 posA;
 attribute highp vec2 texA;
@@ -13,8 +6,6 @@ attribute highp vec3 normalA;
 uniform highp mat4 worldMatrixU;
 uniform highp mat4 viewMatrixU;
 uniform highp mat4 projMatrixU;
-//uniform lowp vec4 modelColU;
-
 varying highp vec2 texcoordV;
 varying highp vec3 normalV;
 varying highp vec3 posV;
@@ -29,6 +20,4 @@ void main() {
     texcoordV = texA;
     normalV = vec3(viewMatrixU * worldMatrixU * vec4(normalA, 0.0));
     posV = vec3(viewMatrixU * worldMatrixU * vec4(posA, 0.0));
-//    normalV = vec3(0.0,0.0,0.0);
-//    zw=gl_Position.zw;
 }

@@ -50,7 +50,8 @@ OTHER_FILES += qml/harbour-snowglobe.qml \
     src/flakes_vert.glsl \
     src/swarm_frag.glsl \
     src/swarm_line_frag.glsl \
-    src/swarm_vert.glsl
+    src/swarm_vert.glsl \
+    qml/XYZButton.qml
 
 HEADERS += \
     src/globegeometry.h \

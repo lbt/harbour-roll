@@ -46,6 +46,7 @@ class Swarm : public GLItem
     Q_PROPERTY(int orientationInDegrees READ orientationInDegrees WRITE setOrientationInDegrees NOTIFY orientationInDegreesChanged)
     Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
+    Q_PROPERTY(qreal z READ z WRITE setZ NOTIFY zChanged)
     Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
 
 public:
@@ -61,9 +62,13 @@ public:
     void setX(qreal x);
     qreal y() const { return p_y; }
     void setY(qreal y);
+    qreal z() const { return p_z; }
+    void setZ(qreal z);
     bool running() const { return m_running; }
     void setRunning(bool running);
 
+    void setXYZ(QVector3D v);
+    void handleUse();
     void prep();
     void render();
 
@@ -71,8 +76,9 @@ signals:
     void numParticlesChanged();
     void depthChanged();
     void orientationInDegreesChanged();
-    void xChanged();
-    void yChanged();
+    void xChanged(qreal);
+    void yChanged(qreal);
+    void zChanged(qreal);
     void runningChanged();
     void pressedChanged();
 
@@ -82,34 +88,21 @@ public slots:
     void handlePositionChanged(int x, int y);
     void handleReleased(int x, int y);
     void handleOrientationChanged(int orientation);
-
+    void useXYZ(QString use);
 
 private:
-    // vars in the "particle" shader program
-//    GLuint m_pos_A;
-//    GLuint m_tex_A;
-//    GLuint m_normal_A;
-    GLuint m_worldMatrix_U;
-    GLuint m_viewMatrix_U;
-    GLuint m_projMatrix_U;
-    GLuint m_directionalLight_Color_U;
-    GLuint m_directionalLight_AmbientIntensity_U;
-    GLuint m_directionalLight_Direction_U;
-    GLuint m_directionalLight_DiffuseIntensity_U;
-    GLuint m_matSpecularIntensity_U;
-    GLuint m_specularPower_U;
-    GLuint m_eyeWorldPos_U;
-
-    // vars in the "line" shader program
-    GLuint m_col_Uline;
-
-    GLuint m_modelCol_U;
-    GLuint m_texture_U;
     QMatrix4x4 m_currMatrix;
     GLuint m_vboIds[4];
     QSGTexture *m_texture;
     GLProgram *m_program_line;
     GLProgram *m_program_particle;
+    
+    QVector3D m_cameraPos;
+    QVector3D m_cameraRot;
+    QVector3D m_lightDir1;
+    QVector3D m_lightCol1;
+    QVector3D m_lightDir2;
+    QVector3D m_lightCol2;
 
     int m_frame;
     int m_orientationInDegrees;
@@ -118,6 +111,8 @@ private:
     qreal p_depth;
     qreal p_x;
     qreal p_y;
+    qreal p_z;
+    QString m_use;
     qreal m_lastx;
     qreal m_lasty;
     qint64 m_XYdeltaTime;
