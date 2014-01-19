@@ -34,7 +34,7 @@ GParticle2::GParticle2(float radius, float theta, float phi,
     m_x = m_r * cos(m_theta) * cos(m_phi);
     m_z = m_r * cos(m_theta) * sin(m_phi);
     m_y = m_r * sin(m_theta);
-    update(0, {0.0,0.0,0.0,0.0}, 0, {0,0,0}); // set xyz
+    update(0, {0.0,0.0,0.0,0.0}, {0,0,0}); // set xyz
     qDebug() << "XYZ  (" << m_x << "," << m_y<<"," << m_z << ")";
 
 }
@@ -43,13 +43,13 @@ GParticle2::GParticle2(float radius, float theta, float phi,
 #define PI 3.14159265
 #define PI180 (180/PI)
 #define DECEL 0.999
-void GParticle2 ::update(float deltaTime, Wind w, float wind_r, Accel a){
+void GParticle2 ::update(float deltaTime, Wind w, Accel a){
 
 #define MAXV 10.0
     if (w.x != 0 ) {
         // we have wind
-        if ((m_x > w.x-wind_r) && (m_x < w.x+wind_r) &&
-                (m_y > w.y-wind_r) && (m_y < w.y+wind_r)) {
+        if ((m_x > w.x-w.r) && (m_x < w.x+w.r) &&
+                (m_y > w.y-w.r) && (m_y < w.y+w.r)) {
             if (m_z > 0) {
                 m_vph += w.vx;
                 m_vth += w.vy;

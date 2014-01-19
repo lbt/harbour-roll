@@ -10,6 +10,7 @@ public:
         float y;
         float vx;
         float vy;
+        float r; // radius of effectb
     };
     struct Accel {
         float x;
@@ -24,7 +25,7 @@ public:
               float rvx, float ryv, float rzv,
               float scale);
 
-    void update(float dt, Wind w, float wind_r, Accel a);
+    void update(float dt, Wind w, Accel a);
     QMatrix4x4 matrix(QMatrix4x4 input);
     QMatrix4x4 worldMatrix();
     float x();

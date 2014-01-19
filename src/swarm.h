@@ -5,6 +5,9 @@
 #include "gparticle.h"
 #include "gparticle2.h"
 #include "glprogram.h"
+#include "rotationmanager.h"
+
+
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QMouseEvent>
@@ -33,12 +36,23 @@ class Swarm : public GLItem
         VertexData* vertices;
         GLushort* indices;
     };
-    struct DirectionalLight
+    struct BaseLight
     {
         QVector3D Color;
         qreal AmbientIntensity;
-        QVector3D Direction;
         qreal DiffuseIntensity;
+    };
+    struct DirectionalLight: public BaseLight
+    {
+        QVector3D Direction;
+    };
+
+    struct PointLight: public BaseLight
+    {
+        QVector3D Position;
+        qreal AConstant;
+        qreal ALinear;
+        qreal AExp;
     };
 
     Q_PROPERTY(int numParticles READ numParticles WRITE setNumParticles NOTIFY numParticlesChanged)
@@ -69,6 +83,8 @@ public:
 
     void setXYZ(QVector3D v);
     void handleUse();
+    void handleTouchAsWind(GLProgram*);
+    void handleTouchAsRotation(GLProgram*);
     void prep();
     void render();
 
@@ -97,12 +113,16 @@ private:
     GLProgram *m_program_line;
     GLProgram *m_program_particle;
     
+    RotationManager m_rotmanager;
+
     QVector3D m_cameraPos;
     QVector3D m_cameraRot;
     QVector3D m_lightDir1;
     QVector3D m_lightCol1;
     QVector3D m_lightDir2;
     QVector3D m_lightCol2;
+
+    PointLight m_pLights[3];
 
     int m_frame;
     int m_orientationInDegrees;

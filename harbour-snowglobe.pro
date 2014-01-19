@@ -20,7 +20,8 @@ SOURCES += src/harbour-snowglobe.cpp \
     src/glitem.cpp \
     src/gparticle.cpp \
     src/gparticle2.cpp \
-    src/glprogram.cpp
+    src/glprogram.cpp \
+    src/rotationmanager.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -61,5 +62,6 @@ HEADERS += \
     src/glitem.h \
     src/gparticle.h \
     src/gparticle2.h \
-    src/glprogram.h
+    src/glprogram.h \
+    src/rotationmanager.h
 

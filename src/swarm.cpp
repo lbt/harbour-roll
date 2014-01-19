@@ -20,6 +20,11 @@
 #define VMIN -1.0
 #define VMAX 1.0
 
+#define WIND_R 0.1
+#define FOVY 70
+#define ASPECT (540.0/960.0)
+#define MAXV 1.5
+
 Swarm::Swarm(QObject *parent) :
     GLItem()
   , m_frame(0)
@@ -33,8 +38,10 @@ Swarm::Swarm(QObject *parent) :
   , m_lastWind({0,0,0,0})
   , m_cameraPos({0,0,0.2})
   , m_cameraRot({0,0,0})
-  , m_lightCol1({1,1,1})
-  , m_lightCol2({0.1,0.1,1})
+  , m_lightCol1({0,0,0})
+  , m_lightCol2({0,0,0})
+  //  , m_lightCol1({1,1,1})
+  //  , m_lightCol2({0.1,0.1,1})
   , m_lightDir1({0.2, -0.2, -0.5})
   , m_lightDir2({-0.2, -0.2, -0.5})
 {
@@ -50,6 +57,18 @@ Swarm::Swarm(QObject *parent) :
                               );
     }
     m_sensor.start();
+
+    for (int i=0; i<3; i++) {
+        m_pLights[i].Color = QVector3D(0.5+rnd(0.5), 0.5+rnd(0.5), 0.5+rnd(0.5));
+        //        m_pLights[i].Color = QVector3D(0,0,0);
+        m_pLights[i].Position = QVector3D(rnd(5.0),rnd(5.0),rnd(5.0));
+        m_pLights[i].AmbientIntensity=0.0;
+        m_pLights[i].DiffuseIntensity=0.2;
+        m_pLights[i].AConstant = 0.1;
+        m_pLights[i].ALinear = 0.001;
+        m_pLights[i].AExp = 0.001;
+    }
+    m_pLights[0].Position = QVector3D(0,0,0);
 }
 float Swarm::rnd(float max) {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max);
@@ -298,50 +317,9 @@ void Swarm::prep()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
-void Swarm::render()
-{
-#define WIND_R 0.1
-#define FOVY 70
-#define ASPECT (540.0/960.0)
-#define MAXV 1.5
-
-    handleUse();
-
-    GLProgram *p = m_program_particle;
-    p->bind();
-    QMatrix4x4 projMatrix;
-    projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
-    p->setUniformValue(p->getU("projMatrixU"), projMatrix);
-
-    QMatrix4x4 viewMatrix;
-    viewMatrix.rotate(m_orientationInDegrees,0,0,1); // handle device rotation
-    viewMatrix.translate(0.0, -0.0, p_depth); // This is essentially a camera translate...
-    p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
-
-    // Bind the texture
-    m_texture->bind();
-    // Use texture unit 0 which contains cube.png
-    p->setUniformValue(p->getU("textureU"), 0);
-
-
-    // Setup Model
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
-
-    // Because we're using VBOs for vertex, tex and normals this is pointer into them
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_0);
-    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_1);
-    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_2);
-
-    glEnableVertexAttribArray(p->getA("posA"));
-    glEnableVertexAttribArray(p->getA("texA"));
-    glEnableVertexAttribArray(p->getA("normalA"));
-
+void Swarm::handleTouchAsWind(GLProgram *p) {
     float xvp,yvp,f;
-    float wind_r = 0;
+    m_wind.r = 0;
     m_wind.y = 0;
     m_wind.x = 0;
     if (p_pressed) {
@@ -360,7 +338,7 @@ void Swarm::render()
         m_wind.vx = 0;
         m_wind.vy = 0;
         // how big an area does the wind affect at depth
-        wind_r = (WIND_R/f) * p_depth * -1;
+        m_wind.r = (WIND_R/f) * p_depth * -1;
     }
     if (p_pressed and m_XYdeltaTime != 0) {
         // Some finger movement has happened - calculate some wind.
@@ -399,6 +377,59 @@ void Swarm::render()
         //        m_program->setUniformValue(m_matrixUniform, cubeM);
         //        glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
+}
+
+void Swarm::handleTouchAsRotation(GLProgram *p){
+    if (p_pressed) {
+        m_rotmanager.touch(p_x, p_y);
+    } else {
+        m_rotmanager.release();
+    }
+}
+
+void Swarm::render()
+{
+
+    handleUse();
+
+    GLProgram *p = m_program_particle;
+    p->bind();
+    QMatrix4x4 projMatrix;
+    projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
+    p->setUniformValue(p->getU("projMatrixU"), projMatrix);
+
+    handleTouchAsRotation(p);
+
+    QMatrix4x4 viewMatrix;
+    viewMatrix = m_rotmanager.transform(viewMatrix);
+    viewMatrix.rotate(m_orientationInDegrees,0,0,1); // handle device rotation
+
+//    viewMatrix.translate(0.0, -0.0, p_depth); // This is essentially a camera translate...
+    p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
+
+    // Bind the texture
+    m_texture->bind();
+    // Use texture unit 0 which contains cube.png
+    p->setUniformValue(p->getU("textureU"), 0);
+
+
+    // Setup Model
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
+
+    // Because we're using VBOs for vertex, tex and normals this is pointer into them
+    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+                          (const void *)VertexData_0);
+    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+                          (const void *)VertexData_1);
+    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+                          (const void *)VertexData_2);
+
+    glEnableVertexAttribArray(p->getA("posA"));
+    glEnableVertexAttribArray(p->getA("texA"));
+    glEnableVertexAttribArray(p->getA("normalA"));
+
+    // handleTouchAsWind(p);
 
     // Some accel based colour
     QAccelerometerReading *reading = m_sensor.reading();
@@ -429,6 +460,17 @@ void Swarm::render()
     p->setUniformValue(p->getU("specularPowerU"), 32.0f);
     p->setUniformValue(p->getU("eyeWorldPosU"), QVector3D(-1.0, 1.0, -p_depth));
 
+    for (unsigned int i = 0 ; i < 3 ; i++) {
+        QString pln("pointLights[%1].");
+        p->setUniformValue(p->getU(pln.arg(i)+"Position"), m_pLights[i].Position);
+        p->setUniformValue(p->getU(pln.arg(i)+"AConstant"), m_pLights[i].AConstant);
+        p->setUniformValue(p->getU(pln.arg(i)+"ALinear"), m_pLights[i].ALinear);
+        p->setUniformValue(p->getU(pln.arg(i)+"AExp"), m_pLights[i].AExp);
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_pLights[i].Color);
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_pLights[i].DiffuseIntensity);
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_pLights[i].AmbientIntensity);
+    }
+
     // Update and draw the particles.
     GParticle2::Accel a= {reading->x(), reading->y(), reading->z()};
     //    qDebug() << "Accel a(" << a.x << "," << a.y<<"," << a.z << ")";
@@ -436,8 +478,8 @@ void Swarm::render()
     QList<GParticle2>::iterator i;
     int modelN=0;
     for (i = m_swarm.begin(); i != m_swarm.end(); ++i,++modelN) {
-        //        i->update(TICK/1000.0, m_wind, wind_r, a );
-        i->update(TICK/1000.0, m_wind, wind_r, {0,0,0} );
+        //        i->update(TICK/1000.0, m_wind,  a );
+        i->update(TICK/1000.0, m_wind, {0,0,0} );
         p->setUniformValue(p->getU("worldMatrixU"), i->worldMatrix());
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
@@ -497,6 +539,12 @@ void Swarm::render()
     glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
     glDrawArrays(GL_LINES, 0, 2);
 
+    for (unsigned int i = 0 ; i < 3 ; i++) {
+        p->setUniformValue(p->getU("colU"), QVector4D(m_pLights[i].Color, 1));
+        diag[0]= m_pLights[i].Position;
+        glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+        glDrawArrays(GL_LINES, 0, 2);
+    }
     p->release();
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

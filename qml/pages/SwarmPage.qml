@@ -111,19 +111,19 @@ Page {                                          id: page
                         Slider {                        id: slideX
                             width: parent.width
                             minimumValue: 0; maximumValue: 1
-                            value: aswarm.x; stepSize: 0.01
+                            stepSize: 0.01
                             valueText: value.toFixed(2);
                         }
                         Slider {                        id: slideY
                             width: parent.width
                             minimumValue: 0; maximumValue: 1
-                            value: aswarm.y; stepSize: 0.01
+                            stepSize: 0.01
                             valueText: value.toFixed(2);
                         }
                         Slider {                        id: slideZ
                             width: parent.width
                             minimumValue: 0; maximumValue: 1
-                            value: aswarm.z; stepSize: 0.01
+                            stepSize: 0.01
                             valueText: value.toFixed(2);
                         }
                     }
