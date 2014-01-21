@@ -56,9 +56,9 @@ Swarm::Swarm(QObject *parent) :
 
     for (int i=0; i<3; i++) {
         m_dLights[i].Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
-        m_dLights[i].Base.Color = QVector3D(0,0,0);
+        ///m_dLights[i].Base.Color = QVector3D(0,0,0);
         m_dLights[i].Base.AmbientIntensity=0.0;
-        m_dLights[i].Base.DiffuseIntensity=0.5;
+        m_dLights[i].Base.DiffuseIntensity=0.1;
         m_dLights[i].Direction = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0).normalized();
     }
 
@@ -67,12 +67,12 @@ Swarm::Swarm(QObject *parent) :
         m_pLights[i].Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
         qDebug() << "Setting plights[" << i << "] " << m_pLights[i].Base.Color ;
         //m_pLights[i].Base.Color = QVector3D(0,0,0);
-        m_pLights[i].Base.AmbientIntensity=0.0;
+        m_pLights[i].Base.AmbientIntensity=0.2;
         m_pLights[i].Base.DiffuseIntensity=1.0;
         m_pLights[i].Position = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0);
         m_pLights[i].AConstant = 0.1;
-        m_pLights[i].ALinear = 0.5;
-        m_pLights[i].AExp = 0.1;
+        m_pLights[i].ALinear = 0.2;
+        m_pLights[i].AExp = 0.05;
     }
 //    m_pLights[0].Base.Color = QVector3D(1,0,0);
 //    m_pLights[1].Base.Color = QVector3D(0,1,0);
@@ -478,8 +478,8 @@ void Swarm::render()
     QList<GParticle2>::iterator i;
     int modelN=0;
     for (i = m_swarm.begin(); i != m_swarm.end(); ++i,++modelN) {
-        //        i->update(TICK/1000.0, m_wind,  a );
-        i->update(TICK/1000.0, m_wind, {0,0,0} );
+                i->update(TICK/1000.0, m_wind,  a );
+        //i->update(TICK/1000.0, m_wind, {0,0,0} );
         p->setUniformValue(p->getU("worldMatrixU"), i->worldMatrix());
         glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
     }
