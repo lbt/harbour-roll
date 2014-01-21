@@ -57,8 +57,8 @@ Swarm::Swarm(QObject *parent) :
     for (int i=0; i<3; i++) {
         m_dLights[i].Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
         ///m_dLights[i].Base.Color = QVector3D(0,0,0);
-        m_dLights[i].Base.AmbientIntensity=0.0;
-        m_dLights[i].Base.DiffuseIntensity=0.1;
+        m_dLights[i].Base.AmbientIntensity=0.2;
+        m_dLights[i].Base.DiffuseIntensity=0.4;
         m_dLights[i].Direction = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0).normalized();
     }
 
@@ -82,7 +82,6 @@ Swarm::Swarm(QObject *parent) :
 //    m_pLights[2].Position = QVector3D(0, 0, -5);
     //    m_pLights[0].Base.Color = QVector3D(0.5+rnd(0.5), 0.5+rnd(0.5), 0.5+rnd(0.5));
 
-    bullet.setupModel();
 }
 float Swarm::rnd(float max) {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max);
@@ -245,6 +244,8 @@ void Swarm::prep()
     m_program_line = new GLProgram();
     qDebug() << "created programs";
 
+    bullet.setupModel();
+    m_bulletTime.start();
     // prep must add and link any shaders
     m_program_particle->addShaderFromSourceFile(QOpenGLShader::Vertex,
                                                 SailfishApp::pathTo("swarm_vert.glsl").toLocalFile());
@@ -393,7 +394,7 @@ void Swarm::handleTouchAsWind(GLProgram *p) {
     }
 }
 
-void Swarm::handleTouchAsRotation(GLProgram *p){
+void Swarm::handleTouchAsRotation(){
     if (p_pressed) {
         m_rotmanager.touch(p_x, p_y);
     } else {
@@ -403,53 +404,30 @@ void Swarm::handleTouchAsRotation(GLProgram *p){
 
 void Swarm::render()
 {
+    handleUse(); // QML input from properties
 
-    handleUse();
+    // Handle touch events
+    handleTouchAsRotation();
 
-    bullet.runStep();
+    // This should be handled in another thread I think
+    // Get the real world information
+    QAccelerometerReading *reading = m_sensor.reading();
+    GParticle2::Accel a= {reading->x(), reading->y(), reading->z()};
+    bullet.setGravity(reading->x(), reading->y(), reading->z());
+    bullet.runStep(m_bulletTime.restart());
 
+    // Prepare to actually draw ///////////////////////////////////////////////////////////
     GLProgram *p = m_program_particle;
     p->bind();
     QMatrix4x4 projMatrix;
     projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
     p->setUniformValue(p->getU("projMatrixU"), projMatrix);
 
-    handleTouchAsRotation(p);
-
     QMatrix4x4 viewMatrix;
     viewMatrix = m_rotmanager.transform(viewMatrix);
-    //    viewMatrix.rotate(m_orientationInDegrees,0,0,1); // handle device rotation
-
-    //    viewMatrix.translate(0.0, -0.0, p_depth); // This is essentially a camera translate...
     p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
 
-    // Bind the texture
-    m_texture->bind();
-    // Use texture unit 0 which contains cube.png
-    p->setUniformValue(p->getU("textureU"), 0);
-
-
-    // Setup Model
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
-
-    // Because we're using VBOs for vertex, tex and normals this is pointer into them
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_0);
-    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_1);
-    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_2);
-
-    glEnableVertexAttribArray(p->getA("posA"));
-    glEnableVertexAttribArray(p->getA("texA"));
-    glEnableVertexAttribArray(p->getA("normalA"));
-
-    // handleTouchAsWind(p);
-
-    // Some accel based colour
-    QAccelerometerReading *reading = m_sensor.reading();
-
+    // Setup lighting /////////////////////////////////////////////////////////////////////
     for (unsigned int i = 0 ; i < 2 ; i++) {
         QString pln("directionalLights[%1].");
         p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_dLights[i].Base.Color);
@@ -474,20 +452,34 @@ void Swarm::render()
     p->setUniformValue(p->getU("specularPowerU"), 32.0f);
     p->setUniformValue(p->getU("eyeWorldPosU"), m_rotmanager.at());
 
-    // Update and draw the particles.
-    GParticle2::Accel a= {reading->x(), reading->y(), reading->z()};
-    bullet.setGravity(reading->x(), reading->y(), reading->z());
-    //    qDebug() << "Accel a(" << a.x << "," << a.y<<"," << a.z << ")";
-    m_swarmMutex.lock();
-    QList<GParticle2>::iterator i;
-    int modelN=0;
-    for (i = m_swarm.begin(); i != m_swarm.end(); ++i,++modelN) {
-                i->update(TICK/1000.0, m_wind,  a );
-        //i->update(TICK/1000.0, m_wind, {0,0,0} );
-        p->setUniformValue(p->getU("worldMatrixU"), i->worldMatrix());
-        glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
-    }
-    m_swarmMutex.unlock();
+
+    // Bind the texture and use texture unit 0 which contains cube.png
+    m_texture->bind();
+    p->setUniformValue(p->getU("textureU"), 0);
+
+    // Render the ground/walls /////////////////////////////////////////////////////////////////////
+
+    // TODO
+
+    // Setup Model for cubes /////////////////////////////////////////////////////////////////////
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
+
+    // Because we're using VBOs for vertex, tex and normals this is pointer into them
+    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+                          (const void *)VertexData_0);
+    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+                          (const void *)VertexData_1);
+    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+                          (const void *)VertexData_2);
+
+    glEnableVertexAttribArray(p->getA("posA"));
+    glEnableVertexAttribArray(p->getA("texA"));
+    glEnableVertexAttribArray(p->getA("normalA"));
+
+    // Update and draw the world
+    bullet.renderCubes(p);
+
     if (p_pressed) {
         m_lastWind.x = m_wind.x;
         m_lastWind.y = m_wind.y;
@@ -542,31 +534,32 @@ void Swarm::render()
     //    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
     //    glDrawArrays(GL_LINES, 0, 2);
 
-    glLineWidth(3);
+    glLineWidth(20);
     for (unsigned int i = 0 ; i < 2 ; i++) {
         p->setUniformValue(p->getU("colU"), QVector4D(m_dLights[i].Base.Color, 1));
         diag[0]= m_dLights[i].Direction;
         glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-        glDrawArrays(GL_LINES, 0, 2);
+        glDrawArrays(GL_POINTS, 0, 1);
     }
-    glLineWidth(5);
+
+    glLineWidth(10);
     for (unsigned int i = 0 ; i < 3 ; i++) {
         p->setUniformValue(p->getU("colU"), QVector4D(m_pLights[i].Base.Color, 1));
         diag[0]= m_pLights[i].Position;
         glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-        glDrawArrays(GL_LINES, 0, 2);
+        glDrawArrays(GL_POINTS, 0, 1);
     }
 
-    glLineWidth(5);
-    p->setUniformValue(p->getU("colU"), QVector4D(1,0,0, 1));
-    diag[0]= m_rotmanager.at();
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-    glDrawArrays(GL_LINES, 0, 2);
-    glLineWidth(3);
-    p->setUniformValue(p->getU("colU"), QVector4D(0,0,1, 1));
-    diag[0]= m_rotmanager.at();
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-    glDrawArrays(GL_LINES, 0, 2);
+//    glLineWidth(5);
+//    p->setUniformValue(p->getU("colU"), QVector4D(1,0,0, 1));
+//    diag[0]= m_rotmanager.at();
+//    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+//    glDrawArrays(GL_LINES, 0, 2);
+//    glLineWidth(3);
+//    p->setUniformValue(p->getU("colU"), QVector4D(0,0,1, 1));
+//    diag[0]= m_rotmanager.at();
+//    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+//    glDrawArrays(GL_LINES, 0, 2);
 
 
     p->release();

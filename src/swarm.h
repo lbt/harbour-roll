@@ -87,7 +87,7 @@ public:
     void setXYZ(QVector3D v);
     void handleUse();
     void handleTouchAsWind(GLProgram*);
-    void handleTouchAsRotation(GLProgram*);
+    void handleTouchAsRotation();
     void prep();
     void render();
 
@@ -150,6 +150,7 @@ private:
 
     QAccelerometer m_sensor;
     Bullet bullet;
+    QElapsedTimer m_bulletTime;
 };
 
 #endif // SWARM_H

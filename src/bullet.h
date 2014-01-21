@@ -2,10 +2,13 @@
 #define BULLET_H
 
 #include <QObject>
-#include <QVector>
+#include <QVector3D>
+#include <QList>
 
 #include <btBulletDynamicsCommon.h>
 #include <stdio.h>
+
+#include "glprogram.h"
 
 class Bullet : public QObject
 {
@@ -15,8 +18,13 @@ public:
     ~Bullet();
 
     void setupModel();
-    void runStep();
+    void runStep(int ms);
     void report();
+
+    void renderWalls(GLProgram *p);
+    void renderCubes(GLProgram *p);
+    void addWall(btVector3 normal, float offset);
+    void addCube(btVector3 pos, btCollisionShape *shape);
 
 signals:
 
@@ -32,6 +40,8 @@ private:
     btDiscreteDynamicsWorld* dynamicsWorld;
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
+    QList<btCollisionObject*> m_cubes;
+    QList<btCollisionObject*>::iterator m_cubes_i;
 
 };
 

@@ -69,74 +69,86 @@ Bullet::~Bullet()
 
 }
 
+
+void Bullet::addWall(btVector3 normal, float offset) {
+        btTransform groundTransform;
+        groundTransform.setIdentity();
+        groundTransform.setOrigin(btVector3(0,0,0));  // position the groundbox at origin
+
+        btScalar	mass(0.f);
+        btVector3 localInertia(0,0,0);
+        btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+
+        btCollisionShape* groundShape = new btStaticPlaneShape(normal, offset);
+        collisionShapes.push_back(groundShape);
+        btRigidBody* body = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(
+                                                mass, myMotionState, groundShape, localInertia));
+        dynamicsWorld->addRigidBody(body);
+}
+
+void Bullet::addCube(btVector3 pos, btCollisionShape *shape)
+{
+    /// Create Dynamic Objects
+    btTransform startTransform;
+    startTransform.setIdentity();
+    startTransform.setOrigin(pos);
+
+    btScalar	mass(0.1f);
+    //rigidbody is dynamic if and only if mass is non zero, otherwise static
+    bool isDynamic = (mass != 0.f);
+
+    btVector3 localInertia(0,0,0);
+    if (isDynamic)
+        shape->calculateLocalInertia(mass,localInertia);
+
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
+    btRigidBody* body = new btRigidBody(rbInfo);
+    m_cubes << body;
+
+    dynamicsWorld->addRigidBody(body);
+}
+
 void Bullet::setupModel()
 {
     int i;
     qDebug() << "Doing bullet setup";
 
     ///create a few basic rigid bodies
-    btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-
-    collisionShapes.push_back(groundShape);
-
-    btTransform groundTransform;
-    groundTransform.setIdentity();
-    groundTransform.setOrigin(btVector3(0,-56,0));
-
-    {
-        btScalar mass(0.);
-
-        //rigidbody is dynamic if and only if mass is non zero, otherwise static
-        bool isDynamic = (mass != 0.f);
-
-        btVector3 localInertia(0,0,0);
-        if (isDynamic)
-            groundShape->calculateLocalInertia(mass,localInertia);
-
-        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-        btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
-        btRigidBody* body = new btRigidBody(rbInfo);
-
-        //add the body to the dynamics world
-        dynamicsWorld->addRigidBody(body);
-
-    }
+    this->addWall(btVector3( 0, 0, 1), -5);
+    this->addWall(btVector3( 0, 0,-1), -5);
+    this->addWall(btVector3( 0, 1, 0), -5);
+    this->addWall(btVector3( 0,-1, 0), -5);
+    this->addWall(btVector3( 1, 0, 0), -5);
+    this->addWall(btVector3(-1, 0, 0), -5);
 
     {
         //create a dynamic rigidbody
-
-        //btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
-        btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+        btCollisionShape* colShape = new btBoxShape(btVector3(.5,.5,.5));
         collisionShapes.push_back(colShape);
 
-        /// Create Dynamic Objects
-        btTransform startTransform;
-        startTransform.setIdentity();
+        this->addCube(btVector3(0,0,5), colShape);
+        this->addCube(btVector3(0, 0.2, 4), colShape);
+        this->addCube(btVector3(0.6, -0.1, 4), colShape);
+        this->addCube(btVector3(-0.6, 0.1, 3), colShape);
+        this->addCube(btVector3(0.1, 0.2, 2), colShape);
+        this->addCube(btVector3(0,0,5), colShape);
+        this->addCube(btVector3(0, 0.2, 4), colShape);
+        this->addCube(btVector3(0.6, -0.1, 4), colShape);
+        this->addCube(btVector3(-0.6, 0.1, 3), colShape);
+        this->addCube(btVector3(0.1, 0.2, 2), colShape);
+        this->addCube(btVector3(0,0,5), colShape);
+        this->addCube(btVector3(0, 0.2, 4), colShape);
+        this->addCube(btVector3(0.6, -0.1, 4), colShape);
+        this->addCube(btVector3(-0.6, 0.1, 3), colShape);
+        this->addCube(btVector3(0.1, 0.2, 2), colShape);
 
-        btScalar	mass(1.f);
-
-        //rigidbody is dynamic if and only if mass is non zero, otherwise static
-        bool isDynamic = (mass != 0.f);
-
-        btVector3 localInertia(0,0,0);
-        if (isDynamic)
-            colShape->calculateLocalInertia(mass,localInertia);
-
-        startTransform.setOrigin(btVector3(2,10,0));
-
-        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-        btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-        btRigidBody* body = new btRigidBody(rbInfo);
-
-        dynamicsWorld->addRigidBody(body);
     }
 }
 
-void Bullet::runStep()
+void Bullet::runStep(int ms)
 {
-    dynamicsWorld->stepSimulation(1.f/60.f,10);
+    dynamicsWorld->stepSimulation(ms/100.f, 10, 1.f/300.f);
 }
 
 void Bullet::report()
@@ -150,12 +162,49 @@ void Bullet::report()
         {
             btTransform trans;
             body->getMotionState()->getWorldTransform(trans);
-            printf("world pos = %f,%f,%f\n",float(trans.getOrigin().getX()),float(trans.getOrigin().getY()),float(trans.getOrigin().getZ()));
+//            printf("world pos = %f,%f,%f\n",float(trans.getOrigin().getX()),float(trans.getOrigin().getY()),float(trans.getOrigin().getZ()));
         }
     }
 }
 
+void Bullet::renderWalls(GLProgram *p)
+{
+
+}
+
+QMatrix4x4 transform2Matrix(btTransform *transform) {
+    float ft[16];
+    transform->getOpenGLMatrix(ft);
+
+    return QMatrix4x4(ft[0], ft[1], ft[2], ft[3],
+            ft[4],  ft[5],  ft[6],  ft[7],
+            ft[8],  ft[9],  ft[10], ft[11],
+            ft[12], ft[13], ft[14], ft[15]).transposed();
+}
+
+void Bullet::renderCubes(GLProgram *p)
+{
+    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
+        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
+        if (body && body->getMotionState())
+        {
+            btTransform trans;
+            body->getMotionState()->getWorldTransform(trans);
+//            printf("world pos (%f,%f,%f)\n",float(trans.getOrigin().getX()),float(trans.getOrigin().getY()),float(trans.getOrigin().getZ()));
+            QMatrix4x4  world;
+            world.scale(0.5, 0.5, 0.5);
+            QMatrix4x4  pos = transform2Matrix(&trans);
+            p->setUniformValue(p->getU("worldMatrixU"), pos*world);
+            glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+            body->activate();
+        }
+    }
+
+}
 
 void Bullet::setGravity(qreal x, qreal y, qreal z) {
-    dynamicsWorld->setGravity(btVector3(x, y, z));
+    dynamicsWorld->setGravity(btVector3(-x, -y, -z));
+//    dynamicsWorld->setGravity(btVector3(0, 0, z/10.0));
 }
+
+
