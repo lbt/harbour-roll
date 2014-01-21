@@ -11,11 +11,13 @@ Description: |
 Configure: none
 Builder: qtc5
 PkgConfigBR:
+- bullet
 - sailfishapp
 - Qt5Quick
 - Qt5Qml
 - Qt5Core
 Requires:
+- libbullet
 - sailfishsilica-qt5
 Files:
 - /usr/share/icons/hicolor/86x86/apps

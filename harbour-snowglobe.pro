@@ -11,6 +11,7 @@ TARGET = harbour-snowglobe
 QT += sensors
 
 CONFIG += sailfishapp
+PKGCONFIG += bullet
 
 SOURCES += src/harbour-snowglobe.cpp \
     src/globegeometry.cpp \
@@ -21,7 +22,8 @@ SOURCES += src/harbour-snowglobe.cpp \
     src/gparticle.cpp \
     src/gparticle2.cpp \
     src/glprogram.cpp \
-    src/rotationmanager.cpp
+    src/rotationmanager.cpp \
+    src/bullet.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -63,5 +65,6 @@ HEADERS += \
     src/gparticle.h \
     src/gparticle2.h \
     src/glprogram.h \
-    src/rotationmanager.h
+    src/rotationmanager.h \
+    src/bullet.h
 

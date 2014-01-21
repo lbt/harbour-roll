@@ -7,6 +7,7 @@
 #include "glprogram.h"
 #include "rotationmanager.h"
 
+#include "bullet.h"
 
 #include <QTimer>
 #include <QElapsedTimer>
@@ -148,6 +149,7 @@ private:
     QElapsedTimer m_lastTime;
 
     QAccelerometer m_sensor;
+    Bullet bullet;
 };
 
 #endif // SWARM_H

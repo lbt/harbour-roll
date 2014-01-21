@@ -82,6 +82,7 @@ Swarm::Swarm(QObject *parent) :
 //    m_pLights[2].Position = QVector3D(0, 0, -5);
     //    m_pLights[0].Base.Color = QVector3D(0.5+rnd(0.5), 0.5+rnd(0.5), 0.5+rnd(0.5));
 
+    bullet.setupModel();
 }
 float Swarm::rnd(float max) {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max);
@@ -405,6 +406,8 @@ void Swarm::render()
 
     handleUse();
 
+    bullet.runStep();
+
     GLProgram *p = m_program_particle;
     p->bind();
     QMatrix4x4 projMatrix;
@@ -473,6 +476,7 @@ void Swarm::render()
 
     // Update and draw the particles.
     GParticle2::Accel a= {reading->x(), reading->y(), reading->z()};
+    bullet.setGravity(reading->x(), reading->y(), reading->z());
     //    qDebug() << "Accel a(" << a.x << "," << a.y<<"," << a.z << ")";
     m_swarmMutex.lock();
     QList<GParticle2>::iterator i;
