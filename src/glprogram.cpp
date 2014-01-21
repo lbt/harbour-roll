@@ -14,6 +14,7 @@ GLuint GLProgram::getA(QString a) {
         return p;
     }
     m_attributes[a]=p;
+    return p;
 }
 
 GLuint GLProgram::getU(QString u) {
@@ -26,5 +27,6 @@ GLuint GLProgram::getU(QString u) {
         return p;
     }
     m_uniforms[u]=p;
+    return p;
 }
 

@@ -7,7 +7,7 @@
 
 RotationManager::RotationManager(QObject *parent) :
     QObject(parent)
-  , m_depth(-10)
+  , m_depth(10)
   , m_phi(0)
   , m_theta(0)
   , m_touchY(0)
@@ -42,8 +42,12 @@ void RotationManager::release() {
 }
 
 QMatrix4x4 RotationManager::transform(QMatrix4x4 v) {
-    v.translate(0, 0, m_depth);
+    v.translate(0, 0, -m_depth);
     v.rotate(m_theta, 1, 0, 0);
     v.rotate(m_phi, 0, 1, 0);
     return v;
+}
+
+QVector3D RotationManager::at() { // position of the camera in the world
+    return QVector3D(0,0,m_depth);
 }

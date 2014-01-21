@@ -12,6 +12,7 @@ public:
 
     bool isActive() const { return m_pressed; }
     QMatrix4x4 transform(QMatrix4x4 v);
+    QVector3D at();
 
 signals:
 

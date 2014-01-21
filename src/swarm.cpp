@@ -10,6 +10,8 @@
 
 #include "math.h"
 
+#include <QDebug>
+
 #define RADIUS 5.0
 #define PI 3.1415926535
 #define PI2 6.283185307
@@ -38,12 +40,6 @@ Swarm::Swarm(QObject *parent) :
   , m_lastWind({0,0,0,0})
   , m_cameraPos({0,0,0.2})
   , m_cameraRot({0,0,0})
-  , m_lightCol1({0,0,0})
-  , m_lightCol2({0,0,0})
-  //  , m_lightCol1({1,1,1})
-  //  , m_lightCol2({0.1,0.1,1})
-  , m_lightDir1({0.2, -0.2, -0.5})
-  , m_lightDir2({-0.2, -0.2, -0.5})
 {
     Q_UNUSED(parent)
     m_timer.setInterval(TICK);;
@@ -59,16 +55,33 @@ Swarm::Swarm(QObject *parent) :
     m_sensor.start();
 
     for (int i=0; i<3; i++) {
-        m_pLights[i].Color = QVector3D(0.5+rnd(0.5), 0.5+rnd(0.5), 0.5+rnd(0.5));
-        //        m_pLights[i].Color = QVector3D(0,0,0);
-        m_pLights[i].Position = QVector3D(rnd(5.0),rnd(5.0),rnd(5.0));
-        m_pLights[i].AmbientIntensity=0.0;
-        m_pLights[i].DiffuseIntensity=0.2;
-        m_pLights[i].AConstant = 0.1;
-        m_pLights[i].ALinear = 0.001;
-        m_pLights[i].AExp = 0.001;
+        m_dLights[i].Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
+        m_dLights[i].Base.Color = QVector3D(0,0,0);
+        m_dLights[i].Base.AmbientIntensity=0.0;
+        m_dLights[i].Base.DiffuseIntensity=0.5;
+        m_dLights[i].Direction = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0).normalized();
     }
-    m_pLights[0].Position = QVector3D(0,0,0);
+
+
+    for (int i=0; i<3; i++) {
+        m_pLights[i].Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
+        qDebug() << "Setting plights[" << i << "] " << m_pLights[i].Base.Color ;
+        //m_pLights[i].Base.Color = QVector3D(0,0,0);
+        m_pLights[i].Base.AmbientIntensity=0.0;
+        m_pLights[i].Base.DiffuseIntensity=1.0;
+        m_pLights[i].Position = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0);
+        m_pLights[i].AConstant = 0.1;
+        m_pLights[i].ALinear = 0.5;
+        m_pLights[i].AExp = 0.1;
+    }
+//    m_pLights[0].Base.Color = QVector3D(1,0,0);
+//    m_pLights[1].Base.Color = QVector3D(0,1,0);
+//    m_pLights[2].Base.Color = QVector3D(0,0,1);
+//    m_pLights[0].Position = QVector3D(5, 5, 5);
+//    m_pLights[1].Position = QVector3D(0, 0, 0);
+//    m_pLights[2].Position = QVector3D(0, 0, -5);
+    //    m_pLights[0].Base.Color = QVector3D(0.5+rnd(0.5), 0.5+rnd(0.5), 0.5+rnd(0.5));
+
 }
 float Swarm::rnd(float max) {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max);
@@ -154,29 +167,29 @@ void Swarm::setXYZ(QVector3D v) {
 void Swarm::useXYZ(QString use) {
     m_use = use;
     if (m_use == "light1 col") {
-        setXYZ(m_lightCol1);
+        setXYZ(m_dLights[0].Base.Color);
     } else if (m_use == "light1 dir") {
-        setXYZ((m_lightDir1+QVector3D(1,1,1))*QVector3D(0.5,0.5,0.5));
+        setXYZ((m_dLights[0].Direction+QVector3D(1,1,1))*QVector3D(0.5,0.5,0.5));
     } else if (m_use == "light2 col") {
-        setXYZ(m_lightCol2);
+        setXYZ(m_dLights[1].Base.Color);
     } else if (m_use == "light2 dir") {
-        setXYZ((m_lightDir2+QVector3D(1,1,1))*QVector3D(0.5,0.5,0.5));
+        setXYZ((m_dLights[1].Direction+QVector3D(1,1,1))*QVector3D(0.5,0.5,0.5));
     }
 }
 
 void Swarm::handleUse() {
     if (m_use == "light1 col") {
-        m_lightCol1=QVector3D(p_x, p_y, p_z);
+        m_dLights[0].Base.Color = QVector3D(p_x, p_y, p_z);
     } else if (m_use == "light1 dir") {
-        m_lightDir1=QVector3D((p_x - 0.5)*2,
-                              (p_y - 0.5)*2,
-                              (p_z - 0.5)*2);
+        m_dLights[1].Direction = QVector3D((p_x - 0.5)*2,
+                                           (p_y - 0.5)*2,
+                                           (p_z - 0.5)*2);
     } else if (m_use == "light2 col") {
-        m_lightCol2=QVector3D(p_x, p_y, p_z);
+        m_dLights[1].Base.Color = QVector3D(p_x, p_y, p_z);
     } else if (m_use == "light2 dir") {
-        m_lightDir2=QVector3D((p_x - 0.5)*2,
-                              (p_y - 0.5)*2,
-                              (p_z - 0.5)*2);
+        m_dLights[1].Direction = QVector3D((p_x - 0.5)*2,
+                                           (p_y - 0.5)*2,
+                                           (p_z - 0.5)*2);
     }
 }
 
@@ -402,9 +415,9 @@ void Swarm::render()
 
     QMatrix4x4 viewMatrix;
     viewMatrix = m_rotmanager.transform(viewMatrix);
-    viewMatrix.rotate(m_orientationInDegrees,0,0,1); // handle device rotation
+    //    viewMatrix.rotate(m_orientationInDegrees,0,0,1); // handle device rotation
 
-//    viewMatrix.translate(0.0, -0.0, p_depth); // This is essentially a camera translate...
+    //    viewMatrix.translate(0.0, -0.0, p_depth); // This is essentially a camera translate...
     p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
 
     // Bind the texture
@@ -433,43 +446,30 @@ void Swarm::render()
 
     // Some accel based colour
     QAccelerometerReading *reading = m_sensor.reading();
-    //    aLight.Color = QVector3D(1.0-fabs(reading->x()/10.0), 1.0-fabs(reading->y()/10.0), 1.0-(10.0-fabs(reading->z()))/10.0);
-    DirectionalLight aLight;
-    aLight.Color = m_lightCol1;
-    aLight.AmbientIntensity = 0.3;
-    aLight.Direction = m_lightDir1.normalized();
-    aLight.DiffuseIntensity = 0.6;
 
-    DirectionalLight bLight;
-    bLight.Color = m_lightCol2;
-    bLight.AmbientIntensity = 0.3;
-    bLight.Direction = m_lightDir2.normalized();
-    bLight.DiffuseIntensity = 0.4;
-    // Set up scene lighting
-    p->setUniformValue(p->getU("directionalLightU.Color"), aLight.Color);
-    p->setUniformValue(p->getU("directionalLightU.AmbientIntensity"), aLight.AmbientIntensity);
-    p->setUniformValue(p->getU("directionalLightU.Direction"), aLight.Direction);
-    p->setUniformValue(p->getU("directionalLightU.DiffuseIntensity"), aLight.DiffuseIntensity);
-
-    p->setUniformValue(p->getU("directional2LightU.Color"), bLight.Color);
-    p->setUniformValue(p->getU("directional2LightU.AmbientIntensity"), bLight.AmbientIntensity);
-    p->setUniformValue(p->getU("directional2LightU.Direction"), bLight.Direction);
-    p->setUniformValue(p->getU("directional2LightU.DiffuseIntensity"), bLight.DiffuseIntensity);
-
-    p->setUniformValue(p->getU("matSpecularIntensityU"), 2.0f);
-    p->setUniformValue(p->getU("specularPowerU"), 32.0f);
-    p->setUniformValue(p->getU("eyeWorldPosU"), QVector3D(-1.0, 1.0, -p_depth));
+    for (unsigned int i = 0 ; i < 2 ; i++) {
+        QString pln("directionalLights[%1].");
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_dLights[i].Base.Color);
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_dLights[i].Base.AmbientIntensity);
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_dLights[i].Base.DiffuseIntensity);
+        p->setUniformValue(p->getU(pln.arg(i)+"Direction"), m_dLights[i].Direction);
+    }
 
     for (unsigned int i = 0 ; i < 3 ; i++) {
         QString pln("pointLights[%1].");
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_pLights[i].Base.Color);
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_pLights[i].Base.AmbientIntensity);
+        p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_pLights[i].Base.DiffuseIntensity);
         p->setUniformValue(p->getU(pln.arg(i)+"Position"), m_pLights[i].Position);
+        //qDebug() << "Setting " << pln.arg(i)+"Position" << "] " << m_pLights[i].Position << " in " << p->getU(pln.arg(i)+"Position");
         p->setUniformValue(p->getU(pln.arg(i)+"AConstant"), m_pLights[i].AConstant);
         p->setUniformValue(p->getU(pln.arg(i)+"ALinear"), m_pLights[i].ALinear);
         p->setUniformValue(p->getU(pln.arg(i)+"AExp"), m_pLights[i].AExp);
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_pLights[i].Color);
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_pLights[i].DiffuseIntensity);
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_pLights[i].AmbientIntensity);
     }
+
+    p->setUniformValue(p->getU("matSpecularIntensityU"), 1.0f);
+    p->setUniformValue(p->getU("specularPowerU"), 32.0f);
+    p->setUniformValue(p->getU("eyeWorldPosU"), m_rotmanager.at());
 
     // Update and draw the particles.
     GParticle2::Accel a= {reading->x(), reading->y(), reading->z()};
@@ -514,37 +514,57 @@ void Swarm::render()
     p->setUniformValue(p->getU("worldMatrixU"), originM);
 
     glDisable(GL_DEPTH_TEST);
-    glLineWidth(3);
-    glDrawElements(GL_LINE_STRIP, 10, GL_UNSIGNED_SHORT, 0);
-    //    glDrawArrays(GL_LINES, 0, 6);
+    glLineWidth(1);
+    //    glDrawElements(GL_LINE_STRIP, 10, GL_UNSIGNED_SHORT, 0);
+    glDrawArrays(GL_LINES, 0, 6);
 
 
     // This bit draws a line directly from a Qt array
     glBindBuffer(GL_ARRAY_BUFFER, 0); // use CPU-side data
     glEnableVertexAttribArray(p->getA("posA"));
 
-
     QVector3D diag[] = {
         QVector3D(0, 0, 0), QVector3D(0, 0, 0)
     };
 
     // Set a colour for the shader
-    p->setUniformValue(p->getU("colU"), QVector4D(aLight.Color, 1));
-    diag[0]= aLight.Direction;
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-    glDrawArrays(GL_LINES, 0, 2);
+    //    p->setUniformValue(p->getU("colU"), QVector4D(aLight.Color, 1));
+    //    diag[0]= aLight.Direction;
+    //    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+    //    glDrawArrays(GL_LINES, 0, 2);
 
-    p->setUniformValue(p->getU("colU"), QVector4D(bLight.Color, 1));
-    diag[0]= bLight.Direction;
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-    glDrawArrays(GL_LINES, 0, 2);
+    //    p->setUniformValue(p->getU("colU"), QVector4D(bLight.Color, 1));
+    //    diag[0]= bLight.Direction;
+    //    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+    //    glDrawArrays(GL_LINES, 0, 2);
 
+    glLineWidth(3);
+    for (unsigned int i = 0 ; i < 2 ; i++) {
+        p->setUniformValue(p->getU("colU"), QVector4D(m_dLights[i].Base.Color, 1));
+        diag[0]= m_dLights[i].Direction;
+        glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+        glDrawArrays(GL_LINES, 0, 2);
+    }
+    glLineWidth(5);
     for (unsigned int i = 0 ; i < 3 ; i++) {
-        p->setUniformValue(p->getU("colU"), QVector4D(m_pLights[i].Color, 1));
+        p->setUniformValue(p->getU("colU"), QVector4D(m_pLights[i].Base.Color, 1));
         diag[0]= m_pLights[i].Position;
         glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
         glDrawArrays(GL_LINES, 0, 2);
     }
+
+    glLineWidth(5);
+    p->setUniformValue(p->getU("colU"), QVector4D(1,0,0, 1));
+    diag[0]= m_rotmanager.at();
+    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+    glDrawArrays(GL_LINES, 0, 2);
+    glLineWidth(3);
+    p->setUniformValue(p->getU("colU"), QVector4D(0,0,1, 1));
+    diag[0]= m_rotmanager.at();
+    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+    glDrawArrays(GL_LINES, 0, 2);
+
+
     p->release();
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

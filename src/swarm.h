@@ -42,13 +42,15 @@ class Swarm : public GLItem
         qreal AmbientIntensity;
         qreal DiffuseIntensity;
     };
-    struct DirectionalLight: public BaseLight
+    struct DirectionalLight
     {
+        BaseLight Base;
         QVector3D Direction;
     };
 
-    struct PointLight: public BaseLight
+    struct PointLight
     {
+        BaseLight Base;
         QVector3D Position;
         qreal AConstant;
         qreal ALinear;
@@ -117,11 +119,8 @@ private:
 
     QVector3D m_cameraPos;
     QVector3D m_cameraRot;
-    QVector3D m_lightDir1;
-    QVector3D m_lightCol1;
-    QVector3D m_lightDir2;
-    QVector3D m_lightCol2;
 
+    DirectionalLight m_dLights[2];
     PointLight m_pLights[3];
 
     int m_frame;
