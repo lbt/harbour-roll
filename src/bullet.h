@@ -31,6 +31,7 @@ signals:
 public slots:
     void setGravity(qreal x, qreal y, qreal z);
 
+    void kick();
 private:
     btDefaultCollisionConfiguration* collisionConfiguration;
     btCollisionDispatcher* dispatcher;

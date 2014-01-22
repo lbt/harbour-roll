@@ -23,17 +23,21 @@ void GLItem::handleWindowChanged(QQuickWindow *win)
         // Connect the beforeRendering signal to our paint function.
         // Since this call is executed on the rendering thread it must be
         // a Qt::DirectConnection
+        bool before = true;
 
-        connect(win, SIGNAL(afterRendering()), this, SLOT(paint()), Qt::DirectConnection);
+        if (before)
+            connect(win, SIGNAL(beforeRendering()), this, SLOT(paint()), Qt::DirectConnection);
+        else
+            connect(win, SIGNAL(afterRendering()), this, SLOT(paint()), Qt::DirectConnection);
+
         connect(win, SIGNAL(beforeSynchronizing()), this, SLOT(sync()), Qt::DirectConnection);
 
         // If we allow QML to do the clearing, they would clear what we paint
         // and nothing would show.
-        win->setClearBeforeRendering(false);
-        //        QSurfaceFormat f = win->openglContext()->format();
-        //        f.setDepthBufferSize(24);
-        //        win->openglContext()->setFormat(f);
-        //        win->openglContext()->create();
+        if (before)
+            win->setClearBeforeRendering(false);
+        else
+            win->setClearBeforeRendering(true);
     }
 }
 
@@ -45,8 +49,6 @@ void GLItem::paint()
 
         connect(window()->openglContext(), SIGNAL(aboutToBeDestroyed()),
                 this, SLOT(cleanup()), Qt::DirectConnection);
-        //window()->setClearBeforeRendering(false);
-        window()->setClearBeforeRendering(true);
         initializeOpenGLFunctions();
         this->prep();
     }
@@ -74,7 +76,7 @@ void GLItem::paint()
 //    glDisable(GL_STENCIL_TEST);
 //    glDisable(GL_SCISSOR_TEST);
 //    glColorMask(true, true, true, true);
-//    glClearColor(0, 0, 0, 0);
+    glClearColor(0, 0, 0, 0);
     glDepthMask(true);
 //    glDepthFunc(GL_LESS);
 //    glClearDepthf(1);
@@ -88,7 +90,7 @@ void GLItem::paint()
     glEnable(GL_CULL_FACE);
 
     // actually clear all depth information
-    glClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     // Bind the program and render
     if (m_program->isLinked())

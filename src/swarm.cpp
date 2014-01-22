@@ -23,9 +23,12 @@
 #define VMAX 1.0
 
 #define WIND_R 0.1
-#define FOVY 70
+#define FOVY 50
 #define ASPECT (540.0/960.0)
 #define MAXV 1.5
+
+#define MAXX 2.5
+#define MAXY 5.0
 
 Swarm::Swarm(QObject *parent) :
     GLItem()
@@ -57,8 +60,8 @@ Swarm::Swarm(QObject *parent) :
     for (int i=0; i<3; i++) {
         m_dLights[i].Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
         ///m_dLights[i].Base.Color = QVector3D(0,0,0);
-        m_dLights[i].Base.AmbientIntensity=0.2;
-        m_dLights[i].Base.DiffuseIntensity=0.4;
+        m_dLights[i].Base.AmbientIntensity=0.1;
+        m_dLights[i].Base.DiffuseIntensity=0.1;
         m_dLights[i].Direction = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0).normalized();
     }
 
@@ -69,17 +72,17 @@ Swarm::Swarm(QObject *parent) :
         //m_pLights[i].Base.Color = QVector3D(0,0,0);
         m_pLights[i].Base.AmbientIntensity=0.2;
         m_pLights[i].Base.DiffuseIntensity=1.0;
-        m_pLights[i].Position = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0);
+        m_pLights[i].Position = QVector3D(rnd(MAXX)-MAXX/2,rnd(MAXY)-MAXY/2,rnd(5.0));
         m_pLights[i].AConstant = 0.1;
         m_pLights[i].ALinear = 0.2;
         m_pLights[i].AExp = 0.05;
     }
-//    m_pLights[0].Base.Color = QVector3D(1,0,0);
-//    m_pLights[1].Base.Color = QVector3D(0,1,0);
-//    m_pLights[2].Base.Color = QVector3D(0,0,1);
-//    m_pLights[0].Position = QVector3D(5, 5, 5);
-//    m_pLights[1].Position = QVector3D(0, 0, 0);
-//    m_pLights[2].Position = QVector3D(0, 0, -5);
+    //    m_pLights[0].Base.Color = QVector3D(1,0,0);
+    //    m_pLights[1].Base.Color = QVector3D(0,1,0);
+    //    m_pLights[2].Base.Color = QVector3D(0,0,1);
+    //    m_pLights[0].Position = QVector3D(5, 5, 5);
+    //    m_pLights[1].Position = QVector3D(0, 0, 0);
+    //    m_pLights[2].Position = QVector3D(0, 0, -5);
     //    m_pLights[0].Base.Color = QVector3D(0.5+rnd(0.5), 0.5+rnd(0.5), 0.5+rnd(0.5));
 
 }
@@ -407,7 +410,7 @@ void Swarm::render()
     handleUse(); // QML input from properties
 
     // Handle touch events
-    handleTouchAsRotation();
+//    handleTouchAsRotation();
 
     // This should be handled in another thread I think
     // Get the real world information
@@ -448,7 +451,7 @@ void Swarm::render()
         p->setUniformValue(p->getU(pln.arg(i)+"AExp"), m_pLights[i].AExp);
     }
 
-    p->setUniformValue(p->getU("matSpecularIntensityU"), 1.0f);
+    p->setUniformValue(p->getU("matSpecularIntensityU"), 2.0f);
     p->setUniformValue(p->getU("specularPowerU"), 32.0f);
     p->setUniformValue(p->getU("eyeWorldPosU"), m_rotmanager.at());
 
@@ -485,43 +488,52 @@ void Swarm::render()
         m_lastWind.y = m_wind.y;
         m_lastWind.vx = m_wind.vx;
         m_lastWind.vy = m_wind.vy;
+        for (unsigned int i = 0 ; i < 3 ; i++) {
+            m_pLights[i].Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
+            qDebug() << "Setting plights[" << i << "] " << m_pLights[i].Base.Color ;
+            m_pLights[i].Base.AmbientIntensity=0.2;
+            m_pLights[i].Base.DiffuseIntensity=1.0;
+            m_pLights[i].Position = QVector3D(rnd(MAXX)-MAXX/2,rnd(MAXY)-MAXY/2,rnd(3.0)+2.0);
+            m_pLights[i].AConstant = 0.1;
+            m_pLights[i].ALinear = 0.2;
+            m_pLights[i].AExp = 0.05;
+        }
     }
-
     glDisableVertexAttribArray(p->getA("posA"));
     glDisableVertexAttribArray(p->getA("texA"));
     glDisableVertexAttribArray(p->getA("normalA"));
 
 
     // Now draw some axes
-    p = m_program_line;
-    p->bind();
-    p->setUniformValue(p->getU("colU"), QVector4D(1, 1, 1, 1));
-    p->setUniformValue(p->getU("projMatrixU"), projMatrix);
-    p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
+//    p = m_program_line;
+//    p->bind();
+//    p->setUniformValue(p->getU("colU"), QVector4D(1, 1, 1, 1));
+//    p->setUniformValue(p->getU("projMatrixU"), projMatrix);
+//    p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
 
-    // This bit draws lines by assigning them to a VBO
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[2]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[3]);
-    // Because we're using VBOs for vertex, tex and normals this is pointer into them
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), 0);
-    glEnableVertexAttribArray(p->getA("posA"));
+//    // This bit draws lines by assigning them to a VBO
+//    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[2]);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[3]);
+//    // Because we're using VBOs for vertex, tex and normals this is pointer into them
+//    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), 0);
+//    glEnableVertexAttribArray(p->getA("posA"));
 
-    QMatrix4x4 originM;
-    p->setUniformValue(p->getU("worldMatrixU"), originM);
+//    QMatrix4x4 originM;
+//    p->setUniformValue(p->getU("worldMatrixU"), originM);
 
-    glDisable(GL_DEPTH_TEST);
-    glLineWidth(1);
-    //    glDrawElements(GL_LINE_STRIP, 10, GL_UNSIGNED_SHORT, 0);
-    glDrawArrays(GL_LINES, 0, 6);
+//    glDisable(GL_DEPTH_TEST);
+//    glLineWidth(1);
+//    //    glDrawElements(GL_LINE_STRIP, 10, GL_UNSIGNED_SHORT, 0);
+//    glDrawArrays(GL_LINES, 0, 6);
 
 
-    // This bit draws a line directly from a Qt array
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // use CPU-side data
-    glEnableVertexAttribArray(p->getA("posA"));
+//    // This bit draws a line directly from a Qt array
+//    glBindBuffer(GL_ARRAY_BUFFER, 0); // use CPU-side data
+//    glEnableVertexAttribArray(p->getA("posA"));
 
-    QVector3D diag[] = {
-        QVector3D(0, 0, 0), QVector3D(0, 0, 0)
-    };
+//    QVector3D diag[] = {
+//        QVector3D(0, 0, 0), QVector3D(0, 0, 0)
+//    };
 
     // Set a colour for the shader
     //    p->setUniformValue(p->getU("colU"), QVector4D(aLight.Color, 1));
@@ -534,32 +546,35 @@ void Swarm::render()
     //    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
     //    glDrawArrays(GL_LINES, 0, 2);
 
-    glLineWidth(20);
-    for (unsigned int i = 0 ; i < 2 ; i++) {
-        p->setUniformValue(p->getU("colU"), QVector4D(m_dLights[i].Base.Color, 1));
-        diag[0]= m_dLights[i].Direction;
-        glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-        glDrawArrays(GL_POINTS, 0, 1);
-    }
+//    glLineWidth(20);
+//    for (unsigned int i = 0 ; i < 2 ; i++) {
+//        p->setUniformValue(p->getU("colU"), QVector4D(m_dLights[i].Base.Color, 1));
+//        diag[0]= m_dLights[i].Direction;
+//        glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+//        glDrawArrays(GL_POINTS, 0, 1);
+//    }
 
-    glLineWidth(10);
-    for (unsigned int i = 0 ; i < 3 ; i++) {
-        p->setUniformValue(p->getU("colU"), QVector4D(m_pLights[i].Base.Color, 1));
-        diag[0]= m_pLights[i].Position;
-        glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-        glDrawArrays(GL_POINTS, 0, 1);
-    }
+//    glLineWidth(10);
+//    for (unsigned int i = 0 ; i < 3 ; i++) {
+//        p->setUniformValue(p->getU("colU"), QVector4D(m_pLights[i].Base.Color, 1));
+//        diag[0]= m_pLights[i].Position;
+//        glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+//        glDrawArrays(GL_POINTS, 0, 1);
+//    }
 
-//    glLineWidth(5);
-//    p->setUniformValue(p->getU("colU"), QVector4D(1,0,0, 1));
-//    diag[0]= m_rotmanager.at();
-//    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-//    glDrawArrays(GL_LINES, 0, 2);
-//    glLineWidth(3);
-//    p->setUniformValue(p->getU("colU"), QVector4D(0,0,1, 1));
-//    diag[0]= m_rotmanager.at();
-//    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
-//    glDrawArrays(GL_LINES, 0, 2);
+    //    glLineWidth(5);
+    //    p->setUniformValue(p->getU("colU"), QVector4D(1,0,0, 1));
+    //    diag[0]= m_rotmanager.at();
+    //    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+    //    glDrawArrays(GL_LINES, 0, 2);
+    //    glLineWidth(3);
+    //    p->setUniformValue(p->getU("colU"), QVector4D(0,0,1, 1));
+    //    diag[0]= m_rotmanager.at();
+    //    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, diag);
+    //    glDrawArrays(GL_LINES, 0, 2);
+
+
+//    glDisableVertexAttribArray(p->getA("posA"));
 
 
     p->release();

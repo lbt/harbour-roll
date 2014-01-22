@@ -15,6 +15,7 @@ varying highp vec3 posV;
 void main() {
     // gl_position is relative to the eye/camera
     gl_Position = projMatrixU * viewMatrixU * worldMatrixU * vec4(posA, 1.0);
+    gl_PointSize = 15.0;
 
     // Pass texture coordinate to fragment shader
     // Value will be automatically interpolated to fragments inside polygon faces

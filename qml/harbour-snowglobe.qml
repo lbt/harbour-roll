@@ -34,7 +34,8 @@ import "pages"
 
 ApplicationWindow
 {
-    initialPage: Component { FirstPage { } }
+    _backgroundVisible : false
+    initialPage: Component { SwarmPage { } }
 //    cover: Qt.resolvedUrl("cover/CoverPage.qml")
 }
 

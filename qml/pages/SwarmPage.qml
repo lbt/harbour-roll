@@ -6,13 +6,13 @@ import Swarm 1.0
 
 Page {                                          id: page
     //    allowedOrientations: Orientation.All
-    Rectangle {
+    Item {
         //        contentHeight: childrenRect.height
         anchors.bottom: parent.bottom
         width: parent.width
         height: page.height - menu.height
         anchors.bottomMargin: panel.margin
-        color: "black"
+        //color: "black"
         //         Note that a GLItem is always rendered on top of anything else.
         Swarm {                                 id: aswarm
             anchors.fill: parent
@@ -74,6 +74,11 @@ Page {                                          id: page
             MouseArea { anchors.fill: parent
                 onClicked: {panel.open = !panel.open; console.log("clicked header panel:" + panel.open) }
             }
+        }
+        Rectangle {
+            anchors.fill : parent
+            color: "black"
+            opacity: 0.5
         }
         Rectangle {color:"green";
             anchors.right:panelFlick.right; width: 30;
