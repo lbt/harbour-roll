@@ -1,3 +1,5 @@
+#define highp
+
 // These attributes are set in the GL_ARRAY_BUFFER
 attribute highp vec3 posA;
 attribute highp vec2 texA;

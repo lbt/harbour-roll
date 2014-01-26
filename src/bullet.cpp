@@ -4,6 +4,8 @@
 #define MAXX 2.4
 #define MAXY 4.2
 
+namespace { float rnd(float max) { return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max); } }
+
 Bullet::Bullet(QObject *parent) :
     QObject(parent)
 {
@@ -84,14 +86,23 @@ void Bullet::addWall(btVector3 normal, float offset) {
 
     btCollisionShape* groundShape = new btStaticPlaneShape(normal, offset);
     collisionShapes.push_back(groundShape);
-    btRigidBody* body = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(
-                                            mass, myMotionState, groundShape, localInertia));
-    body->setRestitution(1.0);
+
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+    rbInfo.m_friction=0.4;
+    rbInfo.m_restitution=0.9;
+
+    btRigidBody* body = new btRigidBody(rbInfo);
     dynamicsWorld->addRigidBody(body);
 }
 
-void Bullet::addCube(btVector3 pos, btCollisionShape *shape)
+void Bullet::addCube(btVector3 pos)
 {
+
+    if (!m_cubeShape) {
+        m_cubeShape = new btBoxShape(btVector3(.5,.5,.5));
+        collisionShapes.push_back(m_cubeShape);
+    }
+
     /// Create Dynamic Objects
     btTransform startTransform;
     startTransform.setIdentity();
@@ -103,18 +114,21 @@ void Bullet::addCube(btVector3 pos, btCollisionShape *shape)
 
     btVector3 localInertia(0,0,0);
     if (isDynamic)
-        shape->calculateLocalInertia(mass,localInertia);
+        m_cubeShape->calculateLocalInertia(mass,localInertia);
 
     btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,m_cubeShape,localInertia);
     rbInfo.m_friction=0.9;
     rbInfo.m_restitution=0.7;
 
     btRigidBody* body = new btRigidBody(rbInfo);
+    m_cubeMutex.lock();
     m_cubes << body;
+    m_cubeMutex.unlock();
 
     dynamicsWorld->addRigidBody(body);
 }
+
 
 void Bullet::setupModel()
 {
@@ -123,7 +137,7 @@ void Bullet::setupModel()
 
     ///create a few basic rigid bodies
     this->addWall(btVector3( 0, 0, 1), 0);
-    this->addWall(btVector3( 0, 0,-1), -50);
+    this->addWall(btVector3( 0, 0,-1), -20);
     this->addWall(btVector3( 0, 1, 0), -MAXY);
     this->addWall(btVector3( 0,-1, 0), -MAXY);
     this->addWall(btVector3( 1, 0, 0), -MAXX);
@@ -131,22 +145,36 @@ void Bullet::setupModel()
 
     {
         //create a dynamic rigidbody
-        btCollisionShape* colShape = new btBoxShape(btVector3(.5,.5,.5));
-        collisionShapes.push_back(colShape);
-
-        this->addCube(btVector3(0,0,5), colShape);
-        this->addCube(btVector3(0, 0.2, 4), colShape);
-        this->addCube(btVector3(0.6, -0.1, 4), colShape);
-        this->addCube(btVector3(-0.6, 0.1, 3), colShape);
-        this->addCube(btVector3(0.1, 0.2, 2), colShape);
-        this->addCube(btVector3(0,1,5), colShape);
+        this->addCube(btVector3(0,0,5));
+        this->addCube(btVector3(0, 0.2, 4));
+        this->addCube(btVector3(0.6, -0.1, 4));
+        this->addCube(btVector3(-0.6, 0.1, 3));
+        this->addCube(btVector3(0.1, 0.2, 2));
+        this->addCube(btVector3(0,1,5));
 
     }
 }
 
+void Bullet::setNumCubes(int n)
+{
+    if (m_cubes.size() == n) return;
+    while (m_cubes.size() < n)
+        this->addCube(btVector3(0,1,5));
+    m_cubeMutex.lock();
+    while (m_cubes.size() > n) {
+        btRigidBody* body = btRigidBody::upcast(m_cubes.takeLast());
+        if (body && body->getMotionState()) { delete body->getMotionState(); }
+        dynamicsWorld->removeCollisionObject(body);
+        delete body;
+    }
+    m_cubeMutex.unlock();
+}
+
 void Bullet::runStep(int ms)
 {
+    m_cubeMutex.lock();
     dynamicsWorld->stepSimulation(ms/100.f, 10, 1.f/300.f);
+    m_cubeMutex.unlock();
 }
 
 void Bullet::report()
@@ -182,6 +210,7 @@ QMatrix4x4 transform2Matrix(btTransform *transform) {
 
 void Bullet::renderCubes(GLProgram *p)
 {
+    m_cubeMutex.lock();
     for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
         btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
         if (body && body->getMotionState())
@@ -192,11 +221,13 @@ void Bullet::renderCubes(GLProgram *p)
             QMatrix4x4  world;
             world.scale(0.5, 0.5, 0.5);
             QMatrix4x4  pos = transform2Matrix(&trans);
-            p->setUniformValue(p->getU("worldMatrixU"), pos*world);
+//            p->setUniformValue(p->getU("worldMatrixU"), pos*world);
+            p->setUniformValue(p->getU("worldMatrixU"), world);
             glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
             body->activate();
         }
     }
+    m_cubeMutex.unlock();
 
 }
 
@@ -205,10 +236,8 @@ void Bullet::setGravity(qreal x, qreal y, qreal z) {
     //    dynamicsWorld->setGravity(btVector3(0, 0, z/10.0));
 }
 
-float rnd(float max) {
-    return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max);
-}
 void Bullet::kick(){
+    m_cubeMutex.lock();
     for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
         btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
         if (body && body->getMotionState()) {
@@ -217,4 +246,5 @@ void Bullet::kick(){
                                                 1.0-rnd(0.5)));
         }
     }
+    m_cubeMutex.unlock();
 }

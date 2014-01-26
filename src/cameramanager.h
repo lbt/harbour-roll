@@ -4,15 +4,16 @@
 #include <QObject>
 #include <QMatrix4x4>
 
-class RotationManager : public QObject
+class CameraManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit RotationManager(QObject *parent = 0);
+    explicit CameraManager(QObject *parent = 0);
 
     bool isActive() const { return m_pressed; }
     QMatrix4x4 transform(QMatrix4x4 v);
     QVector3D at();
+    void reset();
 
 signals:
 

@@ -1,11 +1,11 @@
-#ifndef SWARM_H
-#define SWARM_H
+#ifndef DICE_H
+#define DICE_H
 
 #include "glitem.h"
-#include "gparticle.h"
-#include "gparticle2.h"
 #include "glprogram.h"
-#include "rotationmanager.h"
+#include "cameramanager.h"
+#include "light.h"
+#include "lightmanager.h"
 
 #include "bullet.h"
 
@@ -16,8 +16,28 @@
 #include <QSGTexture>
 #include <QtSensors/QAccelerometer>
 
+#include <QThread>
 
-class Swarm : public GLItem
+class DiceRunner : public QObject
+{
+    Q_OBJECT
+public:
+    explicit DiceRunner(QObject *parent = 0);
+
+signals:
+    void ready();
+
+public slots:
+    void runStep();
+
+    void setup(Bullet* b);
+private:
+    Bullet* m_workerBullet;
+    QElapsedTimer m_bulletTime;
+    bool m_running;
+};
+
+class Dice : public GLItem
 {
     Q_OBJECT
 
@@ -31,50 +51,27 @@ class Swarm : public GLItem
         QVector3D normal;
 #define VertexData_3 (VertexData_2+sizeof(QVector3D))
     };
+    struct Accel {
+        float x;
+        float y;
+        float z;
+    };
 
     struct Model
     {
         VertexData* vertices;
         GLushort* indices;
     };
-    struct BaseLight
-    {
-        QVector3D Color;
-        qreal AmbientIntensity;
-        qreal DiffuseIntensity;
-    };
-    struct DirectionalLight
-    {
-        BaseLight Base;
-        QVector3D Direction;
-    };
 
-    struct PointLight
-    {
-        BaseLight Base;
-        QVector3D Position;
-        qreal AConstant;
-        qreal ALinear;
-        qreal AExp;
-    };
 
-    Q_PROPERTY(int numParticles READ numParticles WRITE setNumParticles NOTIFY numParticlesChanged)
-    Q_PROPERTY(qreal depth READ depth WRITE setDepth NOTIFY depthChanged)
-    Q_PROPERTY(int orientationInDegrees READ orientationInDegrees WRITE setOrientationInDegrees NOTIFY orientationInDegreesChanged)
     Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(qreal z READ z WRITE setZ NOTIFY zChanged)
+    Q_PROPERTY(int numDice READ numDice WRITE setNumDice NOTIFY numDiceChanged)
     Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
 
 public:
-    explicit Swarm(QObject *parent = 0);
-    float rnd(float max);
-    qreal numParticles() const { return p_numParticles; }
-    void setNumParticles(int numParticles);
-    qreal depth() const { return p_depth; }
-    void setDepth(qreal depth);
-    int orientationInDegrees() const { return p_orientationInDegrees; }
-    void setOrientationInDegrees(int orientationInDegrees);
+    explicit Dice(QObject *parent = 0);
     qreal x() const { return p_x; }
     void setX(qreal x);
     qreal y() const { return p_y; }
@@ -86,37 +83,41 @@ public:
 
     void setXYZ(QVector3D v);
     void handleUse();
-    void handleTouchAsWind(GLProgram*);
-    void handleTouchAsRotation();
     void prep();
     void render();
 
+    int numDice() const { return m_numDice; }
+
 signals:
-    void numParticlesChanged();
-    void depthChanged();
-    void orientationInDegreesChanged();
     void xChanged(qreal);
     void yChanged(qreal);
     void zChanged(qreal);
     void runningChanged();
     void pressedChanged();
 
+    void numDiceChanged(int arg);
+
 public slots:
     void sync();
     void handlePressed(int x, int y);
     void handlePositionChanged(int x, int y);
     void handleReleased(int x, int y);
-    void handleOrientationChanged(int orientation);
     void useXYZ(QString use);
+    void randomiseLights();
+    void zoomAndSpin(bool state);
+    void setNumDice(int arg);
+    void fancyLights(bool state);
+
+private:
+    void handleTouchAsRotation();
 
 private:
     QMatrix4x4 m_currMatrix;
     GLuint m_vboIds[4];
     QSGTexture *m_texture;
-    GLProgram *m_program_line;
-    GLProgram *m_program_particle;
+    GLProgram *m_program_dice;
     
-    RotationManager m_rotmanager;
+    CameraManager m_cammanager;
 
     QVector3D m_cameraPos;
     QVector3D m_cameraRot;
@@ -125,10 +126,6 @@ private:
     PointLight m_pLights[3];
 
     int m_frame;
-    int m_orientationInDegrees;
-    int p_orientationInDegrees;
-    int p_numParticles;
-    qreal p_depth;
     qreal p_x;
     qreal p_y;
     qreal p_z;
@@ -138,19 +135,21 @@ private:
     qint64 m_XYdeltaTime;
     qreal m_thread_t;
     Model m_model;
-    QList<GParticle2> m_swarm;
-    QMutex m_swarmMutex;
     int m_pcount;
     QTimer m_timer;
     bool m_running;
     bool p_pressed;
-    GParticle2::Wind m_wind;
-    GParticle2::Wind m_lastWind;
     QElapsedTimer m_lastTime;
 
     QAccelerometer m_sensor;
+    int m_numDice;
+    bool m_zoomAndSpin;
+    bool m_fancyLights;
+
     Bullet bullet;
-    QElapsedTimer m_bulletTime;
+    QElapsedTimer m_lightTime;
+    QThread m_runnerThread;
+    DiceRunner m_runner;
 };
 
-#endif // SWARM_H
+#endif // DICE_H

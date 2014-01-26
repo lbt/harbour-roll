@@ -30,31 +30,13 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import "pages"
 
-
-Page {
-    id: page
-    SilicaListView {
-        id: listView
-        model: 20
-        anchors.fill: parent
-        header: PageHeader {
-            title: "Nested Page"
-        }
-        delegate: BackgroundItem {
-            id: delegate
-
-            Label {
-                x: Theme.paddingLarge
-                text: "Item " + index
-                color: delegate.highlighted ? Theme.highlightColor : Theme.primaryColor
-            }
-            onClicked: console.log("Clicked " + index)
-        }
-    }
+ApplicationWindow
+{
+    _backgroundVisible : false
+    initialPage: Component { DicePage { } }
+    cover: Qt.resolvedUrl("cover/CoverPage.qml")
 }
-
-
-
 
 

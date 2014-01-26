@@ -8,7 +8,6 @@
 
 #include <QDebug>
 
-
 GLItem::GLItem()
     : m_program(0)
 {

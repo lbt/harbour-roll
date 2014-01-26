@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
 X-Nemo-Application-Type=silica-qt5
-Name=Snowglobe
-Icon=harbour-snowglobe
-Exec=harbour-snowglobe
+Name=3D Dice
+Icon=harbour-dice
+Exec=harbour-dice

@@ -1,3 +1,6 @@
+// Allows the optimiser to run
+#define highp
+
 struct BaseLight
 {
     highp vec3 Color;

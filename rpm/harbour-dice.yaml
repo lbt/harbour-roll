@@ -1,5 +1,5 @@
-Name: harbour-snowglobe
-Summary: SnowGlobe
+Name: harbour-dice
+Summary: Dice
 Version: 0.1
 Release: 1
 Group: Qt/Qt
@@ -25,7 +25,7 @@ Files:
 - '%{_datadir}/%{name}/qml'
 - '%{_datadir}/applications/%{name}.desktop'
 - /usr/bin
-- /usr/share/harbour-snowglobe
+- /usr/share/harbour-dice
 - /usr/share/applications
-- /usr/share/harbour-snowglobe/
+- /usr/share/harbour-dice/
 PkgBR: []
