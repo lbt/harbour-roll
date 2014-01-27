@@ -43,16 +43,25 @@ Dice::Dice(QObject *parent) :
   , m_cameraRot({0,0,0})
   , m_zoomAndSpin(false)
   , m_numDice(6)
+  , m_gravity(true)
 {
     Q_UNUSED(parent)
-    m_timer.setInterval(TICK);;
     m_sensor.start();
 
-    for (int i=0; i<3; i++) { m_dLights[i].randomise(); }
+    for (int i=0; i<2; i++) { m_dLights[i].randomise(); }
     for (int i=0; i<3; i++) {
         m_pLights[i].lightManager.setScale(QVector3D(4.0, 5.0, 3.0));
         m_pLights[i].randomise();
     }
+
+    _DirectionalLight light;
+    // Ensure that the first throw has a visible dlight
+    light.Base.Color = QVector3D(1.0, 1.0, 1.0);
+    light.Base.AmbientIntensity=0.2;
+    light.Base.DiffuseIntensity=0.6;
+    light.Direction = QVector3D(-2, 5, 1).normalized();
+    m_dLights[0].set(light);
+
 }
 
 void Dice::setX(qreal x)
@@ -88,7 +97,7 @@ void Dice::useXYZ(QString use) {
 
 void Dice::randomiseLights()
 {
-    for (int i=0; i<3; i++) {
+    for (int i=0; i<2; i++) {
         m_dLights[i].randomise();
     }
     for (int i=0; i<3; i++) {
@@ -115,6 +124,12 @@ void Dice::setNumDice(int arg)
 void Dice::fancyLights(bool state)
 {
     m_fancyLights = state;
+}
+
+void Dice::gravity(bool state)
+{
+    m_gravity = state;
+    QMetaObject::invokeMethod(m_runner, "gravity", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
 void Dice::handleTouchAsRotation(){
@@ -160,25 +175,20 @@ void Dice::handleReleased(int x, int y) {
 
 void Dice::setRunning(bool running)
 {
-    if (running == m_timer.isActive())
-        return;
-    if (running)
-        m_timer.start();
-    else
-        m_timer.stop();
-    emit runningChanged();
+    m_running = running;
+    QMetaObject::invokeMethod(m_runner, "setRunning", Qt::QueuedConnection, Q_ARG(bool, running));
 }
 
 void Dice::prep()
 {
-
+    qDebug() << "dice Prep";
     // Setup a worker Thread to do the bullet calcs
-    m_runner.moveToThread(&m_runnerThread);
-    connect(&m_runnerThread, &QThread::finished, &m_runner, &QObject::deleteLater);
-    connect(&m_runner, SIGNAL(ready()), this->window(), SLOT(update()) );
-    connect(&m_timer, SIGNAL(timeout()), &m_runner, SLOT(runStep()) );
+    m_runner = new DiceRunner(&bullet);
+    m_runner->moveToThread(&m_runnerThread);
+    connect(&m_runnerThread, &QThread::finished, m_runner, &QObject::deleteLater);
+    connect(&m_runnerThread, &QThread::started, m_runner, &DiceRunner::setup);
+    connect(m_runner, SIGNAL(ready()), this->window(), SLOT(update()) );
     m_runnerThread.start();
-    m_runner.setup(&bullet);
 
     m_program_dice = new GLProgram();
     qDebug() << "created programs";
@@ -265,22 +275,19 @@ void Dice::prep()
 
 void Dice::render()
 {
+    QElapsedTimer t;
+    t.start();
+
     handleUse(); // QML input from properties
 
     // Handle touch events
     if (m_zoomAndSpin)
         handleTouchAsRotation();
 
-    // This should be handled in another thread I think
-    // Get the real world information
-    QAccelerometerReading *reading = m_sensor.reading();
-    Accel a= {reading->x(), reading->y(), reading->z()};
-    bullet.setGravity(reading->x(), reading->y(), reading->z());
     int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time
-//    bullet.runStep(timeDelta_ms );
     //for (unsigned int i = 0 ; i < 2 ; i++) { m_dLights[i].update(timeDelta_ms); }
     if (m_fancyLights)
-            for (unsigned int i = 0 ; i < 3 ; i++) { m_pLights[i].update(timeDelta_ms); }
+        for (unsigned int i = 0 ; i < 3 ; i++) { m_pLights[i].update(timeDelta_ms); }
 
     // Prepare to actually draw ///////////////////////////////////////////////////////////
     GLProgram *p = m_program_dice;
@@ -343,7 +350,7 @@ void Dice::render()
     glEnableVertexAttribArray(p->getA("texA"));
     glEnableVertexAttribArray(p->getA("normalA"));
 
-    // Update and draw the world
+    // Draw the world
     bullet.renderCubes(p);
 
     glDisableVertexAttribArray(p->getA("posA"));
@@ -355,28 +362,55 @@ void Dice::render()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    //    qDebug() << "Render took " << t.elapsed();
+
 }
 void Dice::sync()
 {
     ++m_frame;
 }
 
-DiceRunner::DiceRunner(QObject *parent):
+DiceRunner::DiceRunner(Bullet *b, QObject *parent):
     m_running(false)
+  , m_gravity(true)
 {
-
-}
-
-void DiceRunner::setup(Bullet *b) {
-    m_bulletTime.start();
     m_workerBullet = b;
 }
 
+void DiceRunner::setup() {
+    m_bulletTime.start();
+    m_sensor.start();
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(runStep()) );
+    m_timer->setInterval(TICK);;
+    m_timer->start();
+}
+
+void DiceRunner::setRunning(bool running){
+    if (m_running == running) return;
+
+    m_running = running;
+    if (running) {
+        m_timer->start();
+    } else {
+        m_timer->stop();
+    }
+}
+
+void DiceRunner::gravity(bool state)
+{
+    m_gravity = state;
+}
+
 void DiceRunner::runStep() {
-    if (m_running) return;
-    m_running = true;
+    qDebug() << "tick";
+    if (m_gravity) {
+        QAccelerometerReading *reading = m_sensor.reading();
+        m_workerBullet->setGravity(reading->x(), reading->y(), reading->z());
+    } else {
+        m_workerBullet->setGravity(0, 0, 0);
+    }
     int timeDelta_ms = m_bulletTime.restart();
     m_workerBullet->runStep(timeDelta_ms );
     emit ready();
-    m_running = false;
 }

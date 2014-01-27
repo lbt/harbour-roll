@@ -18,11 +18,18 @@
 
 #include <QThread>
 
+struct Accel {
+    float x;
+    float y;
+    float z;
+};
+
+
 class DiceRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit DiceRunner(QObject *parent = 0);
+    explicit DiceRunner(Bullet *b, QObject *parent = 0);
 
 signals:
     void ready();
@@ -30,11 +37,16 @@ signals:
 public slots:
     void runStep();
 
-    void setup(Bullet* b);
+    void setup();
+    void setRunning(bool state);
+    void gravity(bool state);
 private:
+    QTimer* m_timer;
     Bullet* m_workerBullet;
     QElapsedTimer m_bulletTime;
+    QAccelerometer m_sensor;
     bool m_running;
+    bool m_gravity;
 };
 
 class Dice : public GLItem
@@ -50,11 +62,6 @@ class Dice : public GLItem
 #define VertexData_2 (VertexData_1+sizeof(QVector2D))
         QVector3D normal;
 #define VertexData_3 (VertexData_2+sizeof(QVector3D))
-    };
-    struct Accel {
-        float x;
-        float y;
-        float z;
     };
 
     struct Model
@@ -79,8 +86,6 @@ public:
     qreal z() const { return p_z; }
     void setZ(qreal z);
     bool running() const { return m_running; }
-    void setRunning(bool running);
-
     void setXYZ(QVector3D v);
     void handleUse();
     void prep();
@@ -98,6 +103,7 @@ signals:
     void numDiceChanged(int arg);
 
 public slots:
+    void setRunning(bool running);
     void sync();
     void handlePressed(int x, int y);
     void handlePositionChanged(int x, int y);
@@ -107,6 +113,7 @@ public slots:
     void zoomAndSpin(bool state);
     void setNumDice(int arg);
     void fancyLights(bool state);
+    void gravity(bool state);
 
 private:
     void handleTouchAsRotation();
@@ -122,7 +129,7 @@ private:
     QVector3D m_cameraPos;
     QVector3D m_cameraRot;
 
-    DirectionalLight m_dLights[2];
+    DirectionalLight m_dLights[3];
     PointLight m_pLights[3];
 
     int m_frame;
@@ -136,20 +143,20 @@ private:
     qreal m_thread_t;
     Model m_model;
     int m_pcount;
-    QTimer m_timer;
     bool m_running;
     bool p_pressed;
     QElapsedTimer m_lastTime;
 
-    QAccelerometer m_sensor;
     int m_numDice;
     bool m_zoomAndSpin;
     bool m_fancyLights;
+    bool m_gravity;
 
+    QAccelerometer m_sensor;
     Bullet bullet;
     QElapsedTimer m_lightTime;
     QThread m_runnerThread;
-    DiceRunner m_runner;
+    DiceRunner* m_runner;
 };
 
 #endif // DICE_H

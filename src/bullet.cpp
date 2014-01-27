@@ -173,7 +173,7 @@ void Bullet::setNumCubes(int n)
 void Bullet::runStep(int ms)
 {
     m_cubeMutex.lock();
-    dynamicsWorld->stepSimulation(ms/100.f, 10, 1.f/300.f);
+    dynamicsWorld->stepSimulation(ms/1000.f, 10, 1.f/300.f);
     m_cubeMutex.unlock();
 }
 
@@ -221,8 +221,7 @@ void Bullet::renderCubes(GLProgram *p)
             QMatrix4x4  world;
             world.scale(0.5, 0.5, 0.5);
             QMatrix4x4  pos = transform2Matrix(&trans);
-//            p->setUniformValue(p->getU("worldMatrixU"), pos*world);
-            p->setUniformValue(p->getU("worldMatrixU"), world);
+            p->setUniformValue(p->getU("worldMatrixU"), pos*world);
             glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
             body->activate();
         }
@@ -232,7 +231,7 @@ void Bullet::renderCubes(GLProgram *p)
 }
 
 void Bullet::setGravity(qreal x, qreal y, qreal z) {
-    dynamicsWorld->setGravity(btVector3(-x*5, -y*5, -z*5));
+    dynamicsWorld->setGravity(btVector3(-x*20, -y*20, -z*20));
     //    dynamicsWorld->setGravity(btVector3(0, 0, z/10.0));
 }
 

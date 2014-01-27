@@ -10,6 +10,8 @@ TARGET = harbour-dice
 
 QT += sensors
 
+# LIBS += --rpath,/
+
 CONFIG += sailfishapp
 PKGCONFIG += bullet
 
@@ -22,9 +24,10 @@ SOURCES += src/harbour-dice.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
     src/dicemodel.cpp
-k
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
+
+QMAKE_RPATHDIR += $$DEPLOYMENT_PATH/lib/:/opt/sdk/$$TARGET/$$DEPLOYMENT_PATH/lib/
 
 glsl.files = \
     src/dice_vert.glsl.out src/dice_frag.glsl.out
@@ -42,7 +45,8 @@ OTHER_FILES += qml/harbour-dice.qml \
     rpm/harbour-dice.yaml \
     harbour-dice.desktop \
     src/dice_frag.glsl \
-    src/dice_vert.glsl
+    src/dice_vert.glsl \
+    qml/pages/About.qml
 
 HEADERS += \
     src/glitem.h \

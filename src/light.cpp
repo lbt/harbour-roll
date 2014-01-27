@@ -14,6 +14,11 @@ PointLight::PointLight()
 {
 }
 
+void PointLight::set(_PointLight light)
+{
+    m_light = light;
+}
+
 void PointLight::randomise(){
     m_light.Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
     m_light.Base.AmbientIntensity=rnd(0.5);
@@ -29,6 +34,11 @@ void PointLight::randomise(){
 DirectionalLight::DirectionalLight()
 {
 
+}
+
+void DirectionalLight::set(_DirectionalLight light)
+{
+    m_light = light;
 }
 void DirectionalLight::randomise(){
     m_light.Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));

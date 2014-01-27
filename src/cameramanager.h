@@ -25,11 +25,11 @@ private:
     bool m_pressed;
     qreal m_touchX;
     qreal m_touchY;
-    qreal m_x;
-    qreal m_y;
     qreal m_theta;
     qreal m_phi;
     qreal m_depth;
+    qreal m_x;
+    qreal m_y;
 };
 
 #endif // ROTATIONMANAGER_H

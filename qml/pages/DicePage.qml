@@ -11,7 +11,7 @@ Page {                                          id: page
         anchors.bottomMargin: panel.margin
         Dice {                                 id: dice
             anchors.fill: parent
-            running : true
+            running : applicationActive
             numDice: numDiceS.value
             MouseArea {                         id: bgMA
                 anchors.fill: parent
@@ -69,8 +69,12 @@ Page {                                          id: page
             clip: true
             contentHeight: panelCol.height
             Column { id: panelCol
-                anchors.top: parent.top
+//                top: parent.top
                 width: parent.width
+                Button {text: "Help and About"
+                    onClicked: pageStack.push(Qt.resolvedUrl("About.qml"));
+                    width: parent.width*0.8; anchors.horizontalCenter: parent.horizontalCenter
+                }
                 Slider {                        id: numDiceS
                     label: "number of dice"
                     width: parent.width
@@ -95,6 +99,11 @@ Page {                                          id: page
                     width: parent.width
                     onClicked: dice.zoomAndSpin(checked);
                 }
+                TextSwitch {                    id: gravity
+                    text: "Gravity"
+                    width: parent.width
+                    onClicked: dice.gravity(checked);
+                }
 //                // d4 d6 d8 d10 d12 d20
 //                Row { width: parent.width;height: childrenRect.height
 //                    TextSwitch { id: d4; text: "d4"; width: parent.width/3 }
@@ -104,7 +113,6 @@ Page {                                          id: page
 //                    TextSwitch { id: d10; text: "d10"; width: parent.width/3 }
 //                    TextSwitch { id: d12; text: "d12"; width: parent.width/3 }
 //                    TextSwitch { id: d20; text: "d20"; width: parent.width/3 }}
-
             }
         }
     }

@@ -32,6 +32,7 @@ public:
     PointLight();
 
     _PointLight light() const { return m_light ; }
+    void set(_PointLight light);
     void randomise();
     LightManager lightManager;
     void update(int deltaT);
@@ -47,6 +48,7 @@ class DirectionalLight
 public:
     DirectionalLight();
 
+    void set(_DirectionalLight light);
     _DirectionalLight light() const { return m_light ; }
     void randomise();
 private:
