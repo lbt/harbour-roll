@@ -403,7 +403,6 @@ void DiceRunner::gravity(bool state)
 }
 
 void DiceRunner::runStep() {
-    qDebug() << "tick";
     if (m_gravity) {
         QAccelerometerReading *reading = m_sensor.reading();
         m_workerBullet->setGravity(reading->x(), reading->y(), reading->z());
