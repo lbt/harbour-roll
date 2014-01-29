@@ -33,7 +33,7 @@ glsl.files = \
     src/dice_vert.glsl.out src/dice_frag.glsl.out
 glsl.path = $$DEPLOYMENT_PATH
 
-image.files = src/mer-cube.png
+image.files = mer-cube.png
 image.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl image
