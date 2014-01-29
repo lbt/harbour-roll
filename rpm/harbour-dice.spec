@@ -6,6 +6,8 @@
 Name:       harbour-dice
 
 # >> macros
+%define __provides_exclude_from ^%{_datadir}/.*$
+%define __requires_exclude ^libBulletDynamics.*|libBulletSoftBody.*|libBulletCollision.*|libLinearMath.*|libfontconfig.*$
 # << macros
 
 %{!?qtc_qmake:%define qtc_qmake %qmake}
@@ -68,7 +70,9 @@ desktop-file-install --delete-original       \
 /usr/share/applications
 /usr/share/harbour-dice
 /usr/bin
+%defattr(755,root,root,-)
 %{_bindir}
+%defattr(644,root,root,-)
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/%{name}
 /usr/share/icons/hicolor/86x86/apps

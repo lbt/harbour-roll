@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     QScopedPointer<QQuickView> view(SailfishApp::createView());
 
-    qmlRegisterType<Dice>("Dice", 1, 0, "Dice");
+    qmlRegisterType<Dice>("harbour.dice.Dice", 1, 0, "Dice");
     view->setSource(SailfishApp::pathTo("qml/harbour-dice.qml"));
     view->show();
 
