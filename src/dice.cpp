@@ -409,6 +409,7 @@ void DiceRunner::runStep() {
     } else {
         m_workerBullet->setGravity(0, 0, 0);
     }
+//    qDebug() << "tick";
     int timeDelta_ms = m_bulletTime.restart();
     m_workerBullet->runStep(timeDelta_ms );
     emit ready();

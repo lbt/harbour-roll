@@ -137,7 +137,7 @@ void Bullet::setupModel()
 
     ///create a few basic rigid bodies
     this->addWall(btVector3( 0, 0, 1), 0);
-    this->addWall(btVector3( 0, 0,-1), -20);
+    this->addWall(btVector3( 0, 0,-1), -9);
     this->addWall(btVector3( 0, 1, 0), -MAXY);
     this->addWall(btVector3( 0,-1, 0), -MAXY);
     this->addWall(btVector3( 1, 0, 0), -MAXX);

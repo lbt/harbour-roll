@@ -6,7 +6,11 @@ ApplicationWindow
 {
     _backgroundVisible : false
     initialPage: Component { DicePage { } }
-    cover: Qt.resolvedUrl("cover/CoverPage.qml")
+    cover: undefined
+    onApplicationActiveChanged: {
+        // This exits the About page if it is open when the app is minimised
+        if (pageStack.depth == 2) { pageStack.navigateBack(PageStackAction.Immediate); }
+    }
 }
 
 

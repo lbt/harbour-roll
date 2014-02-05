@@ -15,7 +15,7 @@ Name:       harbour-dice
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Dice
-Version:    0.1
+Version:    0.2
 Release:    1
 Group:      Qt/Qt
 License:    LICENSE
@@ -67,9 +67,6 @@ desktop-file-install --delete-original       \
 
 %files
 %defattr(-,root,root,-)
-/usr/share/applications
-/usr/share/harbour-dice
-/usr/bin
 %defattr(755,root,root,-)
 %{_bindir}
 %defattr(644,root,root,-)
