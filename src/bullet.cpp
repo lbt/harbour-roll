@@ -1,6 +1,8 @@
 #include "bullet.h"
 #include <QDebug>
 
+#include <sailfishapp.h>
+
 #define MAXX 2.4
 #define MAXY 4.2
 
@@ -24,6 +26,8 @@ Bullet::Bullet(QObject *parent) :
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
 
     dynamicsWorld->setGravity(btVector3(0,0,0));
+    dynamicsWorld->setDebugDrawer(this);
+
 
 }
 
@@ -208,8 +212,12 @@ QMatrix4x4 transform2Matrix(btTransform *transform) {
             ft[12], ft[13], ft[14], ft[15]).transposed();
 }
 
-void Bullet::renderCubes(GLProgram *p)
+void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 {
+    glEnableVertexAttribArray(p->getA("posA"));
+    glEnableVertexAttribArray(p->getA("texA"));
+    glEnableVertexAttribArray(p->getA("normalA"));
+
     m_cubeMutex.lock();
     for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
         btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
@@ -227,6 +235,20 @@ void Bullet::renderCubes(GLProgram *p)
         }
     }
     m_cubeMutex.unlock();
+    glDisableVertexAttribArray(p->getA("posA"));
+    glDisableVertexAttribArray(p->getA("texA"));
+    glDisableVertexAttribArray(p->getA("normalA"));
+
+    //  Setup shader for debug draw
+    QMatrix4x4 worldMatrix; // null atm
+    m_program_debug->bind();
+    m_program_debug->setUniformValue(m_program_debug->getU("projViewMatrixU"), projViewMatrix);
+    m_program_debug->setUniformValue(m_program_debug->getU("worldMatrixU"), worldMatrix);
+    glEnableVertexAttribArray(m_program_debug->getA("posA"));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    dynamicsWorld->debugDrawWorld();
+    glDisableVertexAttribArray(m_program_debug->getA("posA"));
+    //    p->bind(); // should do this but we're only going to drop it again
 
 }
 
@@ -246,4 +268,52 @@ void Bullet::kick(){
         }
     }
     m_cubeMutex.unlock();
+}
+
+void Bullet::setup()
+{
+    m_program_debug = new GLProgram();
+    m_program_debug->addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                             SailfishApp::pathTo("debug_vert.glsl").toLocalFile());
+    m_program_debug->addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                             SailfishApp::pathTo("debug_frag.glsl").toLocalFile());
+    if (! m_program_debug->link()) {
+        QList<QOpenGLShader *>::iterator i;
+        for (i = m_program_debug->shaders().begin(); i != m_program_debug->shaders().end(); ++i) {
+            if ((*i)->isCompiled())
+                qDebug() << "Shader compile log: \n" << (*i)->log();
+        }
+
+    }
+
+    setDebugMode(DBG_DrawWireframe);
+}
+
+void Bullet::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
+{
+    glLineWidth(5);
+
+    QVector3D line[] = { QVector3D(from.x(), from.y(), from.z()), QVector3D(to.x(), to.y(),to.z()) };
+//    m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(1,1,1, 1));
+    m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(color.x(),color.y(),color.z(), 1));
+    glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, line);
+    glDrawArrays(GL_LINES, 0, 2);
+//    qDebug()<< "drawLine() " << line[0] << " to " << line[1];
+}
+void	Bullet::reportErrorWarning(const char* warningString) {
+    qDebug()<< warningString;
+}
+
+void	Bullet::draw3dText(const btVector3& location,const char* textString) {
+    qDebug()<< "draw3dText " << textString;
+}
+void	Bullet::setDebugMode(int debugMode) {
+    m_debug_mode = debugMode;
+    qDebug()<< "setDebugMode to " << debugMode;
+}
+int		Bullet::getDebugMode() const {
+    return m_debug_mode;
+}
+void	Bullet::drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color){
+    qDebug()<< "drawContactPoint()";
 }

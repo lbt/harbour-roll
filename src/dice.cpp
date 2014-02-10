@@ -270,6 +270,8 @@ void Dice::prep()
     // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    bullet.setup();
 }
 
 
@@ -346,18 +348,8 @@ void Dice::render()
     glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
                           (const void *)VertexData_2);
 
-    glEnableVertexAttribArray(p->getA("posA"));
-    glEnableVertexAttribArray(p->getA("texA"));
-    glEnableVertexAttribArray(p->getA("normalA"));
-
     // Draw the world
-    bullet.renderCubes(p);
-
-    glDisableVertexAttribArray(p->getA("posA"));
-    glDisableVertexAttribArray(p->getA("texA"));
-    glDisableVertexAttribArray(p->getA("normalA"));
-
-    p->release();
+    bullet.render(p, projMatrix*viewMatrix);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

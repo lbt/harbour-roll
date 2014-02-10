@@ -13,6 +13,7 @@ QT += sensors
 # LIBS += --rpath,/
 
 CONFIG += sailfishapp
+
 PKGCONFIG += bullet
 
 SOURCES += src/harbour-dice.cpp \
@@ -30,7 +31,8 @@ DEPLOYMENT_PATH = /usr/share/$$TARGET
 QMAKE_RPATHDIR += $$DEPLOYMENT_PATH/lib/:/opt/sdk/$$TARGET/$$DEPLOYMENT_PATH/lib/
 
 glsl.files = \
-    src/dice_vert.glsl.out src/dice_frag.glsl.out
+    src/dice_vert.glsl.out src/dice_frag.glsl.out \
+    src/debug_vert.glsl src/debug_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
 image.files = mer-cube.png
@@ -46,7 +48,9 @@ OTHER_FILES += qml/harbour-dice.qml \
     harbour-dice.desktop \
     src/dice_frag.glsl \
     src/dice_vert.glsl \
-    qml/pages/About.qml
+    qml/pages/About.qml \
+    src/debug_frag.glsl \
+    src/debug_vert.glsl
 
 HEADERS += \
     src/glitem.h \
