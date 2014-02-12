@@ -69,8 +69,6 @@ public:
 private:
     GLProgram* m_program_debug;
     int m_debug_mode;
-
-
 };
 
 #endif // BULLET_H

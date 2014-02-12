@@ -239,6 +239,8 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
     glDisableVertexAttribArray(p->getA("texA"));
     glDisableVertexAttribArray(p->getA("normalA"));
 
+    if (m_debug_mode == DBG_NoDebug ) return;
+
     //  Setup shader for debug draw
     QMatrix4x4 worldMatrix; // null atm
     m_program_debug->bind();
@@ -286,19 +288,17 @@ void Bullet::setup()
 
     }
 
-    setDebugMode(DBG_DrawWireframe);
 }
 
 void Bullet::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
-    glLineWidth(5);
+    glLineWidth(2);
 
     QVector3D line[] = { QVector3D(from.x(), from.y(), from.z()), QVector3D(to.x(), to.y(),to.z()) };
-//    m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(1,1,1, 1));
     m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(color.x(),color.y(),color.z(), 1));
     glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, line);
     glDrawArrays(GL_LINES, 0, 2);
-//    qDebug()<< "drawLine() " << line[0] << " to " << line[1];
+    // What would be nice here is to setup line and col arrays and call glDrawArrays once
 }
 void	Bullet::reportErrorWarning(const char* warningString) {
     qDebug()<< warningString;

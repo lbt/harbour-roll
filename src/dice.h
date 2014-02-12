@@ -40,6 +40,8 @@ public slots:
     void setup();
     void setRunning(bool state);
     void gravity(bool state);
+    void setDebugDraw(bool state);
+
 private:
     QTimer* m_timer;
     Bullet* m_workerBullet;
@@ -114,6 +116,8 @@ public slots:
     void setNumDice(int arg);
     void fancyLights(bool state);
     void gravity(bool state);
+    void setDebugDraw(bool state);
+
 
 private:
     void handleTouchAsRotation();

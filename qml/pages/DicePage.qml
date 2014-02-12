@@ -137,6 +137,12 @@ Page {                                          id: page
                     width: parent.width
                     checked: false
                 }
+                TextSwitch {                    id: dbg
+                    text: "Debug Draw"
+                    width: parent.width
+                    checked: false
+                    onClicked: dice.setDebugDraw(checked);
+                }
                 //                // d4 d6 d8 d10 d12 d20
                 //                Row { width: parent.width;height: childrenRect.height
                 //                    TextSwitch { id: d4; text: "d4"; width: parent.width/3 }

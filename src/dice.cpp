@@ -9,6 +9,7 @@
 #include <sailfishapp.h>
 
 #include "math.h"
+#include <bullet/LinearMath/btIDebugDraw.h>
 
 #include <QDebug>
 
@@ -130,6 +131,11 @@ void Dice::gravity(bool state)
 {
     m_gravity = state;
     QMetaObject::invokeMethod(m_runner, "gravity", Qt::QueuedConnection, Q_ARG(bool, state));
+}
+
+void Dice::setDebugDraw(bool state)
+{
+    QMetaObject::invokeMethod(m_runner, "setDebugDraw", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
 void Dice::handleTouchAsRotation(){
@@ -392,6 +398,14 @@ void DiceRunner::setRunning(bool running){
 void DiceRunner::gravity(bool state)
 {
     m_gravity = state;
+}
+
+void DiceRunner::setDebugDraw(bool state)
+{
+    if (state)
+        m_workerBullet->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+    else
+        m_workerBullet->setDebugMode(0);
 }
 
 void DiceRunner::runStep() {
