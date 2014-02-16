@@ -1,5 +1,6 @@
 #include "bullet.h"
 #include <QDebug>
+#include <QFile>
 
 #include <sailfishapp.h>
 
@@ -99,6 +100,51 @@ void Bullet::addWall(btVector3 normal, float offset) {
     dynamicsWorld->addRigidBody(body);
 }
 
+
+//void Bullet::loadDice(QString die, QString filename)
+void Bullet::loadDice()
+{
+    m_meshes = new BiMesh();
+    m_meshes->load(SailfishApp::pathTo("d12.ply").toLocalFile());
+
+//    if (!m_diceShape[die]) {
+//        m_diceShape[die] = new btBoxShape(btVector3(.5,.5,.5));
+//        collisionShapes.push_back(m_diceShape[die]);
+//    }
+}
+
+void Bullet::addDice(QString die, btVector3 pos)
+{
+
+    /// Create Dynamic Objects
+    btTransform startTransform;
+    startTransform.setIdentity();
+    startTransform.setOrigin(pos);
+
+    btScalar	mass(0.01f);
+    //rigidbody is dynamic if and only if mass is non zero, otherwise static
+    bool isDynamic = (mass != 0.f);
+    qDebug() << "add dice";
+
+    btVector3 localInertia(0,0,0);
+    if (isDynamic)
+        m_meshes->getMesh(die)->calculateLocalInertia(mass,localInertia);
+    qDebug() << "add dice";
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,m_meshes->getMesh(die),localInertia);
+    rbInfo.m_friction=0.9;
+    rbInfo.m_restitution=0.7;
+
+    btRigidBody* body = new btRigidBody(rbInfo);
+    m_cubeMutex.lock();
+    m_cubes << body;
+    m_cubeMutex.unlock();
+
+    dynamicsWorld->addRigidBody(body);
+    qDebug() << "add dice";
+}
+
+
 void Bullet::addCube(btVector3 pos)
 {
 
@@ -138,6 +184,9 @@ void Bullet::setupModel()
 {
     int i;
     qDebug() << "Doing bullet setup";
+    m_meshes = new BiMesh();
+
+    m_meshes->load(SailfishApp::pathTo("d20.ply").toLocalFile());
 
     ///create a few basic rigid bodies
     this->addWall(btVector3( 0, 0, 1), 0);
@@ -149,12 +198,12 @@ void Bullet::setupModel()
 
     {
         //create a dynamic rigidbody
-        this->addCube(btVector3(0,0,5));
-        this->addCube(btVector3(0, 0.2, 4));
-        this->addCube(btVector3(0.6, -0.1, 4));
-        this->addCube(btVector3(-0.6, 0.1, 3));
-        this->addCube(btVector3(0.1, 0.2, 2));
-        this->addCube(btVector3(0,1,5));
+        this->addDice("", btVector3(0,0,5));
+        this->addDice("", btVector3(0, 0.2, 4));
+        this->addDice("", btVector3(0.6, -0.1, 4));
+        this->addDice("", btVector3(-0.6, 0.1, 3));
+        this->addDice("", btVector3(0.1, 0.2, 2));
+        this->addDice("", btVector3(0,1,5));
 
     }
 }
@@ -163,7 +212,7 @@ void Bullet::setNumCubes(int n)
 {
     if (m_cubes.size() == n) return;
     while (m_cubes.size() < n)
-        this->addCube(btVector3(0,1,5));
+        this->addDice("", btVector3(0,1,5));
     m_cubeMutex.lock();
     while (m_cubes.size() > n) {
         btRigidBody* body = btRigidBody::upcast(m_cubes.takeLast());
@@ -173,6 +222,7 @@ void Bullet::setNumCubes(int n)
     }
     m_cubeMutex.unlock();
 }
+
 
 void Bullet::runStep(int ms)
 {

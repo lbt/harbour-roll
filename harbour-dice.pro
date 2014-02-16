@@ -14,7 +14,9 @@ QT += sensors
 
 CONFIG += sailfishapp
 
-PKGCONFIG += bullet
+PKGCONFIG += bullet assimp
+
+# INCLUDEPATH += bullet/
 
 SOURCES += src/harbour-dice.cpp \
     src/glitem.cpp \
@@ -24,7 +26,8 @@ SOURCES += src/harbour-dice.cpp \
     src/dice.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
-    src/dicemodel.cpp
+    src/dicemodel.cpp \
+    src/bimesh.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -35,7 +38,7 @@ glsl.files = \
     src/debug_vert.glsl src/debug_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
-image.files = mer-cube.png
+image.files = mer-cube.png assets/d12.ply assets/d20.ply
 image.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl image
@@ -60,5 +63,6 @@ HEADERS += \
     src/dice.h \
     src/lightmanager.h \
     src/light.h \
-    src/dicemodel.h
+    src/dicemodel.h \
+    src/bimesh.h
 
