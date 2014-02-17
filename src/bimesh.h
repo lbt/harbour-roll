@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QFile>
 #include <QList>
+#include <QMap>
 #include <QMatrix4x4>
 
 //#include <btBulletDynamicsCommon.h>
@@ -19,6 +20,9 @@
 class BiMesh : public QObject
 {
     Q_OBJECT
+private:
+    static QMap<QString, btConvexHullShape*> c_bShape;
+
 public:
     explicit BiMesh(QObject *parent = 0);
 
@@ -35,7 +39,6 @@ protected:
     void copyMesh(aiNode* node);
 
 private:
-    btConvexHullShape *m_bShape;
     // glMesh m_glMesh;
 };
 

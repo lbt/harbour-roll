@@ -105,7 +105,7 @@ void Bullet::addWall(btVector3 normal, float offset) {
 void Bullet::loadDice()
 {
     m_meshes = new BiMesh();
-    m_meshes->load(SailfishApp::pathTo("d12.ply").toLocalFile());
+    m_meshes->load(SailfishApp::pathTo("dice.obj").toLocalFile());
 
 //    if (!m_diceShape[die]) {
 //        m_diceShape[die] = new btBoxShape(btVector3(.5,.5,.5));
@@ -184,9 +184,7 @@ void Bullet::setupModel()
 {
     int i;
     qDebug() << "Doing bullet setup";
-    m_meshes = new BiMesh();
-
-    m_meshes->load(SailfishApp::pathTo("d20.ply").toLocalFile());
+    loadDice();
 
     ///create a few basic rigid bodies
     this->addWall(btVector3( 0, 0, 1), 0);
@@ -198,12 +196,12 @@ void Bullet::setupModel()
 
     {
         //create a dynamic rigidbody
-        this->addDice("", btVector3(0,0,5));
-        this->addDice("", btVector3(0, 0.2, 4));
-        this->addDice("", btVector3(0.6, -0.1, 4));
-        this->addDice("", btVector3(-0.6, 0.1, 3));
-        this->addDice("", btVector3(0.1, 0.2, 2));
-        this->addDice("", btVector3(0,1,5));
+        this->addDice("d20", btVector3(0,0,5));
+        this->addDice("d12", btVector3(0, 0.2, 4));
+        this->addDice("d20", btVector3(0.6, -0.1, 4));
+        this->addDice("d12", btVector3(-0.6, 0.1, 3));
+        this->addDice("d20", btVector3(0.1, 0.2, 2));
+        this->addDice("d12", btVector3(0,1,5));
 
     }
 }
@@ -212,7 +210,7 @@ void Bullet::setNumCubes(int n)
 {
     if (m_cubes.size() == n) return;
     while (m_cubes.size() < n)
-        this->addDice("", btVector3(0,1,5));
+        this->addDice("d20", btVector3(0,1,5));
     m_cubeMutex.lock();
     while (m_cubes.size() > n) {
         btRigidBody* body = btRigidBody::upcast(m_cubes.takeLast());
@@ -280,7 +278,8 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
             world.scale(0.5, 0.5, 0.5);
             QMatrix4x4  pos = transform2Matrix(&trans);
             p->setUniformValue(p->getU("worldMatrixU"), pos*world);
-            glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+            if (m_debug_mode == DBG_NoDebug)
+                    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
             body->activate();
         }
     }

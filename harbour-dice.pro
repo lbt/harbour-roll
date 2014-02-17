@@ -38,7 +38,7 @@ glsl.files = \
     src/debug_vert.glsl src/debug_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
-image.files = mer-cube.png assets/d12.ply assets/d20.ply
+image.files = mer-cube.png assets/dice.obj assets/dice.blend
 image.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl image

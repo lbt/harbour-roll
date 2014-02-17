@@ -2,10 +2,25 @@
 
 #include <QDebug>
 
+#include <assimp/Logger.hpp>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/LogStream.hpp>
+
+class myStream :
+        public Assimp::LogStream
+{
+public:
+    myStream() {}
+    ~myStream() {}
+
+    void write(const char* message) { qDebug() << message; }
+};
+
+QMap<QString, btConvexHullShape*> BiMesh::c_bShape;
+
 BiMesh::BiMesh(QObject *parent) :
     QObject(parent)
 {
-    m_bShape = new btConvexHullShape();
 }
 
 static inline QVector3D qv3d(const aiVector3D &v) {
@@ -43,16 +58,28 @@ bool BiMesh::load(QString filename)
 
     }
 
+
     // Create an instance of the Importer class
     Assimp::Importer importer;
+    importer.SetExtraVerbose(true);
+    // Attaching myStream to the default logger
+    Assimp::DefaultLogger::create("",Assimp::Logger::VERBOSE);
+
+    const unsigned int severity = Assimp::Logger::Debugging|Assimp::Logger::Info|Assimp::Logger::Err|Assimp::Logger::Warn;
+    Assimp::DefaultLogger::get()->attachStream( new myStream(), severity );
+    Assimp::DefaultLogger::get()->setLogSeverity( Assimp::Logger::VERBOSE );
     // And have it read the given file with some example postprocessing
     // Usually - if speed is not the most important aspect for you - you'll
     // propably to request more postprocessing than we do in this example.
+    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
     const aiScene* scene = importer.ReadFile( filename.toStdString(),
                                               aiProcess_CalcTangentSpace |
                                               aiProcess_Triangulate |
                                               aiProcess_JoinIdenticalVertices |
-                                              aiProcess_SortByPType);
+                                              aiProcess_SortByPType|
+                                              aiProcess_ValidateDataStructure|
+                                              aiProcess_FindDegenerates
+                                              );
     qDebug() << "Parsed " << filename;
 
     // If the import failed, report it
@@ -64,6 +91,7 @@ bool BiMesh::load(QString filename)
     // Now we can access the file's contents.
     importChildren(scene, scene->mRootNode, this, QMatrix4x4());
 
+    Assimp::DefaultLogger::kill();
     // We're done. Everything will be cleaned up by the importer destructor
     return true;
 }
@@ -80,7 +108,7 @@ void BiMesh::importChildren(const aiScene *scene, aiNode *node, BiMesh *targetPa
         qDebug() << "found a full node with " << node->mNumMeshes << " meshes";
         BiMesh* newObject = new BiMesh(targetParent); // targetParent.addChild( newObject);
         // copy the meshes
-//        newObject->copyMeshes(scene, node);
+        //        newObject->copyMeshes(scene, node);
         copyMeshes(scene, node);
         // the new object is the parent for all child nodes
         parent = newObject;
@@ -107,39 +135,24 @@ void BiMesh::copyMeshes(const aiScene *scene, aiNode *node)
 {
     // FIXME - only copes with the first mesh
     aiMesh* m = scene->mMeshes[node->mMeshes[0]];
-    qDebug() << "Processing mesh " << m->mNumVertices;
+    qDebug() << "Processing mesh of " << m->mNumVertices << " vertices and " << m->mNumFaces << " faces to : " << node->mName.C_Str();
+    btConvexHullShape* btShape = new btConvexHullShape();
 
-    for (int i = 0; i < m->mNumVertices; i++) {
-        qDebug() << "Add v " << i;
-        aiVector3D v = m->mVertices[i];
-        qDebug() << "v " << v.x << ", " << v.y << ", " << v.z;
-        btVector3 vv = btVector3(v.x, v.y, v.z);
-        qDebug() << "vv " << vv.x() << ", " << vv.y() << ", " << vv.z();
-        m_bShape->addPoint(vv);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    aiFace* f = m->mFaces;
+    for (int nf = 0 ; nf < m->mNumFaces; nf++, f++) {
+        unsigned int* ind = f->mIndices;
+        for (int vi = 0; vi < f->mNumIndices; vi++, ind++) {
+            aiVector3D* v = m->mVertices+*ind;
+            btShape->addPoint(btVector3(v->x, v->y, v->z));
+        }
     }
-qDebug() << "recalc";
-    m_bShape->recalcLocalAabb();
+    btShape->recalcLocalAabb();
+    c_bShape[node->mName.C_Str()] = btShape;
 }
 
 btConvexHullShape* BiMesh::getMesh(QString name)
 {
-    return m_bShape;
+    return c_bShape[name];
 }
 
 
