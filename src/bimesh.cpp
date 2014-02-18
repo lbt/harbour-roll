@@ -108,8 +108,7 @@ void BiMesh::importChildren(const aiScene *scene, aiNode *node, BiMesh *targetPa
         qDebug() << "found a full node with " << node->mNumMeshes << " meshes";
         BiMesh* newObject = new BiMesh(targetParent); // targetParent.addChild( newObject);
         // copy the meshes
-        //        newObject->copyMeshes(scene, node);
-        copyMeshes(scene, node);
+        newObject->copyMeshes(scene, node);
         // the new object is the parent for all child nodes
         parent = newObject;
         // transform.SetUnity(); // Qt Matrix is identity by default.
@@ -141,6 +140,8 @@ void BiMesh::copyMeshes(const aiScene *scene, aiNode *node)
     aiFace* f = m->mFaces;
     for (int nf = 0 ; nf < m->mNumFaces; nf++, f++) {
         unsigned int* ind = f->mIndices;
+        if (f->mNumIndices != 3)
+            qDebug() << "Error - non triangular face";
         for (int vi = 0; vi < f->mNumIndices; vi++, ind++) {
             aiVector3D* v = m->mVertices+*ind;
             btShape->addPoint(btVector3(v->x, v->y, v->z));

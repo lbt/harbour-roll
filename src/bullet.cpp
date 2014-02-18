@@ -196,10 +196,10 @@ void Bullet::setupModel()
 
     {
         //create a dynamic rigidbody
-        this->addDice("d20", btVector3(0,0,5));
+        this->addDice("d6", btVector3(0,0,5));
         this->addDice("d12", btVector3(0, 0.2, 4));
         this->addDice("d20", btVector3(0.6, -0.1, 4));
-        this->addDice("d12", btVector3(-0.6, 0.1, 3));
+        this->addDice("d6", btVector3(-0.6, 0.1, 3));
         this->addDice("d20", btVector3(0.1, 0.2, 2));
         this->addDice("d12", btVector3(0,1,5));
 
