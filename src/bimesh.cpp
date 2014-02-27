@@ -16,7 +16,7 @@ public:
     void write(const char* message) { qDebug() << message; }
 };
 
-QMap<QString, btConvexHullShape*> BiMesh::c_bShape;
+QMap<QString, btCollisionShape*> BiMesh::c_bShape;
 
 BiMesh::BiMesh(QObject *parent) :
     QObject(parent)
@@ -135,23 +135,29 @@ void BiMesh::copyMeshes(const aiScene *scene, aiNode *node)
     // FIXME - only copes with the first mesh
     aiMesh* m = scene->mMeshes[node->mMeshes[0]];
     qDebug() << "Processing mesh of " << m->mNumVertices << " vertices and " << m->mNumFaces << " faces to : " << node->mName.C_Str();
-    btConvexHullShape* btShape = new btConvexHullShape();
+    btTriangleMesh* btMesh = new btTriangleMesh(true,false);
 
     aiFace* f = m->mFaces;
     for (int nf = 0 ; nf < m->mNumFaces; nf++, f++) {
         unsigned int* ind = f->mIndices;
         if (f->mNumIndices != 3)
             qDebug() << "Error - non triangular face";
-        for (int vi = 0; vi < f->mNumIndices; vi++, ind++) {
-            aiVector3D* v = m->mVertices+*ind;
-            btShape->addPoint(btVector3(v->x, v->y, v->z));
-        }
+        btVector3 v1 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
+        ind++;
+        btVector3 v2 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
+        ind++;
+        btVector3 v3 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
+        btMesh->addTriangle(v1, v2, v3);
     }
-    btShape->recalcLocalAabb();
+
+    btGImpactMeshShape* btShape = new btGImpactMeshShape(btMesh);
+    btShape->setMargin(0.04f);
+    btShape->updateBound();
+
     c_bShape[node->mName.C_Str()] = btShape;
 }
 
-btConvexHullShape* BiMesh::getMesh(QString name)
+btCollisionShape* BiMesh::getMesh(QString name)
 {
     return c_bShape[name];
 }

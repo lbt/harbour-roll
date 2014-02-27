@@ -1,23 +1,32 @@
 #include "bullet.h"
 #include <QDebug>
 #include <QFile>
+#include <QVector>
 
 #include <sailfishapp.h>
+
+#include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
 #define MAXX 2.4
 #define MAXY 4.2
 
 namespace { float rnd(float max) { return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max); } }
 
+uint qHash(Bullet::Color c) {
+    return c.m_c.x()*10000 + c.m_c.y()*100 + c.m_c.z();
+}
+inline bool operator==(const Bullet::Color &c1, const Bullet::Color &c2) { return c1.m_c == c2.m_c; }
+
 Bullet::Bullet(QObject *parent) :
     QObject(parent)
+  , m_qlinepoints(500)
 {
     ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
     collisionConfiguration = new btDefaultCollisionConfiguration();
 
     ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
     dispatcher = new	btCollisionDispatcher(collisionConfiguration);
-
+    btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
     ///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
     overlappingPairCache = new btDbvtBroadphase();
 
@@ -107,10 +116,10 @@ void Bullet::loadDice()
     m_meshes = new BiMesh();
     m_meshes->load(SailfishApp::pathTo("dice.obj").toLocalFile());
 
-//    if (!m_diceShape[die]) {
-//        m_diceShape[die] = new btBoxShape(btVector3(.5,.5,.5));
-//        collisionShapes.push_back(m_diceShape[die]);
-//    }
+    //    if (!m_diceShape[die]) {
+    //        m_diceShape[die] = new btBoxShape(btVector3(.5,.5,.5));
+    //        collisionShapes.push_back(m_diceShape[die]);
+    //    }
 }
 
 void Bullet::addDice(QString die, btVector3 pos)
@@ -127,11 +136,14 @@ void Bullet::addDice(QString die, btVector3 pos)
     qDebug() << "add dice";
 
     btVector3 localInertia(0,0,0);
+
+    btGImpactMeshShape* shape = (btGImpactMeshShape*)m_meshes->getMesh(die);
+
     if (isDynamic)
-        m_meshes->getMesh(die)->calculateLocalInertia(mass,localInertia);
+        shape->calculateLocalInertia(mass,localInertia);
     qDebug() << "add dice";
     btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,m_meshes->getMesh(die),localInertia);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
     rbInfo.m_friction=0.9;
     rbInfo.m_restitution=0.7;
 
@@ -210,7 +222,7 @@ void Bullet::setNumCubes(int n)
 {
     if (m_cubes.size() == n) return;
     while (m_cubes.size() < n)
-        this->addDice("d20", btVector3(0,1,5));
+        this->addDice("d6", btVector3(0,1,5));
     m_cubeMutex.lock();
     while (m_cubes.size() > n) {
         btRigidBody* body = btRigidBody::upcast(m_cubes.takeLast());
@@ -226,6 +238,14 @@ void Bullet::runStep(int ms)
 {
     m_cubeMutex.lock();
     dynamicsWorld->stepSimulation(ms/1000.f, 10, 1.f/300.f);
+    if (m_debug_mode != DBG_NoDebug )
+    {
+        //        qDebug() << "Drawing world ------------------------------------------------------";
+        if (m_worldLines)
+            delete m_worldLines;
+        m_worldLines = new QHash<Color, QList<Line> >;
+        dynamicsWorld->debugDrawWorld();
+    }
     m_cubeMutex.unlock();
 }
 
@@ -279,7 +299,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
             QMatrix4x4  pos = transform2Matrix(&trans);
             p->setUniformValue(p->getU("worldMatrixU"), pos*world);
             if (m_debug_mode == DBG_NoDebug)
-                    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+                glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
             body->activate();
         }
     }
@@ -290,6 +310,8 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 
     if (m_debug_mode == DBG_NoDebug ) return;
 
+    if (! m_worldLines) return;
+
     //  Setup shader for debug draw
     QMatrix4x4 worldMatrix; // null atm
     m_program_debug->bind();
@@ -297,7 +319,46 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
     m_program_debug->setUniformValue(m_program_debug->getU("worldMatrixU"), worldMatrix);
     glEnableVertexAttribArray(m_program_debug->getA("posA"));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    dynamicsWorld->debugDrawWorld();
+
+    // iterate over worldlines
+    glLineWidth(2);
+    m_cubeMutex.lock();
+    auto i = m_worldLines->constBegin();
+    while (i != m_worldLines->constEnd()) {
+        Color color = i.key();
+        m_program_debug->setUniformValue(m_program_debug->getU("colU"), color.m_c);
+        auto list = i++.value();
+//        qDebug() << "Drawing color " << color.m_c << " has " << list.size() << " entries, list has size " << m_qlinepoints.size();
+        if (list.size()*2 > m_qlinepoints.size()) {
+            m_qlinepoints.resize(list.size()*2);
+//            qDebug() <<"resized to " << m_qlinepoints.size();
+        }
+        auto j = list.constBegin();
+        int n=0;
+        while (j != list.constEnd()) {
+            Line line = *j++;
+            m_qlinepoints[n++] = line.from;
+            m_qlinepoints[n++] = line.to;
+            //            QVector3D lqline[] = {line.from, line.to};
+            //            glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, lqline);
+            //            glDrawArrays(GL_LINES, 0, 2);
+            //            qDebug() << "Rendering line "<< n << " from " << line.from << " to " << line.to;
+        }
+//        qDebug() << "Stored " << n << " vertices";
+//        int n2 =0;
+//        do {
+//            QVector3D lqline[] = {m_qlinepoints[n2], m_qlinepoints[n2+1]};
+//            glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, lqline);
+//            glDrawArrays(GL_LINES, 0, 2);
+//            n2++; n2++;
+//        } while (n2 < n);
+                glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_qlinepoints.data());
+                glDrawArrays(GL_LINES, 0, n);
+//        qDebug() << "Drew " << n2 << " vertices";
+
+    }
+    m_cubeMutex.unlock();
+
     glDisableVertexAttribArray(m_program_debug->getA("posA"));
     //    p->bind(); // should do this but we're only going to drop it again
 
@@ -341,14 +402,15 @@ void Bullet::setup()
 
 void Bullet::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
-    glLineWidth(2);
+    QVector3D qfrom(from.x(), from.y(), from.z());
+    QVector3D qto(to.x(), to.y(), to.z());
+    QVector4D qcol(color.x(), color.y(), color.z(), 1.0);
 
-    QVector3D line[] = { QVector3D(from.x(), from.y(), from.z()), QVector3D(to.x(), to.y(),to.z()) };
-    m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(color.x(),color.y(),color.z(), 1));
-    glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, line);
-    glDrawArrays(GL_LINES, 0, 2);
-    // What would be nice here is to setup line and col arrays and call glDrawArrays once
+    //    qDebug() << "Drawing line color " << qcol << " from " << qfrom << " to " << qto;
+    (*m_worldLines)[Color(qcol)].append({qfrom, qto});
+    //    qDebug() << "color " << qcol << " has " << (*m_worldLines)[Color(qcol)].size() << " entries now";
 }
+
 void	Bullet::reportErrorWarning(const char* warningString) {
     qDebug()<< warningString;
 }

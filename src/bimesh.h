@@ -11,6 +11,8 @@
 //#include <BulletCollision/CollisionShapes/btConvexHullShape.h>
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionShapes/btConvexHullShape.h>
+#include <bullet/BulletCollision/Gimpact/btGImpactShape.h>
+
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -21,7 +23,7 @@ class BiMesh : public QObject
 {
     Q_OBJECT
 private:
-    static QMap<QString, btConvexHullShape*> c_bShape;
+    static QMap<QString, btCollisionShape*> c_bShape;
 
 public:
     explicit BiMesh(QObject *parent = 0);
@@ -29,7 +31,7 @@ public:
     bool load(QString filename);
     void importChildren(const aiScene *scene, aiNode *node, BiMesh *targetParent, QMatrix4x4 accTransform);
     void copyMeshes(const aiScene *scene, aiNode *node);
-    btConvexHullShape* getMesh(QString name);
+    btCollisionShape* getMesh(QString name);
 
 signals:
 

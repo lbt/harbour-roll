@@ -22,11 +22,11 @@ License:    LICENSE
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-dice.yaml
 Requires:   sailfishsilica-qt5
-BuildRequires:  pkgconfig(bullet)
-BuildRequires:  pkgconfig(sailfishapp)
-BuildRequires:  pkgconfig(Qt5Quick)
-BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
+BuildRequires:  pkgconfig(Qt5Qml)
+BuildRequires:  pkgconfig(Qt5Quick)
+BuildRequires:  pkgconfig(sailfishapp)
+BuildRequires:  pkgconfig(bullet)
 BuildRequires:  desktop-file-utils
 
 %description
@@ -68,14 +68,14 @@ desktop-file-install --delete-original       \
 
 %files
 %defattr(-,root,root,-)
-/usr/share/icons/hicolor/86x86/apps
-%{_datadir}/%{name}
-%{_datadir}/applications/%{name}.desktop
-%defattr(644,root,root,-)
-%{_bindir}
-%defattr(755,root,root,-)
-/usr/bin
-/usr/share/harbour-dice
 /usr/share/applications
+/usr/share/harbour-dice
+/usr/bin
+%defattr(755,root,root,-)
+%{_bindir}
+%defattr(644,root,root,-)
+%{_datadir}/applications/%{name}.desktop
+%{_datadir}/%{name}
+/usr/share/icons/hicolor/86x86/apps
 # >> files
 # << files

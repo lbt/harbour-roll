@@ -13,8 +13,13 @@ QT += sensors
 # LIBS += --rpath,/
 
 CONFIG += sailfishapp
+CONFIG += c++11
 
-PKGCONFIG += bullet assimp
+# PKGCONFIG += bullet assimp
+PKGCONFIG += assimp
+
+include(src/bullet/bullet.pri)
+
 
 # INCLUDEPATH += bullet/
 
@@ -31,7 +36,7 @@ SOURCES += src/harbour-dice.cpp \
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
-QMAKE_RPATHDIR += $$DEPLOYMENT_PATH/lib/:/opt/sdk/$$TARGET/$$DEPLOYMENT_PATH/lib/
+QMAKE_RPATHDIR += /opt/sdk/$$TARGET/$$DEPLOYMENT_PATH/lib/:$$DEPLOYMENT_PATH/lib/
 
 glsl.files = \
     src/dice_vert.glsl.out src/dice_frag.glsl.out \

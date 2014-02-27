@@ -3,8 +3,10 @@
 
 #include <QObject>
 #include <QVector3D>
+#include <QVector>
 #include <QList>
-#include <QMap>
+#include <QHash>
+#include <QList>
 #include <QMutex>
 
 #include <bullet/btBulletDynamicsCommon.h>
@@ -15,9 +17,29 @@
 #include "glprogram.h"
 #include "bimesh.h"
 
+
 class Bullet : public QObject, public btIDebugDraw
 {
     Q_OBJECT
+
+public:
+    struct Line {
+        const QVector3D from;
+        const QVector3D to;
+    };
+
+    class Color {
+    public:
+        Color(QVector4D c) { m_c = c; }
+        Color() {}
+        Color(const Color &other) { m_c = other.m_c; }
+        ~Color() {}
+        Color &operator=(const Color &other);
+
+    public:
+        QVector4D m_c;
+    };
+
 public:
     explicit Bullet(QObject *parent = 0);
     ~Bullet();
@@ -56,8 +78,12 @@ private:
     QList<btCollisionObject*> m_cubes;
     QList<btCollisionObject*>::iterator m_cubes_i;
     btCollisionShape* m_cubeShape;
-    QMap<QString, btCollisionShape*> m_diceShape;
+    QHash<QString, btCollisionShape*> m_diceShape;
     BiMesh* m_meshes;
+    QHash<Color, QList<Line> > *m_worldLines;
+    typedef QHash<Color, QList<Line> >::const_iterator m_worldLines_iter_type;
+    typedef QList<Line>::const_iterator m_worldLines_list_iter_type;
+    QVector<QVector3D> m_qlinepoints;
 
     // Below here is the functionality needed to be a btIDebugDraw
 public:
