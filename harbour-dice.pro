@@ -40,7 +40,8 @@ QMAKE_RPATHDIR += /opt/sdk/$$TARGET/$$DEPLOYMENT_PATH/lib/:$$DEPLOYMENT_PATH/lib
 
 glsl.files = \
     src/dice_vert.glsl.out src/dice_frag.glsl.out \
-    src/debug_vert.glsl src/debug_frag.glsl
+    src/debug_vert.glsl src/debug_frag.glsl \
+    src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
 image.files = mer-cube.png assets/dice.obj assets/dice.blend
@@ -58,7 +59,9 @@ OTHER_FILES += qml/harbour-dice.qml \
     src/dice_vert.glsl \
     qml/pages/About.qml \
     src/debug_frag.glsl \
-    src/debug_vert.glsl
+    src/debug_vert.glsl \
+    src/light_frag.glsl \
+    src/light_vert.glsl
 
 HEADERS += \
     src/glitem.h \

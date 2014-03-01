@@ -3,6 +3,7 @@
 
 #include <QVector3D>
 #include "lightmanager.h"
+#include "glprogram.h"
 
 struct _BaseLight
 {
@@ -25,7 +26,19 @@ struct _PointLight
     qreal AExp;
 };
 
-class PointLight
+class Light
+{
+
+public:
+    Light();
+
+    LightManager lightManager;
+    void update(int deltaT) { }
+    virtual void randomise() = 0;
+    void debugRender(QMatrix4x4 projViewMatrix) {}
+};
+
+class PointLight : public Light
 {
 
 public:
@@ -33,16 +46,16 @@ public:
 
     _PointLight light() const { return m_light ; }
     void set(_PointLight light);
-    void randomise();
-    LightManager lightManager;
     void update(int deltaT);
-
+    void randomise();
+    void debugRender(QMatrix4x4 projViewMatrix);
 private:
     _PointLight m_light;
 
+    static GLProgram* c_program_debug;
 };
 
-class DirectionalLight
+class DirectionalLight : public Light
 {
 
 public:
@@ -51,9 +64,9 @@ public:
     void set(_DirectionalLight light);
     _DirectionalLight light() const { return m_light ; }
     void randomise();
+
 private:
     _DirectionalLight m_light;
-    LightManager m_mgr;
 };
 
 #endif // LIGHT_H

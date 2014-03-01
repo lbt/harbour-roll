@@ -80,10 +80,10 @@ void LightManager::update(int ms)
     m_z = m_r * cos(m_theta) * sin(m_phi);
     m_y = m_r * sin(m_theta);
 
-//    qDebug() << "x y z (" << m_x <<"," << m_y<<"," << m_z<<")"
-//             << " r t p (" << m_r <<"," << m_theta<<"," << m_phi<<")"
-//             << " vr vt vp (" << m_vr <<"," << m_vth <<"," << m_vph <<")"
-//             << " t:" << deltaTime;
+    //    qDebug() << "x y z (" << m_x <<"," << m_y<<"," << m_z<<")"
+    //             << " r t p (" << m_r <<"," << m_theta<<"," << m_phi<<")"
+    //             << " vr vt vp (" << m_vr <<"," << m_vth <<"," << m_vph <<")"
+    //             << " t:" << deltaTime;
     //             << " rx ry rz (" << m_rx <<"," << m_ry<<"," << m_rz<<")";
 
 }
@@ -120,3 +120,4 @@ void LightManager::randomise() {
     m_vph = rnd(1.0);
     update(0);
 }
+

@@ -342,6 +342,15 @@ void Dice::render()
     // Draw the world
     bullet.render(p, projMatrix*viewMatrix);
 
+    if (bullet.getDebugMode()) {
+        // Draw the lights
+        for (unsigned int i = 0 ; i < 2 ; i++) {
+            m_dLights[i].debugRender(projMatrix*viewMatrix);
+        }
+        for (unsigned int i = 0 ; i < 3 ; i++) {
+            m_pLights[i].debugRender(projMatrix*viewMatrix);
+        }
+    }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -400,7 +409,7 @@ void DiceRunner::runStep() {
     } else {
         m_workerBullet->setGravity(0, 0, 0);
     }
-//    qDebug() << "tick";
+    //    qDebug() << "tick";
     int timeDelta_ms = m_bulletTime.restart();
     m_workerBullet->runStep(timeDelta_ms );
     emit ready();
