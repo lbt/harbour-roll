@@ -384,20 +384,7 @@ void Bullet::kick(){
 
 void Bullet::setup()
 {
-    m_program_debug = new GLProgram();
-    m_program_debug->addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                             SailfishApp::pathTo("debug_vert.glsl").toLocalFile());
-    m_program_debug->addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                             SailfishApp::pathTo("debug_frag.glsl").toLocalFile());
-    if (! m_program_debug->link()) {
-        QList<QOpenGLShader *>::iterator i;
-        for (i = m_program_debug->shaders().begin(); i != m_program_debug->shaders().end(); ++i) {
-            if ((*i)->isCompiled())
-                qDebug() << "Shader compile log: \n" << (*i)->log();
-        }
-
-    }
-
+    m_program_debug = new GLProgram(SailfishApp::pathTo("debug_vert.glsl"), SailfishApp::pathTo("debug_frag.glsl"));
 }
 
 void Bullet::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)

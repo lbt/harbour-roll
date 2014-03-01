@@ -1,8 +1,19 @@
 #include "glprogram.h"
 
-GLProgram::GLProgram(QObject *parent) :
+GLProgram::GLProgram(QUrl vpath, QUrl fpath, QObject *parent) :
     QOpenGLShaderProgram(parent)
 {
+    this->addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                             vpath.toLocalFile());
+    this->addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                             fpath.toLocalFile());
+    if (! this->link()) {
+        QList<QOpenGLShader *>::iterator i;
+        for (i = this->shaders().begin(); i != this->shaders().end(); ++i) {
+            if ((*i)->isCompiled())
+                qDebug() << "Shader compile log: \n" << (*i)->log();
+        }
+    }
 }
 
 GLuint GLProgram::getA(QString a) {

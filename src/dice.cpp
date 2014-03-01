@@ -196,28 +196,13 @@ void Dice::prep()
     connect(m_runner, SIGNAL(ready()), this->window(), SLOT(update()) );
     m_runnerThread.start();
 
-    m_program_dice = new GLProgram();
+    m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("dice_frag.glsl.out"));
     qDebug() << "created programs";
 
     bullet.setupModel();
     emit numDiceChanged(m_numDice);
     qDebug() << "emit numDiceChanged " << m_numDice;
     m_lightTime.start();
-    // prep must add and link any shaders
-    m_program_dice->addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                            SailfishApp::pathTo("dice_vert.glsl.out").toLocalFile());
-    m_program_dice->addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                            SailfishApp::pathTo("dice_frag.glsl.out").toLocalFile());
-
-    if (! m_program_dice->link()) {
-        qDebug() << "Linking failed\n" << m_program_dice->log();
-        QList<QOpenGLShader *>::iterator i;
-        for (i = m_program_dice->shaders().begin(); i != m_program_dice->shaders().end(); ++i) {
-            if ((*i)->isCompiled())
-                qDebug() << "Shader compile log: \n" << (*i)->log();
-        }
-
-    }
 
     // and then prepare any one-time data like VBOs
     glGenBuffers(4, m_vboIds);

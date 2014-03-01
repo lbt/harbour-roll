@@ -2,12 +2,13 @@
 #define GLPROGRAM_H
 
 #include <QOpenGLShaderProgram>
+#include <QUrl>
 
 class GLProgram : public QOpenGLShaderProgram
 {
     Q_OBJECT
 public:
-    explicit GLProgram(QObject *parent = 0);
+    explicit GLProgram(QUrl vpath, QUrl fpath, QObject *parent = 0);
 
     GLuint getU(QString);
     GLuint getA(QString);
