@@ -32,7 +32,8 @@ SOURCES += src/harbour-dice.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
     src/dicemodel.cpp \
-    src/bimesh.cpp
+    src/bimesh.cpp \
+    src/vaocontainer.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -44,7 +45,7 @@ glsl.files = \
     src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
-image.files = mer-cube.png assets/dice.obj assets/dice.blend
+image.files = assets/mer-cube.png assets/d20-faces.png assets/dice.obj assets/dice.blend assets/dice.mtl
 image.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl image
@@ -72,5 +73,6 @@ HEADERS += \
     src/lightmanager.h \
     src/light.h \
     src/dicemodel.h \
-    src/bimesh.h
+    src/bimesh.h \
+    src/vaocontainer.h
 

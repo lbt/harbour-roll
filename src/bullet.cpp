@@ -113,7 +113,7 @@ void Bullet::addWall(btVector3 normal, float offset) {
 //void Bullet::loadDice(QString die, QString filename)
 void Bullet::loadDice()
 {
-    m_meshes = new BiMesh();
+    m_meshes = new BiMeshContainer();
     m_meshes->load(SailfishApp::pathTo("dice.obj").toLocalFile());
 
     //    if (!m_diceShape[die]) {
@@ -137,7 +137,8 @@ void Bullet::addDice(QString die, btVector3 pos)
 
     btVector3 localInertia(0,0,0);
 
-    btGImpactMeshShape* shape = (btGImpactMeshShape*)m_meshes->getMesh(die);
+    // Typeinfo AABB bug???
+    btGImpactMeshShape* shape = (btGImpactMeshShape*) m_meshes->getCollisionMesh(die);
 
     if (isDynamic)
         shape->calculateLocalInertia(mass,localInertia);

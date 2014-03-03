@@ -79,7 +79,7 @@ private:
     QList<btCollisionObject*>::iterator m_cubes_i;
     btCollisionShape* m_cubeShape;
     QHash<QString, btCollisionShape*> m_diceShape;
-    BiMesh* m_meshes;
+    BiMeshContainer* m_meshes;
     QHash<Color, QList<Line> > *m_worldLines;
     typedef QHash<Color, QList<Line> >::const_iterator m_worldLines_iter_type;
     typedef QList<Line>::const_iterator m_worldLines_list_iter_type;

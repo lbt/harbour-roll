@@ -185,8 +185,10 @@ void Dice::setRunning(bool running)
     QMetaObject::invokeMethod(m_runner, "setRunning", Qt::QueuedConnection, Q_ARG(bool, running));
 }
 
+extern QQuickWindow* global_hack_window;
 void Dice::prep()
 {
+    global_hack_window = window(); // This is until we get 5.2 and QOpenGLTextures
     qDebug() << "dice Prep";
     // Setup a worker Thread to do the bullet calcs
     m_runner = new DiceRunner(&bullet);
