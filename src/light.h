@@ -49,6 +49,7 @@ public:
     void update(int deltaT);
     void randomise();
     void debugRender(QMatrix4x4 projViewMatrix);
+    void setUniforms(GLProgram *p, int i);
 private:
     _PointLight m_light;
 
@@ -65,6 +66,7 @@ public:
     _DirectionalLight light() const { return m_light ; }
     void randomise();
 
+    void setUniforms(GLProgram *p, int i);
 private:
     _DirectionalLight m_light;
 };

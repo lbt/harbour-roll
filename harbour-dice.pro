@@ -45,7 +45,7 @@ glsl.files = \
     src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
-image.files = assets/mer-cube.png assets/d20-faces.png assets/dice.obj assets/dice.blend assets/dice.mtl
+image.files = assets/mer-cube.png assets/d20-faces.png assets/d12-faces.png assets/dice.obj assets/dice.blend assets/dice.mtl
 image.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl image
@@ -76,3 +76,5 @@ HEADERS += \
     src/bimesh.h \
     src/vaocontainer.h
 
+# MerSDK david:~/src/glsl-optimizer > ./glslopt -f ../harbour-dice/src/dice_frag.glsl 
+# MerSDK david:~/src/glsl-optimizer > ./glslopt -v ../harbour-dice/src/dice_vert.glsl 

@@ -199,6 +199,7 @@ void Dice::prep()
     m_runnerThread.start();
 
     m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("dice_frag.glsl.out"));
+//    m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("debug_frag.glsl"));
     qDebug() << "created programs";
 
     bullet.setupModel();
@@ -264,7 +265,7 @@ void Dice::prep()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    bullet.setup();
+    bullet.setup(m_program_dice);
 }
 
 
@@ -289,11 +290,13 @@ void Dice::render()
     p->bind();
     QMatrix4x4 projMatrix;
     projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
-    p->setUniformValue(p->getU("projMatrixU"), projMatrix);
 
     QMatrix4x4 viewMatrix;
     viewMatrix = m_cammanager.transform(viewMatrix);
-    p->setUniformValue(p->getU("viewMatrixU"), viewMatrix);
+    QMatrix4x4 projViewMatrix = projMatrix * viewMatrix;
+
+    p->setUniformValue(p->getU("projViewMatrixU"), projViewMatrix);
+
 
     // Setup lighting /////////////////////////////////////////////////////////////////////
     for (unsigned int i = 0 ; i < 2 ; i++) {
@@ -325,32 +328,44 @@ void Dice::render()
     m_texture->bind();
     p->setUniformValue(p->getU("textureU"), 0);
 
+    p->setUniformValue(p->getU("colU"), QVector4D(0.6, 0.7, 0.8, 1.0));
+
     // Render the ground/walls /////////////////////////////////////////////////////////////////////
 
     // TODO
 
     // Setup Model for cubes /////////////////////////////////////////////////////////////////////
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
+// This is a useful but nasty render of a big cube:
+//    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
 
-    // Because we're using VBOs for vertex, tex and normals this is pointer into them
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_0);
-    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_1);
-    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-                          (const void *)VertexData_2);
+//    // Because we're using VBOs for vertex, tex and normals this is pointer into them
+//    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+//                          (const void *)VertexData_0);
+//    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+//                          (const void *)VertexData_1);
+//    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
+//                          (const void *)VertexData_2);
+//    glEnableVertexAttribArray(p->getA("posA"));
+//    glEnableVertexAttribArray(p->getA("texA"));
+//    glEnableVertexAttribArray(p->getA("normalA"));
+
+//    glDrawElements(GL_TRIANGLE_STRIP, 36, GL_UNSIGNED_SHORT, 0);
+
+//    glDisableVertexAttribArray(p->getA("posA"));
+//    glDisableVertexAttribArray(p->getA("texA"));
+//    glDisableVertexAttribArray(p->getA("normalA"));
 
     // Draw the world
-    bullet.render(p, projMatrix*viewMatrix);
+    bullet.render(p, projViewMatrix);
 
     if (bullet.getDebugMode()) {
         // Draw the lights
         for (unsigned int i = 0 ; i < 2 ; i++) {
-            m_dLights[i].debugRender(projMatrix*viewMatrix);
+            m_dLights[i].debugRender(projViewMatrix);
         }
         for (unsigned int i = 0 ; i < 3 ; i++) {
-            m_pLights[i].debugRender(projMatrix*viewMatrix);
+            m_pLights[i].debugRender(projViewMatrix);
         }
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);

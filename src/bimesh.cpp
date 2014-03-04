@@ -6,6 +6,7 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 
+#include "sailfishapp.h"
 
 class myStream :
         public Assimp::LogStream
@@ -199,9 +200,13 @@ QQuickWindow* global_hack_window;
 ///
 BiMesh::BiMesh(const aiScene *scene, aiNode *node, QObject *parent) :
     QObject(parent)
+  , m_texture(NULL)
 {
     // FIXME - only copes with the first mesh
     aiMesh* m = scene->mMeshes[node->mMeshes[0]];
+
+    m_name = node->mName.C_Str();
+
     // construct an interleaved matrix for feeding to glVertexAttribPointer and glDrawElements
     m_vao = new VAOContainer(m);
 
@@ -220,12 +225,132 @@ BiMesh::BiMesh(const aiScene *scene, aiNode *node, QObject *parent) :
             qDebug() << "and lives at " << path.C_Str();
             // FIXME at 5.2:
             //            m_texture = new QOpenGLTexture(QImage(path.data).mirrored());
+            glEnable(GL_TEXTURE_2D);
             m_texture = global_hack_window ->
-                    createTextureFromImage(QImage(path.data).mirrored());
+                    createTextureFromImage(QImage(SailfishApp::pathTo(path.data).toLocalFile()).mirrored());
+            if (m_texture->isAtlasTexture()) {
+                qDebug() << "Removed texture from Atlas";
+                m_texture = m_texture->removedFromAtlas();
+            }
+
+            m_texture->setFiltering(QSGTexture::Linear);
+            m_texture->setHorizontalWrapMode(QSGTexture::Repeat);
+            m_texture->setVerticalWrapMode(QSGTexture::Repeat);
+
+            // Set nearest filtering mode for texture minification
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+            // Set bilinear filtering mode for texture magnification
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            // Wrap texture coordinates by repeating
+            // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
             //            texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
             //            texture->setMagnificationFilter(QOpenGLTexture::Linear);
         } else {
             qDebug() << "and has no path";
         }
     }
+}
+
+void BiMesh::setup(GLProgram* p) {
+
+    glGenBuffers(2, m_vboIds); // one for VAO, other for indices
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
+    glBufferData(GL_ARRAY_BUFFER, m_vao->m_vaosize, m_vao->VAO(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_vao->numIndices() * sizeof(GLushort), m_vao->VAO_Indices(), GL_STATIC_DRAW);
+
+//    GLushort* p = m_vao->VAO_Indices();
+//    for (int c; c<m_vao->numIndices();c+=3) {
+//        qDebug() << "Found face (" << *p++ << "," << *p++ << "," << *p++ << ")";
+//    }
+
+    //    glGenTextures(1, m_texIds);
+    //    glBindTexture(GL_TEXTURE_2D);
+
+    //    qDebug() << "VAO stride is :"<<  m_vao->stride();
+    //    qDebug() << "PosA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_pos_loc
+    //             << " = " << (void *)((const char *)m_vao->VAO()+m_vao->m_pos_loc);
+    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
+                          m_vao->VAO()+m_vao->m_pos_loc);
+
+    //    if (m_vao->m_pos_loc >= 0) {
+    //        char* p = (m_vao->VAO()+m_vao->m_pos_loc);
+    //        for (int c; c<m_vao->numVertices(); c++) {
+    //            float* f = (float*)p;
+    //            qDebug() << "PosA (" << *f << "," << f[1] << "," << f[2] << ")";
+    //            p += m_vao->stride();
+    //        }
+    //    }
+    //    qDebug() << "normalA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_normal_loc
+    //             << " = " << (void *)((const char *)m_vao->VAO()+m_vao->m_normal_loc);
+    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
+                          m_vao->VAO()+m_vao->m_normal_loc);
+
+    //    if (m_vao->m_normal_loc >= 0) {
+
+    //        char* p = ((char *)m_vao->VAO()+m_vao->m_normal_loc);
+    //        for (int c; c<m_vao->numVertices(); c++) {
+    //            float* f = (float*)p;
+    //            qDebug() << "normalA (" << *f << "," << f[1] << "," << f[2] << ")";
+    //            p += m_vao->stride();
+    //        }
+    //    }
+    //    qDebug() << "texA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_texture_loc
+    //             << " = " << (void *)((const char *)m_vao->VAO()+m_vao->m_texture_loc);
+    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, m_vao->stride(),
+                          m_vao->VAO()+m_vao->m_texture_loc);
+
+    //    if (m_vao->m_texture_loc >= 0) {
+    //        char* p = ((char *)m_vao->VAO()+m_vao->m_texture_loc);
+    //        for (int c; c<m_vao->numVertices(); c++) {
+    //            float* f = (float*)p;
+    //            qDebug() << "texA (" << *f << "," << f[1] << "," << f[2] << ")";
+    //            p += m_vao->stride();
+    //        }
+    //    }
+
+
+    glEnable(GL_TEXTURE_2D);
+
+}
+
+void BiMesh::render(GLProgram* p)
+{
+    if (!m_texture) {
+//        qDebug() << "no texture, not rendering " << m_name;
+        return;
+    }
+//    qDebug() << "rendering a " << m_name;
+    // Switch to using our buffers
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
+    // Hopefully delete these next 2 lines
+//    glBufferData(GL_ARRAY_BUFFER, m_vao->m_vaosize, m_vao->VAO(), GL_DYNAMIC_DRAW);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_vao->numIndices() * sizeof(GLushort), m_vao->VAO_Indices(), GL_STATIC_DRAW);
+
+    // This is probably the same for all VAOs at the moment - it may change if some
+    // VAOs have different layouts
+    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
+                          (const GLvoid*)m_vao->m_pos_loc);
+    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
+                          (const GLvoid*)m_vao->m_normal_loc);
+    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, m_vao->stride(),
+                          (const GLvoid*)m_vao->m_texture_loc);
+
+    glEnableVertexAttribArray(p->getA("posA"));
+    glEnableVertexAttribArray(p->getA("texA"));
+    glEnableVertexAttribArray(p->getA("normalA"));
+
+    m_texture->bind();
+
+    glDrawElements(GL_TRIANGLES, m_vao->numIndices(), GL_UNSIGNED_SHORT, 0);
+
+    glDisableVertexAttribArray(p->getA("posA"));
+    glDisableVertexAttribArray(p->getA("texA"));
+    glDisableVertexAttribArray(p->getA("normalA"));
 }

@@ -6,8 +6,7 @@ attribute highp vec2 texA;
 attribute highp vec3 normalA;
 
 uniform highp mat4 worldMatrixU;
-uniform highp mat4 viewMatrixU;
-uniform highp mat4 projMatrixU;
+uniform highp mat4 projViewMatrixU;
 varying highp vec2 texcoordV;
 varying highp vec3 normalV;
 varying highp vec3 posV;
@@ -16,7 +15,7 @@ varying highp vec3 posV;
 
 void main() {
     // gl_position is relative to the eye/camera
-    gl_Position = projMatrixU * viewMatrixU * worldMatrixU * vec4(posA, 1.0);
+    gl_Position = projViewMatrixU * worldMatrixU * vec4(posA, 1.0);
     gl_PointSize = 15.0;
 
     // Pass texture coordinate to fragment shader

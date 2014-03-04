@@ -85,9 +85,10 @@ private:
     typedef QList<Line>::const_iterator m_worldLines_list_iter_type;
     QVector<QVector3D> m_qlinepoints;
 
+
     // Below here is the functionality needed to be a btIDebugDraw
 public:
-    void setup(); // setup GL stuff
+    void setup(GLProgram *p); // setup GL stuff
     void drawLine(const btVector3 &  	from,
                   const btVector3 &  	to,
                   const btVector3 &  	color);
@@ -96,6 +97,7 @@ public:
     void	draw3dText(const btVector3& location,const char* textString);
     void	setDebugMode(int debugMode);
     int		getDebugMode() const;
+    void render2(GLProgram *p, QMatrix4x4 projViewMatrix);
 private:
     GLProgram* m_program_debug;
     int m_debug_mode;

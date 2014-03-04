@@ -23,6 +23,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "glprogram.h"
 #include "vaocontainer.h"
 
 class BiMesh : public QObject
@@ -32,11 +33,15 @@ class BiMesh : public QObject
 public:
     explicit BiMesh(const aiScene *scene, aiNode *node, QObject *parent = 0);
 
+    void render(GLProgram *p);
+    void setup(GLProgram *p);
 private:
-    // glMesh m_glMesh;
+
+    QString m_name;
     VAOContainer *m_vao;
     QSGTexture *m_texture;
     GLuint m_vboIds[3];
+    GLuint m_texIds[1];
     void * m_texCoords;
     void * m_meshVertices;
 };

@@ -221,9 +221,11 @@ void Bullet::setupModel()
 
 void Bullet::setNumCubes(int n)
 {
+    static QString selection[] = {"d6", "d12", "d20" };
+
     if (m_cubes.size() == n) return;
     while (m_cubes.size() < n)
-        this->addDice("d6", btVector3(0,1,5));
+        this->addDice(selection[rand()%3], btVector3(0,1,5));
     m_cubeMutex.lock();
     while (m_cubes.size() > n) {
         btRigidBody* body = btRigidBody::upcast(m_cubes.takeLast());
@@ -283,6 +285,83 @@ QMatrix4x4 transform2Matrix(btTransform *transform) {
 
 void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 {
+    m_cubeMutex.lock();
+    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
+        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
+        if (body && body->getMotionState())
+        {
+            btTransform trans;
+            body->getMotionState()->getWorldTransform(trans);
+            QMatrix4x4  pos = transform2Matrix(&trans);
+            p->setUniformValue(p->getU("worldMatrixU"), pos);
+
+            if (m_debug_mode == DBG_NoDebug) {
+                BiMesh* bimesh = dynamic_cast<BiMesh *>(body->getCollisionShape());
+                bimesh->render(p);
+            }
+            body->activate();
+        }
+    }
+    m_cubeMutex.unlock();
+
+    if (m_debug_mode == DBG_NoDebug ) return;
+
+    if (! m_worldLines) return;
+
+    //  Setup shader for debug draw
+    QMatrix4x4 worldMatrix; // null atm
+    m_program_debug->bind();
+    m_program_debug->setUniformValue(m_program_debug->getU("projViewMatrixU"), projViewMatrix);
+    m_program_debug->setUniformValue(m_program_debug->getU("worldMatrixU"), worldMatrix);
+    glEnableVertexAttribArray(m_program_debug->getA("posA"));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // iterate over worldlines
+    glLineWidth(2);
+    m_cubeMutex.lock();
+    auto i = m_worldLines->constBegin();
+    while (i != m_worldLines->constEnd()) {
+        Color color = i.key();
+        m_program_debug->setUniformValue(m_program_debug->getU("colU"), color.m_c);
+        auto list = i++.value();
+        //        qDebug() << "Drawing color " << color.m_c << " has " << list.size() << " entries, list has size " << m_qlinepoints.size();
+        if (list.size()*2 > m_qlinepoints.size()) {
+            m_qlinepoints.resize(list.size()*2);
+            //            qDebug() <<"resized to " << m_qlinepoints.size();
+        }
+        auto j = list.constBegin();
+        int n=0;
+        while (j != list.constEnd()) {
+            Line line = *j++;
+            m_qlinepoints[n++] = line.from;
+            m_qlinepoints[n++] = line.to;
+            //            QVector3D lqline[] = {line.from, line.to};
+            //            glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, lqline);
+            //            glDrawArrays(GL_LINES, 0, 2);
+            //            qDebug() << "Rendering line "<< n << " from " << line.from << " to " << line.to;
+        }
+        //        qDebug() << "Stored " << n << " vertices";
+        //        int n2 =0;
+        //        do {
+        //            QVector3D lqline[] = {m_qlinepoints[n2], m_qlinepoints[n2+1]};
+        //            glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, lqline);
+        //            glDrawArrays(GL_LINES, 0, 2);
+        //            n2++; n2++;
+        //        } while (n2 < n);
+        glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_qlinepoints.data());
+        glDrawArrays(GL_LINES, 0, n);
+        //        qDebug() << "Drew " << n2 << " vertices";
+
+    }
+    m_cubeMutex.unlock();
+
+    glDisableVertexAttribArray(m_program_debug->getA("posA"));
+    //    p->bind(); // should do this but we're only going to drop it again
+
+}
+
+void Bullet::render2(GLProgram *p, QMatrix4x4 projViewMatrix)
+{
     glEnableVertexAttribArray(p->getA("posA"));
     glEnableVertexAttribArray(p->getA("texA"));
     glEnableVertexAttribArray(p->getA("normalA"));
@@ -329,10 +408,10 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
         Color color = i.key();
         m_program_debug->setUniformValue(m_program_debug->getU("colU"), color.m_c);
         auto list = i++.value();
-//        qDebug() << "Drawing color " << color.m_c << " has " << list.size() << " entries, list has size " << m_qlinepoints.size();
+        //        qDebug() << "Drawing color " << color.m_c << " has " << list.size() << " entries, list has size " << m_qlinepoints.size();
         if (list.size()*2 > m_qlinepoints.size()) {
             m_qlinepoints.resize(list.size()*2);
-//            qDebug() <<"resized to " << m_qlinepoints.size();
+            //            qDebug() <<"resized to " << m_qlinepoints.size();
         }
         auto j = list.constBegin();
         int n=0;
@@ -345,17 +424,17 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
             //            glDrawArrays(GL_LINES, 0, 2);
             //            qDebug() << "Rendering line "<< n << " from " << line.from << " to " << line.to;
         }
-//        qDebug() << "Stored " << n << " vertices";
-//        int n2 =0;
-//        do {
-//            QVector3D lqline[] = {m_qlinepoints[n2], m_qlinepoints[n2+1]};
-//            glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, lqline);
-//            glDrawArrays(GL_LINES, 0, 2);
-//            n2++; n2++;
-//        } while (n2 < n);
-                glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_qlinepoints.data());
-                glDrawArrays(GL_LINES, 0, n);
-//        qDebug() << "Drew " << n2 << " vertices";
+        //        qDebug() << "Stored " << n << " vertices";
+        //        int n2 =0;
+        //        do {
+        //            QVector3D lqline[] = {m_qlinepoints[n2], m_qlinepoints[n2+1]};
+        //            glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, lqline);
+        //            glDrawArrays(GL_LINES, 0, 2);
+        //            n2++; n2++;
+        //        } while (n2 < n);
+        glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_qlinepoints.data());
+        glDrawArrays(GL_LINES, 0, n);
+        //        qDebug() << "Drew " << n2 << " vertices";
 
     }
     m_cubeMutex.unlock();
@@ -383,9 +462,19 @@ void Bullet::kick(){
     m_cubeMutex.unlock();
 }
 
-void Bullet::setup()
+void Bullet::setup(GLProgram* p)
 {
     m_program_debug = new GLProgram(SailfishApp::pathTo("debug_vert.glsl"), SailfishApp::pathTo("debug_frag.glsl"));
+
+    m_cubeMutex.lock();
+    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
+        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
+        if (body && body->getMotionState()) {
+            BiMesh* bimesh = dynamic_cast<BiMesh *>(body->getCollisionShape());
+            bimesh->setup(p);
+        }
+    }
+    m_cubeMutex.unlock();
 }
 
 void Bullet::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)

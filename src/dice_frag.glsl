@@ -102,5 +102,7 @@ void main() {
     TotalColor = clamp(TotalColor, vec3(0.0,0.0,0.0), vec3(1.0, 1.0, 1.0));
 
     gl_FragColor = texture2D(textureU, texcoordV) * vec4(TotalColor, 1.0);
+//    gl_FragColor = texture2D(textureU, texcoordV) * vec4(TotalColor, 1.0) + vec4(TotalColor, 1.0); // super shiney
+//    gl_FragColor = vec4(texcoordV, 0.5, 1.0) * vec4(TotalColor, 1.0); // colourfull
 }
 
