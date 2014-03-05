@@ -1,5 +1,6 @@
 #include "bimesh.h"
 
+#include <QHash>
 #include <QDebug>
 
 #include <assimp/Logger.hpp>
@@ -140,6 +141,13 @@ BiMesh * BiMeshContainer::importChildren(const aiScene *scene, aiNode *node, BiM
     //}
 }
 
+uint qHash(const aiVector3t<float> &v) { //
+    return  ((int)(v.x * 73856093) ^
+             (int)(v.y * 19349663) ^
+             (int)(v.z * 83492791))
+            % (uint)-1 ;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief BiMeshContainer::copyMeshes
 /// \param scene
@@ -173,9 +181,26 @@ BiMesh* BiMeshContainer::nodeToMesh(const aiScene *scene, aiNode *node)
     // or a btConvexHull
     // For now we'll make a btGimpactMesh
 
+//#define USE_IMPACT_MESH
+#ifdef USE_IMPACT_MESH
+    qDebug() <<"ImpactMesh";
     BibtGImpactMeshShape* bimesh = new BibtGImpactMeshShape(btMesh, scene, node);
-    bimesh->setMargin(0.01f);
+    bimesh->setMargin(0.04f);
     bimesh->updateBound();
+#else
+    qDebug() <<"ConvexHull";
+    BibtConvexHullShape* bimesh = new BibtConvexHullShape(scene, node, NULL);
+    QHash<aiVector3D, bool> seen;
+    for(unsigned int n=0; n < m->mNumVertices; n++) {
+        if (seen.contains(m->mVertices[n])) { continue; }
+        seen[m->mVertices[n]] = true;
+        aiVector3D &v = m->mVertices[n];
+        bimesh->addPoint(btVector3(v.x*0.92,v.y*0.92,v.z*0.92),false);
+    }
+    bimesh->recalcLocalAabb();
+    bimesh->setMargin(0.04f);
+#endif
+
 
     m_biShapes[node->mName.C_Str()] = bimesh;
 
@@ -264,10 +289,10 @@ void BiMesh::setup(GLProgram* p) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_vao->numIndices() * sizeof(GLushort), m_vao->VAO_Indices(), GL_STATIC_DRAW);
 
-//    GLushort* p = m_vao->VAO_Indices();
-//    for (int c; c<m_vao->numIndices();c+=3) {
-//        qDebug() << "Found face (" << *p++ << "," << *p++ << "," << *p++ << ")";
-//    }
+    //    GLushort* p = m_vao->VAO_Indices();
+    //    for (int c; c<m_vao->numIndices();c+=3) {
+    //        qDebug() << "Found face (" << *p++ << "," << *p++ << "," << *p++ << ")";
+    //    }
 
     //    glGenTextures(1, m_texIds);
     //    glBindTexture(GL_TEXTURE_2D);
@@ -319,19 +344,20 @@ void BiMesh::setup(GLProgram* p) {
 
 }
 
+
+// The approach that's likely to work is to define the app's model format and which attribs
+// must be used. Then preset all the lighting in one area and then render each object
+
 void BiMesh::render(GLProgram* p)
 {
     if (!m_texture) {
-//        qDebug() << "no texture, not rendering " << m_name;
+        qDebug() << "no texture, not rendering " << m_name;
         return;
     }
-//    qDebug() << "rendering a " << m_name;
+    //    qDebug() << "rendering a " << m_name;
     // Switch to using our buffers
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
-    // Hopefully delete these next 2 lines
-//    glBufferData(GL_ARRAY_BUFFER, m_vao->m_vaosize, m_vao->VAO(), GL_DYNAMIC_DRAW);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_vao->numIndices() * sizeof(GLushort), m_vao->VAO_Indices(), GL_STATIC_DRAW);
 
     // This is probably the same for all VAOs at the moment - it may change if some
     // VAOs have different layouts

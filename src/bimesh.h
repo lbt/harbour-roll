@@ -78,7 +78,7 @@ class BibtConvexHullShape : public btConvexHullShape, public BiMesh
 {
     BiMesh* m_owner;
 public:
-    BibtConvexHullShape(const aiScene *scene, aiNode *node, QObject *parent) :
+    BibtConvexHullShape(const aiScene *scene, aiNode *node, QObject *parent =0) :
         btConvexHullShape()
       , BiMesh(scene, node, parent) {}
 };

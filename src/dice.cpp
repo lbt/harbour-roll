@@ -208,24 +208,7 @@ void Dice::prep()
     m_lightTime.start();
 
     // and then prepare any one-time data like VBOs
-    glGenBuffers(4, m_vboIds);
-
-    VertexData vertices[] = {
-    #include "cube_vertices_vec_tex_norm.data"
-    };
-    GLushort indices[] = {
-        0,  1,  2,  3,  3,     // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
-        4,  4,  5,  6,  7,  7, // Face 1 - triangle strip ( v4,  v5,  v6,  v7)
-        8,  8,  9, 10, 11, 11, // Face 2 - triangle strip ( v8,  v9, v10, v11)
-        12, 12, 13, 14, 15, 15, // Face 3 - triangle strip (v12, v13, v14, v15)
-        16, 16, 17, 18, 19, 19, // Face 4 - triangle strip (v16, v17, v18, v19)
-        20, 20, 21, 22, 23,      // Face 5 - triangle strip (v20, v21, v22, v23)
-    };
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(VertexData), vertices, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 34 * sizeof(GLushort), indices, GL_STATIC_DRAW);
+    glGenBuffers(2, m_vboIds);
 
 #define AXIS_LEN 1
     QVector3D axes[] = {
@@ -235,35 +218,13 @@ void Dice::prep()
     };
     GLushort axesorder[] = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5};
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[2]);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(QVector3D), axes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[3]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 10 * sizeof(GLushort), axesorder, GL_STATIC_DRAW);
 
     // Load cube.png image
     glEnable(GL_TEXTURE_2D);
-    m_texture = window()->
-            createTextureFromImage(QImage(SailfishApp::pathTo("mer-cube.png")
-                                          .toLocalFile()));
-    if (m_texture->isAtlasTexture()) {
-        qDebug() << "Removed texture from Atlas";
-        m_texture = m_texture->removedFromAtlas();
-    }
-
-    m_texture->setFiltering(QSGTexture::Linear);
-    m_texture->setHorizontalWrapMode(QSGTexture::Repeat);
-    m_texture->setVerticalWrapMode(QSGTexture::Repeat);
-
-    // Set nearest filtering mode for texture minification
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    // Set bilinear filtering mode for texture magnification
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Wrap texture coordinates by repeating
-    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     bullet.setup(m_program_dice);
 }
@@ -324,10 +285,6 @@ void Dice::render()
     p->setUniformValue(p->getU("eyeWorldPosU"), m_cammanager.at());
 
 
-    // Bind the texture and use texture unit 0 which contains cube.png
-    m_texture->bind();
-    p->setUniformValue(p->getU("textureU"), 0);
-
     p->setUniformValue(p->getU("colU"), QVector4D(0.6, 0.7, 0.8, 1.0));
 
     // Render the ground/walls /////////////////////////////////////////////////////////////////////
@@ -335,26 +292,6 @@ void Dice::render()
     // TODO
 
     // Setup Model for cubes /////////////////////////////////////////////////////////////////////
-// This is a useful but nasty render of a big cube:
-//    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
-
-//    // Because we're using VBOs for vertex, tex and normals this is pointer into them
-//    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-//                          (const void *)VertexData_0);
-//    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-//                          (const void *)VertexData_1);
-//    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData),
-//                          (const void *)VertexData_2);
-//    glEnableVertexAttribArray(p->getA("posA"));
-//    glEnableVertexAttribArray(p->getA("texA"));
-//    glEnableVertexAttribArray(p->getA("normalA"));
-
-//    glDrawElements(GL_TRIANGLE_STRIP, 36, GL_UNSIGNED_SHORT, 0);
-
-//    glDisableVertexAttribArray(p->getA("posA"));
-//    glDisableVertexAttribArray(p->getA("texA"));
-//    glDisableVertexAttribArray(p->getA("normalA"));
 
     // Draw the world
     bullet.render(p, projViewMatrix);

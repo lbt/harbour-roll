@@ -124,8 +124,7 @@ private:
 
 private:
     QMatrix4x4 m_currMatrix;
-    GLuint m_vboIds[4];
-    QSGTexture *m_texture;
+    GLuint m_vboIds[2];
     GLProgram *m_program_dice;
     
     CameraManager m_cammanager;
