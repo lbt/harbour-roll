@@ -45,10 +45,10 @@ glsl.files = \
     src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
-image.files = assets/mer-cube.png assets/d20-faces.png assets/d12-faces.png assets/dice.obj assets/dice.blend assets/dice.mtl
-image.path = $$DEPLOYMENT_PATH
+model.files = model/*
+model.path = $$DEPLOYMENT_PATH
 
-INSTALLS += glsl image
+INSTALLS += glsl model
 
 OTHER_FILES += qml/harbour-dice.qml \
     qml/cover/CoverPage.qml \

@@ -63,6 +63,7 @@ public:
 
     btCollisionShape *getCollisionMesh(QString name);
     BiMesh *getBiMesh(QString name);
+    QList<QString> getNames();
 };
 
 class BibtGImpactMeshShape : public btGImpactMeshShape, public BiMesh

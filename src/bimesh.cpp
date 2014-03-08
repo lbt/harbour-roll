@@ -207,6 +207,11 @@ BiMesh* BiMeshContainer::nodeToMesh(const aiScene *scene, aiNode *node)
     return bimesh;
 }
 
+QList<QString> BiMeshContainer::getNames(){
+    return m_biShapes.keys();
+}
+
+
 btCollisionShape* BiMeshContainer::getCollisionMesh(QString name)
 {
     return dynamic_cast<btCollisionShape*>(m_biShapes[name]);
@@ -258,20 +263,18 @@ BiMesh::BiMesh(const aiScene *scene, aiNode *node, QObject *parent) :
                 m_texture = m_texture->removedFromAtlas();
             }
 
-            m_texture->setFiltering(QSGTexture::Linear);
-            m_texture->setHorizontalWrapMode(QSGTexture::Repeat);
-            m_texture->setVerticalWrapMode(QSGTexture::Repeat);
+//            m_texture->setFiltering(QSGTexture::Linear);
+//            m_texture->setHorizontalWrapMode(QSGTexture::Repeat);
+//            m_texture->setVerticalWrapMode(QSGTexture::Repeat);
 
-            // Set nearest filtering mode for texture minification
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-            // Set bilinear filtering mode for texture magnification
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            // Wrap texture coordinates by repeating
-            // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//            // Set nearest filtering mode for texture minification
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//            // Set bilinear filtering mode for texture magnification
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//            // Wrap texture coordinates by repeating
+//            // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
             //            texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
             //            texture->setMagnificationFilter(QOpenGLTexture::Linear);

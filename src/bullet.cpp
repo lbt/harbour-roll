@@ -142,7 +142,7 @@ void Bullet::addDice(QString die, btVector3 pos)
 
     if (isDynamic)
         shape->calculateLocalInertia(mass,localInertia);
-    qDebug() << "add dice";
+    qDebug() << "add dice " << die;
     btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
     rbInfo.m_friction=0.9;
@@ -207,25 +207,23 @@ void Bullet::setupModel()
     this->addWall(btVector3( 1, 0, 0), -MAXX);
     this->addWall(btVector3(-1, 0, 0), -MAXX);
 
-    {
-        //create a dynamic rigidbody
-        this->addDice("d6", btVector3(0,0,5));
-        this->addDice("d12", btVector3(0, 0.2, 4));
-        this->addDice("d20", btVector3(0.6, -0.1, 4));
-        this->addDice("d6", btVector3(-0.6, 0.1, 3));
-        this->addDice("d20", btVector3(0.1, 0.2, 2));
-        this->addDice("d12", btVector3(0,1,5));
-
+    QList<QString> names = m_meshes->getNames();
+//    for (int i; i++<6;)  {
+//        //create a dynamic rigidbody
+//        this->addDice(names[rand()%names.length()], btVector3(0,1,5));
+//    }
+    for (QString die : m_meshes->getNames()) {
+        this->addDice(die, btVector3(0,1,5));
     }
 }
 
 void Bullet::setNumCubes(int n)
 {
-    static QString selection[] = {"d6", "d12", "d20" };
 
+    QList<QString> names = m_meshes->getNames();
     if (m_cubes.size() == n) return;
     while (m_cubes.size() < n)
-        this->addDice(selection[rand()%3], btVector3(0,1,5));
+        this->addDice( names[rand()%names.length()], btVector3(0,1,5));
     m_cubeMutex.lock();
     while (m_cubes.size() > n) {
         btRigidBody* body = btRigidBody::upcast(m_cubes.takeLast());
