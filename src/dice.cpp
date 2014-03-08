@@ -24,8 +24,6 @@
 #define VMAX 1.0
 
 #define WIND_R 0.1
-#define FOVY 50
-#define ASPECT (540.0/960.0)
 #define MAXV 1.5
 
 #define MAXX 2.5
@@ -230,6 +228,8 @@ void Dice::prep()
 }
 
 
+// This is the world render routine.
+
 void Dice::render()
 {
     QElapsedTimer t;
@@ -241,7 +241,7 @@ void Dice::render()
     if (m_zoomAndSpin)
         handleTouchAsRotation();
 
-    int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time
+    int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time. Also FIXME and update in the DiceRunner thread
     //for (unsigned int i = 0 ; i < 2 ; i++) { m_dLights[i].update(timeDelta_ms); }
     if (m_fancyLights)
         for (unsigned int i = 0 ; i < 3 ; i++) { m_pLights[i].update(timeDelta_ms); }
@@ -249,12 +249,8 @@ void Dice::render()
     // Prepare to actually draw ///////////////////////////////////////////////////////////
     GLProgram *p = m_program_dice;
     p->bind();
-    QMatrix4x4 projMatrix;
-    projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
 
-    QMatrix4x4 viewMatrix;
-    viewMatrix = m_cammanager.transform(viewMatrix);
-    QMatrix4x4 projViewMatrix = projMatrix * viewMatrix;
+    QMatrix4x4 projViewMatrix = m_cammanager.projViewMatrix();
 
     p->setUniformValue(p->getU("projViewMatrixU"), projViewMatrix);
 

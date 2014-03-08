@@ -7,7 +7,7 @@
 
 CameraManager::CameraManager(QObject *parent) :
     QObject(parent)
-  , m_depth(10)
+  , m_pos(0,0,10)
   , m_phi(0)
   , m_theta(0)
   , m_touchY(0)
@@ -28,8 +28,8 @@ void CameraManager::touch(qreal x, qreal y) {
         m_theta += (m_touchY - y)/HEIGHT * 10;
         m_phi += (m_touchX - x)/WIDTH * 10;
     } else { // movement bottom half
-        m_depth -= (m_touchY - y)/HEIGHT * 0.2;
-        m_x += (m_touchX - x)/WIDTH * 0.2 ;
+        m_pos.setZ(m_pos.z() - (m_touchY - y)/HEIGHT * 0.2);
+        m_pos.setX(m_pos.x() + (m_touchX - x)/WIDTH * 0.2) ;
     }
 
 }
@@ -41,21 +41,30 @@ void CameraManager::release() {
 }
 
 QMatrix4x4 CameraManager::transform(QMatrix4x4 v) {
-    v.translate(m_x, 0, -m_depth);
-    v.rotate(m_theta, 1, 0, 0);
-    v.rotate(m_phi, 0, 1, 0);
     return v;
 }
 
+#define FOVY 50
+#define ASPECT (540.0/960.0)
+
+QMatrix4x4 CameraManager::projViewMatrix() {
+    QMatrix4x4 projMatrix;
+    projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
+
+    QMatrix4x4 viewMatrix;
+    viewMatrix.rotate(m_theta, 1, 0, 0);
+    viewMatrix.rotate(m_phi, 0, 1, 0);
+    viewMatrix.translate(-m_pos);
+    return projMatrix * viewMatrix;
+}
+
 QVector3D CameraManager::at() { // position of the camera in the world
-    return QVector3D(0,0,m_depth);
+    return QVector3D(m_pos);
 }
 
 void CameraManager::reset()
 {
-    m_depth=10;
-    m_x=0;
-    m_y=0;
+    m_pos=QVector3D(0,0,10);
     m_phi=0;
     m_theta=0;
     m_touchY=0;

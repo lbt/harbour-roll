@@ -15,6 +15,7 @@ public:
     QVector3D at();
     void reset();
 
+    QMatrix4x4 projViewMatrix();
 signals:
 
 public slots:
@@ -27,9 +28,7 @@ private:
     qreal m_touchY;
     qreal m_theta;
     qreal m_phi;
-    qreal m_depth;
-    qreal m_x;
-    qreal m_y;
+    QVector3D m_pos;
 };
 
 #endif // ROTATIONMANAGER_H
