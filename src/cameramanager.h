@@ -11,11 +11,14 @@ public:
     explicit CameraManager(QObject *parent = 0);
 
     bool isActive() const { return m_pressed; }
-    QMatrix4x4 transform(QMatrix4x4 v);
-    QVector3D at();
     void reset();
 
+    QVector3D right();
+    QVector3D up();
+    QVector3D forward();
+    QVector3D at();
     QMatrix4x4 projViewMatrix();
+
 signals:
 
 public slots:
@@ -23,12 +26,13 @@ public slots:
     void touch(qreal x, qreal y); // current position
 
 private:
+    QVector4D position();
+    void setPosition(QVector4D position);
+
     bool m_pressed;
     qreal m_touchX;
     qreal m_touchY;
-    qreal m_theta;
-    qreal m_phi;
-    QVector3D m_pos;
+    QMatrix4x4 m_camera;
 };
 
 #endif // ROTATIONMANAGER_H
