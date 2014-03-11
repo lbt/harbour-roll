@@ -129,9 +129,6 @@ private:
     
     CameraManager m_cammanager;
 
-    QVector3D m_cameraPos;
-    QVector3D m_cameraRot;
-
     DirectionalLight m_dLights[3];
     PointLight m_pLights[3];
 

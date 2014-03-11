@@ -38,8 +38,6 @@ Dice::Dice(QObject *parent) :
   , p_y(0)
   , m_thread_t(0)
   , p_pressed(false)
-  , m_cameraPos({0,0,0.2})
-  , m_cameraRot({0,0,0})
   , m_zoomAndSpin(false)
   , m_numDice(6)
   , m_gravity(true)
