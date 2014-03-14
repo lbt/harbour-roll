@@ -17,9 +17,28 @@ uint qHash(Bullet::Color c) {
 }
 inline bool operator==(const Bullet::Color &c1, const Bullet::Color &c2) { return c1.m_c == c2.m_c; }
 
+QMatrix4x4 bt2QMatrix4x4(btTransform *transform) {
+    float ft[16];
+    transform->getOpenGLMatrix(ft);
+
+    return QMatrix4x4(ft[0], ft[1], ft[2], ft[3],
+            ft[4],  ft[5],  ft[6],  ft[7],
+            ft[8],  ft[9],  ft[10], ft[11],
+            ft[12], ft[13], ft[14], ft[15]).transposed();
+}
+
+QVector3D bt2QtVector3D(const btVector3 &bv) {
+    return QVector3D(bv.x(), bv.y(), bv.z());
+}
+btVector3 Q2btVector3 (const QVector3D  &qv) {
+    return btVector3(qv.x(), qv.y(), qv.z());
+}
+
+
 Bullet::Bullet(QObject *parent) :
     QObject(parent)
   , m_qlinepoints(500)
+  , m_touchRayActive(false)
 {
     ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
     collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -106,6 +125,7 @@ void Bullet::addWall(btVector3 normal, float offset) {
     rbInfo.m_restitution=0.9;
 
     btRigidBody* body = new btRigidBody(rbInfo);
+    body->setUserPointer((void*)new QString("wall"));
     dynamicsWorld->addRigidBody(body);
 }
 
@@ -153,43 +173,10 @@ void Bullet::addDice(QString die, btVector3 pos)
     m_cubes << body;
     m_cubeMutex.unlock();
 
+    body->setUserPointer((void*)new QString(die));
+
     dynamicsWorld->addRigidBody(body);
     qDebug() << "add dice";
-}
-
-
-void Bullet::addCube(btVector3 pos)
-{
-
-    if (!m_cubeShape) {
-        m_cubeShape = new btBoxShape(btVector3(.5,.5,.5));
-        collisionShapes.push_back(m_cubeShape);
-    }
-
-    /// Create Dynamic Objects
-    btTransform startTransform;
-    startTransform.setIdentity();
-    startTransform.setOrigin(pos);
-
-    btScalar	mass(0.01f);
-    //rigidbody is dynamic if and only if mass is non zero, otherwise static
-    bool isDynamic = (mass != 0.f);
-
-    btVector3 localInertia(0,0,0);
-    if (isDynamic)
-        m_cubeShape->calculateLocalInertia(mass,localInertia);
-
-    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,m_cubeShape,localInertia);
-    rbInfo.m_friction=0.9;
-    rbInfo.m_restitution=0.7;
-
-    btRigidBody* body = new btRigidBody(rbInfo);
-    m_cubeMutex.lock();
-    m_cubes << body;
-    m_cubeMutex.unlock();
-
-    dynamicsWorld->addRigidBody(body);
 }
 
 
@@ -208,13 +195,21 @@ void Bullet::setupModel()
     this->addWall(btVector3(-1, 0, 0), -MAXX);
 
     QList<QString> names = m_meshes->getNames();
-//    for (int i; i++<6;)  {
-//        //create a dynamic rigidbody
-//        this->addDice(names[rand()%names.length()], btVector3(0,1,5));
+    //    for (int i; i++<6;)  {
+    //        //create a dynamic rigidbody
+    //        this->addDice(names[rand()%names.length()], btVector3(0,1,5));
+    //    }
+    this->addDice("d6",  btVector3(0, 0, 1));
+    this->addDice("d8",  btVector3(1, 0, 2));
+    this->addDice("d12", btVector3(0, 0, 3));
+    this->addDice("d20", btVector3(0, 1, 2));
+
+    this->addDice("d6", btVector3(0, 0, -1));
+    this->addDice("d6", btVector3(0, 0, -1));
+
+    //    for (QString die : m_meshes->getNames()) {
+//        this->addDice(die, btVector3(0,1,5));
 //    }
-    for (QString die : m_meshes->getNames()) {
-        this->addDice(die, btVector3(0,1,5));
-    }
 }
 
 void Bullet::setNumCubes(int n)
@@ -271,16 +266,6 @@ void Bullet::renderWalls(GLProgram *p)
 
 }
 
-QMatrix4x4 transform2Matrix(btTransform *transform) {
-    float ft[16];
-    transform->getOpenGLMatrix(ft);
-
-    return QMatrix4x4(ft[0], ft[1], ft[2], ft[3],
-            ft[4],  ft[5],  ft[6],  ft[7],
-            ft[8],  ft[9],  ft[10], ft[11],
-            ft[12], ft[13], ft[14], ft[15]).transposed();
-}
-
 void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 {
     m_cubeMutex.lock();
@@ -290,13 +275,13 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
         {
             btTransform trans;
             body->getMotionState()->getWorldTransform(trans);
-            QMatrix4x4  pos = transform2Matrix(&trans);
+            QMatrix4x4  pos = bt2QMatrix4x4(&trans);
             p->setUniformValue(p->getU("worldMatrixU"), pos);
 
-            if (m_debug_mode == DBG_NoDebug) {
-                BiMesh* bimesh = dynamic_cast<BiMesh *>(body->getCollisionShape());
-                bimesh->render(p);
-            }
+            //            if (m_debug_mode == DBG_NoDebug) {
+            BiMesh* bimesh = dynamic_cast<BiMesh *>(body->getCollisionShape());
+            bimesh->render(p);
+            //            }
             body->activate();
         }
     }
@@ -353,6 +338,19 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
     }
     m_cubeMutex.unlock();
 
+    if (m_touchRayActive) {
+        glLineWidth(8);
+        m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(1.0,0.0,0.0,1.0));
+        glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_touchRay);
+        glDrawArrays(GL_LINES, 0, 2);
+        m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(0.0,1.0,0.0,1.0));
+        glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_touchRay+2);
+        glDrawArrays(GL_LINES, 0, 2);
+        m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(0.0,0.0,1.0,1.0));
+        glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_touchRay+4);
+        glDrawArrays(GL_LINES, 0, 2);
+        glLineWidth(2);
+    }
     glDisableVertexAttribArray(m_program_debug->getA("posA"));
     //    p->bind(); // should do this but we're only going to drop it again
 
@@ -362,6 +360,79 @@ void Bullet::setGravity(qreal x, qreal y, qreal z) {
     dynamicsWorld->setGravity(btVector3(-x*20, -y*20, -z*20));
     //    dynamicsWorld->setGravity(btVector3(0, 0, z/10.0));
 }
+
+////////
+/// \brief Bullet::touch
+/// \param x Normalised device coords [-1,1]
+/// \param y
+/// \param projViewMatrix
+/// http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-a-physics-library/
+///
+void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward){
+    m_touchRayActive = true;
+    qDebug() <<"touched ("<< x <<","<< y <<")";
+
+    qDebug() <<"projViewMatrix "<< projViewMatrix;
+    qDebug() <<"lookingToward "<< lookingToward;
+
+    QMatrix4x4 pvInverse = projViewMatrix.inverted();
+    qDebug() <<"inverse " << pvInverse;
+    // Create start/end in the world space based on the position on the near/far planes
+    // For some reason the near/far Z is [-1,1] and not [-1,0]
+    QVector4D start = pvInverse * QVector4D(x, y, -1.0, 1.0);
+    qDebug() <<"start " << start;
+    start /= start.w();
+//    qDebug() <<"start " << start;
+    QVector4D end = pvInverse * QVector4D(x, y, 1.0, 1.0);
+    qDebug() <<"end " << end;
+    end /= end.w();
+//    qDebug() <<"end " << end;
+    //    QVector3D end = start - (lookingToward * 20.0);
+
+    m_touchRay[0] = start.toVector3D();
+    m_touchRay[1] = end.toVector3D();
+    m_touchRay[2] = QVector3D(0.0, 0.0, 0.0);
+    m_touchRay[3] = start.toVector3D();
+    m_touchRay[4] = QVector3D(0.0, 0.0, 0.0);
+    m_touchRay[5] = end.toVector3D();
+
+    btVector3 bstart = Q2btVector3(start.toVector3D());
+    btVector3 bend = Q2btVector3(end.toVector3D());
+
+    btCollisionWorld::AllHitsRayResultCallback RayResults(bstart, bend);
+    dynamicsWorld->rayTest(bstart, bend, RayResults );
+
+    if (RayResults.hasHit()) {
+        qDebug() << "Hit ";
+        // const BiMesh* bimesh = dynamic_cast<const BiMesh *>(RayResults.m_collisionObject); // This will fail when it hits a non-bimesh (like a wall!)
+        for (int i = 0; i< RayResults.m_collisionObjects.size(); i++) {
+            qDebug() << "Hit a " << *(QString*)(RayResults.m_collisionObjects[i]->getUserPointer());
+        }
+        qDebug() << "Drawing touchRay " << m_touchRay[0] <<" to "<< m_touchRay[1];
+    } else {
+        qDebug() << "Missed ";
+    }
+
+    m_cubeMutex.lock();
+    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
+        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
+        if (body && body->getMotionState())
+        {
+            btTransform trans;
+            body->getMotionState()->getWorldTransform(trans);
+            QMatrix4x4  pos = bt2QMatrix4x4(&trans);
+            qDebug() << *(QString*)(body->getUserPointer()) << " at " << pos.column(3);
+        }
+    }
+    m_cubeMutex.unlock();
+
+
+}
+
+void Bullet::release(){
+    m_touchRayActive = false;
+}
+
 
 void Bullet::kick(){
     m_cubeMutex.lock();

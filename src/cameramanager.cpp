@@ -54,7 +54,7 @@ void CameraManager::release() {
 }
 
 #define FOVY 50
-#define ASPECT (540.0/960.0)
+#define ASPECT ((float)screenWidth()/(float)screenHeight())
 
 QMatrix4x4 CameraManager::projViewMatrix() {
     QMatrix4x4 projMatrix;

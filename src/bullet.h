@@ -17,6 +17,9 @@
 #include "glprogram.h"
 #include "bimesh.h"
 
+QMatrix4x4 bt2QMatrix4x4(btTransform *transform);
+QVector3D bt2QtVector3D(const btVector3 &bv);
+btVector3 Q2btVector3 (const QVector3D  &qv);
 
 class Bullet : public QObject, public btIDebugDraw
 {
@@ -59,6 +62,9 @@ public slots:
     void kick();
     void setNumCubes(int n);
 
+    void touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward);
+    void release();
+
 protected:
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
@@ -85,6 +91,8 @@ private:
     typedef QList<Line>::const_iterator m_worldLines_list_iter_type;
     QVector<QVector3D> m_qlinepoints;
 
+    QVector3D m_touchRay[6];
+    bool m_touchRayActive;
 
     // Below here is the functionality needed to be a btIDebugDraw
 public:

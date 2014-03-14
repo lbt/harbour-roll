@@ -35,6 +35,8 @@ public:
 
     void render(GLProgram *p);
     void setup(GLProgram *p);
+    QString name() const { return m_name; }
+
 private:
 
     QString m_name;

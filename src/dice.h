@@ -113,6 +113,7 @@ public slots:
     void useXYZ(QString use);
     void randomiseLights();
     void zoomAndSpin(bool state);
+    void pickMode(bool state);
     void setNumDice(int arg);
     void fancyLights(bool state);
     void gravity(bool state);
@@ -149,6 +150,7 @@ private:
 
     int m_numDice;
     bool m_zoomAndSpin;
+    bool m_pickMode;
     bool m_fancyLights;
     bool m_gravity;
 

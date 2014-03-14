@@ -39,6 +39,7 @@ Dice::Dice(QObject *parent) :
   , m_thread_t(0)
   , p_pressed(false)
   , m_zoomAndSpin(false)
+  , m_pickMode(true)
   , m_numDice(6)
   , m_gravity(true)
 {
@@ -105,8 +106,18 @@ void Dice::randomiseLights()
 void Dice::zoomAndSpin(bool state)
 {
     m_zoomAndSpin = state;
+    // Change of state should also handle press/release
     if (!state)
         m_cammanager.reset();
+    pickMode(! state);
+}
+
+void Dice::pickMode(bool state)
+{
+    m_pickMode = state;
+    // Change of state should also handle press/release
+    if (!state)
+        bullet.release();
 }
 
 void Dice::setNumDice(int arg)
@@ -134,14 +145,6 @@ void Dice::setDebugDraw(bool state)
     QMetaObject::invokeMethod(m_runner, "setDebugDraw", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
-void Dice::handleTouchAsRotation(){
-    if (p_pressed) {
-        m_cammanager.touch(p_x, p_y);
-    } else {
-        m_cammanager.release();
-    }
-}
-
 void Dice::handleUse() {
 }
 
@@ -166,6 +169,17 @@ void Dice::handlePressed(int x, int y) {
     p_x = x;
     p_y = y;
     m_XYdeltaTime = 0;
+
+    // Decide who gets events. Note that changing mode whilst p_pressed should stop one and start another
+    if (m_zoomAndSpin)
+        m_cammanager.touch(p_x, p_y);
+
+//    if (m_pickMode) { // Bullet knows nothing about the screen. It needs world info:
+        float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
+        float fy = (0.5f - (float)y/(float)m_cammanager.screenHeight()) * 2.0f; // [yyy,0] -> [-1,1] (screen is inverted compared to GL)
+        qDebug()<< "Camera at " << m_cammanager.at();
+        bullet.touch(fx, fy, m_cammanager.projViewMatrix(), m_cammanager.forward());
+//    }
 }
 void Dice::handleReleased(int x, int y) {
     Q_UNUSED(x)
@@ -173,6 +187,12 @@ void Dice::handleReleased(int x, int y) {
     p_pressed = false;
     m_lastTime.invalidate(); // set touch velocity timer off when released
     m_XYdeltaTime = 0;
+
+    if (m_zoomAndSpin)
+        m_cammanager.release();
+//    if (m_pickMode)
+        bullet.release();
+
 }
 
 void Dice::setRunning(bool running)
@@ -195,7 +215,7 @@ void Dice::prep()
     m_runnerThread.start();
 
     m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("dice_frag.glsl.out"));
-//    m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("debug_frag.glsl"));
+    //    m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("debug_frag.glsl"));
     qDebug() << "created programs";
 
     bullet.setupModel();
@@ -234,10 +254,9 @@ void Dice::render()
     t.start();
 
     handleUse(); // QML input from properties
-
-    // Handle touch events
-    if (m_zoomAndSpin)
-        handleTouchAsRotation();
+    if (m_zoomAndSpin && p_pressed) {
+        m_cammanager.touch(p_x, p_y);
+    }
 
     int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time. Also FIXME and update in the DiceRunner thread
     //for (unsigned int i = 0 ; i < 2 ; i++) { m_dLights[i].update(timeDelta_ms); }

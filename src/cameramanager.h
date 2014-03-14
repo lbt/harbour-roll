@@ -18,6 +18,8 @@ public:
     QVector3D forward();
     QVector3D at();
     QMatrix4x4 projViewMatrix();
+    int screenWidth() { return 540; }
+    int screenHeight() { return 960; }
 
 signals:
 
