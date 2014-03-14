@@ -31,7 +31,6 @@ SOURCES += src/harbour-dice.cpp \
     src/dice.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
-    src/dicemodel.cpp \
     src/bimesh.cpp \
     src/vaocontainer.cpp
 
@@ -72,7 +71,6 @@ HEADERS += \
     src/dice.h \
     src/lightmanager.h \
     src/light.h \
-    src/dicemodel.h \
     src/bimesh.h \
     src/vaocontainer.h
 
