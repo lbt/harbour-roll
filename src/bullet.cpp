@@ -438,7 +438,7 @@ void Bullet::kick(){
 }
 
 // This sets up the GL objects/meshes that *can* be used in bullet
-void Bullet::setup(GLProgram* p)
+void Bullet::setupGL(GLProgram* p)
 {
     m_program_debug = new GLProgram(SailfishApp::pathTo("debug_vert.glsl"), SailfishApp::pathTo("debug_frag.glsl"));
 

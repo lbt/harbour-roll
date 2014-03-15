@@ -242,7 +242,7 @@ void Dice::prep()
     // Load cube.png image
     glEnable(GL_TEXTURE_2D);
 
-    bullet.setup(m_program_dice);
+    bullet.setupGL(m_program_dice);
 }
 
 
