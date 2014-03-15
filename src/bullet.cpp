@@ -410,27 +410,39 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
     if (RayResults.hasHit()) {
         qDebug() << "Hit ";
         // const BiMesh* bimesh = dynamic_cast<const BiMesh *>(RayResults.m_collisionObject); // This will fail when it hits a non-bimesh (like a wall!)
+        m_cubeMutex.lock();
         for (int i = 0; i< RayResults.m_collisionObjects.size(); i++) {
-            qDebug() << "Hit a " << *(QString*)(RayResults.m_collisionObjects[i]->getUserPointer());
+            QString *name = (QString*)(RayResults.m_collisionObjects[i]->getUserPointer());
+            qDebug() << "Hit a " << *name;
+            if (name->startsWith("d")) {
+                // cast away the const (I think this makes sense)
+                btRigidBody* body = (btRigidBody*)btRigidBody::upcast(RayResults.m_collisionObjects[i]);
+                if (m_cubes.removeOne(body)) {
+                    qDebug() << "Deleting a " << *name;
+                    if (body && body->getMotionState()) { delete body->getMotionState(); }
+                    dynamicsWorld->removeCollisionObject(body);
+                    delete body;
+                }
+            }
         }
+        m_cubeMutex.unlock();
         qDebug() << "Drawing touchRay " << m_touchRay[0] <<" to "<< m_touchRay[1];
     } else {
         qDebug() << "Missed ";
     }
 
-//    m_cubeMutex.lock();
-//    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
-//        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
-//        if (body && body->getMotionState())
-//        {
-//            btTransform trans;
-//            body->getMotionState()->getWorldTransform(trans);
-//            QMatrix4x4  pos = bt2QMatrix4x4(&trans);
-//            qDebug() << *(QString*)(body->getUserPointer()) << " at " << pos.column(3);
-//        }
-//    }
-//    m_cubeMutex.unlock();
-
+    //    m_cubeMutex.lock();
+    //    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
+    //        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
+    //        if (body && body->getMotionState())
+    //        {
+    //            btTransform trans;
+    //            body->getMotionState()->getWorldTransform(trans);
+    //            QMatrix4x4  pos = bt2QMatrix4x4(&trans);
+    //            qDebug() << *(QString*)(body->getUserPointer()) << " at " << pos.column(3);
+    //        }
+    //    }
+    //    m_cubeMutex.unlock();
 
 }
 
