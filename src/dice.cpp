@@ -40,7 +40,6 @@ Dice::Dice(QObject *parent) :
   , p_pressed(false)
   , m_zoomAndSpin(false)
   , m_pickMode(true)
-  , m_numDice(6)
   , m_gravity(true)
 {
     Q_UNUSED(parent)
@@ -60,6 +59,7 @@ Dice::Dice(QObject *parent) :
     light.Direction = QVector3D(-2, 5, 1).normalized();
     m_dLights[0].set(light);
 
+    connect(&bullet, SIGNAL(numDiceChanged(int)), this, SIGNAL(numDiceChanged(int)));
 }
 
 void Dice::setX(qreal x)
@@ -122,9 +122,8 @@ void Dice::pickMode(bool state)
 
 void Dice::setNumDice(int arg)
 {
-    if (m_numDice != arg) {
-        m_numDice = arg;
-        bullet.setNumCubes(m_numDice);
+    if (numDice() != arg) {
+        bullet.setNumDice(arg);
         emit numDiceChanged(arg);
     }
 }
@@ -143,6 +142,13 @@ void Dice::gravity(bool state)
 void Dice::setDebugDraw(bool state)
 {
     QMetaObject::invokeMethod(m_runner, "setDebugDraw", Qt::QueuedConnection, Q_ARG(bool, state));
+}
+
+void Dice::addDice(QString dice)
+{
+    bullet.addDice(dice);
+    qDebug() << "emit num dicechanged() (not needed!)";
+    emit numDiceChanged(numDice());
 }
 
 void Dice::handleUse() {
@@ -219,8 +225,10 @@ void Dice::prep()
     qDebug() << "created programs";
 
     bullet.setupModel();
-    emit numDiceChanged(m_numDice);
-    qDebug() << "emit numDiceChanged " << m_numDice;
+    emit namesChanged();
+    emit numDiceChanged(numDice());
+    qDebug() << "emit numDiceChanged " << numDice();
+    qDebug() << "names " << getNames();
     m_lightTime.start();
 
     // and then prepare any one-time data like VBOs
@@ -324,6 +332,13 @@ void Dice::render()
     //    qDebug() << "Render took " << t.elapsed();
 
 }
+
+const QStringList Dice::getNames() const {
+    QStringList l = bullet.getNames();
+    l.sort();
+    return l;
+}
+
 void Dice::sync()
 {
     ++m_frame;

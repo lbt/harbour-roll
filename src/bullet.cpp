@@ -129,6 +129,15 @@ void Bullet::addWall(btVector3 normal, float offset) {
     dynamicsWorld->addRigidBody(body);
 }
 
+const QList<QString> Bullet::getNames() const {
+    if (m_meshes) {
+        return m_meshes ->getNames();
+    } else {
+        QList<QString> a;
+        return a;
+    }
+}
+
 
 //void Bullet::loadDice(QString die, QString filename)
 void Bullet::loadDice()
@@ -144,6 +153,11 @@ void Bullet::loadDice()
 
 void Bullet::addDice(QString die, btVector3 pos)
 {
+    if (m_cubes.size() >= 20) {
+        qDebug() << "Too many dice";
+        // emit tooManyDice();
+        return;
+    }
 
     /// Create Dynamic Objects
     btTransform startTransform;
@@ -176,13 +190,13 @@ void Bullet::addDice(QString die, btVector3 pos)
     body->setUserPointer((void*)new QString(die));
 
     dynamicsWorld->addRigidBody(body);
+    emit numDiceChanged(m_cubes.size());
     qDebug() << "add dice";
 }
 
 
 void Bullet::setupModel()
 {
-    int i;
     qDebug() << "Doing bullet setup";
     loadDice();
 
@@ -195,14 +209,15 @@ void Bullet::setupModel()
     this->addWall(btVector3(-1, 0, 0), -MAXX);
 
     QList<QString> names = m_meshes->getNames();
-        for (int i; i++<6;)  {
-            this->addDice(names[rand()%names.length()], btVector3(0,1,5));
-        }
+    for (int i=0; i++<6;)  {
+        this->addDice(names[rand()%names.length()], btVector3(0,1,5));
+    }
 }
 
-void Bullet::setNumCubes(int n)
+void Bullet::setNumDice(int n)
 {
-
+    if (! m_meshes)
+        return;
     QList<QString> names = m_meshes->getNames();
     if (m_cubes.size() == n) return;
     while (m_cubes.size() < n)
@@ -403,18 +418,18 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
         qDebug() << "Missed ";
     }
 
-    m_cubeMutex.lock();
-    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
-        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
-        if (body && body->getMotionState())
-        {
-            btTransform trans;
-            body->getMotionState()->getWorldTransform(trans);
-            QMatrix4x4  pos = bt2QMatrix4x4(&trans);
-            qDebug() << *(QString*)(body->getUserPointer()) << " at " << pos.column(3);
-        }
-    }
-    m_cubeMutex.unlock();
+//    m_cubeMutex.lock();
+//    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
+//        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
+//        if (body && body->getMotionState())
+//        {
+//            btTransform trans;
+//            body->getMotionState()->getWorldTransform(trans);
+//            QMatrix4x4  pos = bt2QMatrix4x4(&trans);
+//            qDebug() << *(QString*)(body->getUserPointer()) << " at " << pos.column(3);
+//        }
+//    }
+//    m_cubeMutex.unlock();
 
 
 }

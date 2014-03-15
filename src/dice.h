@@ -78,6 +78,7 @@ class Dice : public GLItem
     Q_PROPERTY(qreal z READ z WRITE setZ NOTIFY zChanged)
     Q_PROPERTY(int numDice READ numDice WRITE setNumDice NOTIFY numDiceChanged)
     Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
+    Q_PROPERTY(QStringList names READ getNames NOTIFY namesChanged)
 
 public:
     explicit Dice(QObject *parent = 0);
@@ -93,7 +94,8 @@ public:
     void prep();
     void render();
 
-    int numDice() const { return m_numDice; }
+    int numDice() const { return bullet.numDice(); }
+    const QStringList getNames() const;
 
 signals:
     void xChanged(qreal);
@@ -101,6 +103,7 @@ signals:
     void zChanged(qreal);
     void runningChanged();
     void pressedChanged();
+    void namesChanged();
 
     void numDiceChanged(int arg);
 
@@ -118,6 +121,7 @@ public slots:
     void fancyLights(bool state);
     void gravity(bool state);
     void setDebugDraw(bool state);
+    void addDice(QString dice);
 
 
 private:
@@ -148,7 +152,6 @@ private:
     bool p_pressed;
     QElapsedTimer m_lastTime;
 
-    int m_numDice;
     bool m_zoomAndSpin;
     bool m_pickMode;
     bool m_fancyLights;

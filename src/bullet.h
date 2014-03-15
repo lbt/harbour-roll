@@ -55,21 +55,26 @@ public:
     void render(GLProgram *p, QMatrix4x4 projViewMatrix);
     void addWall(btVector3 normal, float offset);
 
+    const QList<QString> getNames() const;
+
 signals:
+    void numDiceChanged(int num);
 
 public slots:
     void setGravity(qreal x, qreal y, qreal z);
     void kick();
-    void setNumCubes(int n);
+    void setNumDice(int n);
+    int numDice() const { return m_cubes.size();}
 
     void touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward);
     void release();
+
+    void addDice(QString name, btVector3 pos = btVector3(0,1,5));
 
 protected:
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
     void addCube(btVector3 pos);
-    void addDice(QString name, btVector3 pos);
     void loadDice();
 
 private:
