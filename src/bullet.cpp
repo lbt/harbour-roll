@@ -188,28 +188,16 @@ void Bullet::setupModel()
 
     ///create a few basic rigid bodies
     this->addWall(btVector3( 0, 0, 1), 0);
-    this->addWall(btVector3( 0, 0,-1), -9);
+    this->addWall(btVector3( 0, 0,-1), -9); // offset -9 from the normal - so location is z=10
     this->addWall(btVector3( 0, 1, 0), -MAXY);
     this->addWall(btVector3( 0,-1, 0), -MAXY);
     this->addWall(btVector3( 1, 0, 0), -MAXX);
     this->addWall(btVector3(-1, 0, 0), -MAXX);
 
     QList<QString> names = m_meshes->getNames();
-    //    for (int i; i++<6;)  {
-    //        //create a dynamic rigidbody
-    //        this->addDice(names[rand()%names.length()], btVector3(0,1,5));
-    //    }
-    this->addDice("d6",  btVector3(0, 0, 1));
-    this->addDice("d8",  btVector3(1, 0, 2));
-    this->addDice("d12", btVector3(0, 0, 3));
-    this->addDice("d20", btVector3(0, 1, 2));
-
-    this->addDice("d6", btVector3(0, 0, -1));
-    this->addDice("d6", btVector3(0, 0, -1));
-
-    //    for (QString die : m_meshes->getNames()) {
-//        this->addDice(die, btVector3(0,1,5));
-//    }
+        for (int i; i++<6;)  {
+            this->addDice(names[rand()%names.length()], btVector3(0,1,5));
+        }
 }
 
 void Bullet::setNumCubes(int n)
@@ -378,15 +366,17 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
     QMatrix4x4 pvInverse = projViewMatrix.inverted();
     qDebug() <<"inverse " << pvInverse;
     // Create start/end in the world space based on the position on the near/far planes
-    // For some reason the near/far Z is [-1,1] and not [-1,0]
+    // http://www.khronos.org/opengles/sdk/docs/man/xhtml/glDepthRangef.xml
+    // says: After clipping and division by w, depth coordinates range from -1 to 1,
+    // corresponding to the near and far clipping planes.
     QVector4D start = pvInverse * QVector4D(x, y, -1.0, 1.0);
     qDebug() <<"start " << start;
     start /= start.w();
-//    qDebug() <<"start " << start;
+    //    qDebug() <<"start " << start;
     QVector4D end = pvInverse * QVector4D(x, y, 1.0, 1.0);
     qDebug() <<"end " << end;
     end /= end.w();
-//    qDebug() <<"end " << end;
+    //    qDebug() <<"end " << end;
     //    QVector3D end = start - (lookingToward * 20.0);
 
     m_touchRay[0] = start.toVector3D();
@@ -447,19 +437,15 @@ void Bullet::kick(){
     m_cubeMutex.unlock();
 }
 
+// This sets up the GL objects/meshes that *can* be used in bullet
 void Bullet::setup(GLProgram* p)
 {
     m_program_debug = new GLProgram(SailfishApp::pathTo("debug_vert.glsl"), SailfishApp::pathTo("debug_frag.glsl"));
 
-    m_cubeMutex.lock();
-    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
-        btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
-        if (body && body->getMotionState()) {
-            BiMesh* bimesh = dynamic_cast<BiMesh *>(body->getCollisionShape());
-            bimesh->setup(p);
-        }
+    for (auto meshname : m_meshes->getNames()) {
+        BiMesh* bimesh = m_meshes->getBiMesh(meshname);
+        bimesh->setup(p);
     }
-    m_cubeMutex.unlock();
 }
 
 void Bullet::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
