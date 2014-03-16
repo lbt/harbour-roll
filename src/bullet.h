@@ -96,7 +96,7 @@ private:
     typedef QList<Line>::const_iterator m_worldLines_list_iter_type;
     QVector<QVector3D> m_qlinepoints;
 
-    QVector3D m_touchRay[6];
+    QVector3D m_touchRay[14];
     bool m_touchRayActive;
 
     // Below here is the functionality needed to be a btIDebugDraw

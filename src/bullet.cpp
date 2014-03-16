@@ -290,6 +290,24 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
     }
     m_cubeMutex.unlock();
 
+    if (m_touchRayActive) {
+        //  Setup shader for debug draw
+        qDebug() << "Lasers!!!" ;
+        QMatrix4x4 worldMatrix; // null atm
+        m_program_debug->bind();
+        m_program_debug->setUniformValue(m_program_debug->getU("projViewMatrixU"), projViewMatrix);
+        m_program_debug->setUniformValue(m_program_debug->getU("worldMatrixU"), worldMatrix);
+        glEnableVertexAttribArray(m_program_debug->getA("posA"));
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glLineWidth(8);
+        m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(1.0,0.0,0.0,1.0));
+        glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_touchRay+6);
+        glDrawArrays(GL_LINES, 0, 8);
+        glLineWidth(2);
+        glDisableVertexAttribArray(m_program_debug->getA("posA"));
+    }
+
     if (m_debug_mode == DBG_NoDebug ) return;
 
     if (! m_worldLines) return;
@@ -342,6 +360,14 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
     m_cubeMutex.unlock();
 
     if (m_touchRayActive) {
+        //  Setup shader for debug draw
+        QMatrix4x4 worldMatrix; // null atm
+        m_program_debug->bind();
+        m_program_debug->setUniformValue(m_program_debug->getU("projViewMatrixU"), projViewMatrix);
+        m_program_debug->setUniformValue(m_program_debug->getU("worldMatrixU"), worldMatrix);
+        glEnableVertexAttribArray(m_program_debug->getA("posA"));
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
         glLineWidth(8);
         m_program_debug->setUniformValue(m_program_debug->getU("colU"), QVector4D(1.0,0.0,0.0,1.0));
         glVertexAttribPointer(m_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, m_touchRay);
@@ -354,6 +380,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
         glDrawArrays(GL_LINES, 0, 2);
         glLineWidth(2);
     }
+
     glDisableVertexAttribArray(m_program_debug->getA("posA"));
     //    p->bind(); // should do this but we're only going to drop it again
 
@@ -400,6 +427,18 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
     m_touchRay[3] = start.toVector3D();
     m_touchRay[4] = QVector3D(0.0, 0.0, 0.0);
     m_touchRay[5] = end.toVector3D();
+    m_touchRay[6] = start.toVector3D();
+
+    // Some laser rays!
+    int c=6; QVector4D corner;
+    corner = (pvInverse * QVector4D(-1, 1, -1.0, 1.0)); corner /= corner.w();
+    m_touchRay[c++] = corner.toVector3D(); m_touchRay[c++] = start.toVector3D();
+    corner = (pvInverse * QVector4D(1, 1, -1.0, 1.0)); corner /= corner.w();
+    m_touchRay[c++] = corner.toVector3D(); m_touchRay[c++] = start.toVector3D();
+    corner = (pvInverse * QVector4D(1, -1, -1.0, 1.0)); corner /= corner.w();
+    m_touchRay[c++] = corner.toVector3D(); m_touchRay[c++] = start.toVector3D();
+    corner = (pvInverse * QVector4D(-1, -1, -1.0, 1.0)); corner /= corner.w();
+    m_touchRay[c++] = corner.toVector3D(); m_touchRay[c++] = start.toVector3D();
 
     btVector3 bstart = Q2btVector3(start.toVector3D());
     btVector3 bend = Q2btVector3(end.toVector3D());
