@@ -32,7 +32,8 @@ SOURCES += src/harbour-dice.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
     src/bimesh.cpp \
-    src/vaocontainer.cpp
+    src/vaocontainer.cpp \
+    src/worldobject.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -72,7 +73,8 @@ HEADERS += \
     src/lightmanager.h \
     src/light.h \
     src/bimesh.h \
-    src/vaocontainer.h
+    src/vaocontainer.h \
+    src/worldobject.h
 
 # MerSDK david:~/src/glsl-optimizer > ./glslopt -f ../harbour-dice/src/dice_frag.glsl 
 # MerSDK david:~/src/glsl-optimizer > ./glslopt -v ../harbour-dice/src/dice_vert.glsl 

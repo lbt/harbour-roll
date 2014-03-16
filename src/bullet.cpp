@@ -107,6 +107,13 @@ Bullet::~Bullet()
 
 }
 
+void Bullet::removeObject(WorldObject* wobj) {
+    if (m_worldObjects.removeOne(wobj)) {
+        if (wobj->getRigidBody() && wobj->getRigidBody()->getMotionState()) { delete wobj->getRigidBody()->getMotionState(); }
+        dynamicsWorld->removeCollisionObject(wobj->getRigidBody());
+        delete wobj->getRigidBody();
+    }
+}
 
 void Bullet::addWall(btVector3 normal, float offset) {
     btTransform groundTransform;
@@ -125,7 +132,7 @@ void Bullet::addWall(btVector3 normal, float offset) {
     rbInfo.m_restitution=0.9;
 
     btRigidBody* body = new btRigidBody(rbInfo);
-    body->setUserPointer((void*)new QString("wall"));
+    body->setUserPointer(NULL);
     dynamicsWorld->addRigidBody(body);
 }
 
@@ -145,13 +152,9 @@ void Bullet::loadDice()
     m_meshes = new BiMeshContainer();
     m_meshes->load(SailfishApp::pathTo("dice.obj").toLocalFile());
 
-    //    if (!m_diceShape[die]) {
-    //        m_diceShape[die] = new btBoxShape(btVector3(.5,.5,.5));
-    //        collisionShapes.push_back(m_diceShape[die]);
-    //    }
 }
 
-void Bullet::addDice(QString die, btVector3 pos)
+void Bullet::addDice(QString meshName, btVector3 pos)
 {
     if (m_worldObjects.size() >= 20) {
         qDebug() << "Too many dice";
@@ -172,22 +175,24 @@ void Bullet::addDice(QString die, btVector3 pos)
     btVector3 localInertia(0,0,0);
 
     // Typeinfo AABB bug???
-    btGImpactMeshShape* shape = (btGImpactMeshShape*) m_meshes->getCollisionMesh(die);
+    BiMesh* bimesh = m_meshes->getBiMesh(meshName);
 
     if (isDynamic)
-        shape->calculateLocalInertia(mass,localInertia);
-    qDebug() << "add dice " << die;
+        bimesh->tobtCollisionShape()->calculateLocalInertia(mass,localInertia);
+    qDebug() << "add dice " << meshName;
     btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,bimesh->tobtCollisionShape(),localInertia);
     rbInfo.m_friction=0.9;
     rbInfo.m_restitution=0.7;
 
     btRigidBody* body = new btRigidBody(rbInfo);
+    WorldObject* wobj = new WorldObject(bimesh, body);
+
     m_worldMutex.lock();
-    m_worldObjects << body;
+    m_worldObjects << wobj;
     m_worldMutex.unlock();
 
-    body->setUserPointer((void*)new  QString(die));
+    body->setUserPointer((void*)wobj);
 
     dynamicsWorld->addRigidBody(body);
     emit numWorldObjectsChanged(m_worldObjects.size());
@@ -254,20 +259,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 {
     m_worldMutex.lock();
     for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-        btRigidBody* body = btRigidBody::upcast(*m_worldobjects_i);
-        if (body && body->getMotionState())
-        {
-            btTransform trans;
-            body->getMotionState()->getWorldTransform(trans);
-            QMatrix4x4  pos = bt2QMatrix4x4(&trans);
-            p->setUniformValue(p->getU("worldMatrixU"), pos);
-
-            //            if (m_debug_mode == DBG_NoDebug) {
-            BiMesh* bimesh = dynamic_cast<BiMesh *>(body->getCollisionShape());
-            bimesh->render(p);
-            //            }
-            body->activate();
-        }
+        (*m_worldobjects_i)->render(p);
     }
     m_worldMutex.unlock();
 
@@ -432,7 +424,7 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
     // Any dice moved out of range
     m_worldMutex.lock();
     for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-        m_worldobjects_i->setHit(false);
+        //        m_worldobjects_i->setHit(false);
     }
     m_worldMutex.unlock();
     if (RayResults.hasHit()) {
@@ -440,23 +432,21 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
         // const BiMesh* bimesh = dynamic_cast<const BiMesh *>(RayResults.m_collisionObject); // This will fail when it hits a non-bimesh (like a wall!)
         m_worldMutex.lock();
         for (int i = 0; i< RayResults.m_collisionObjects.size(); i++) {
-            QString *name = (QString*)(RayResults.m_collisionObjects[i]->getUserPointer());
-            qDebug() << "Hit a " << *name;
-            if (name->startsWith("d")) {
-                if (m_touchTimer.isValid()) {
-                    if (m_touchTimer.elapsed() > 1000) {
-                        // cast away the const (I think this makes sense)
-                        btRigidBody* body = (btRigidBody*)btRigidBody::upcast(RayResults.m_collisionObjects[i]);
-                        if (m_worldObjects.removeOne(body)) {
-                            qDebug() << "Deleting a " << *name;
-                            if (body && body->getMotionState()) { delete body->getMotionState(); }
-                            dynamicsWorld->removeCollisionObject(body);
-                            delete body;
-                        }
-                    }
-                } else {
-                    m_touchTimer.start();
+            WorldObject* wobj = (WorldObject*)(RayResults.m_collisionObjects[i]->getUserPointer());
+            if (wobj) {
+                QString name = wobj->getBiMesh()->name();
+                qDebug() << "Hit a " << name;
+                if (name.startsWith("d")) {
+                    //                if (m_touchTimer.isValid()) {
+                    //                    if (m_touchTimer.elapsed() > 1000) {
+                    removeObject(wobj);
+                    //                    }
+                    //                } else {
+                    //                    m_touchTimer.start();
+                    //                }
                 }
+            } else {
+                qDebug() << "Hit a non-wobj (wall)";
             }
         }
         m_worldMutex.unlock();
@@ -469,12 +459,12 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
 
 void Bullet::release(){
     m_touchRayActive = false;
-    m_touchTimer.invalidate();
-    m_worldMutex.lock();
-    for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-        m_worldobjects_i->setHit(false);
-    }
-    m_worldMutex.unlock();
+    //    m_touchTimer.invalidate();
+    //    m_worldMutex.lock();
+    //    for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
+    //        m_worldobjects_i->setHit(false);
+    //    }
+    //    m_worldMutex.unlock();
 
 }
 
@@ -482,7 +472,7 @@ void Bullet::release(){
 void Bullet::kick(){
     m_worldMutex.lock();
     for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-        btRigidBody* body = btRigidBody::upcast(*m_worldobjects_i);
+        btRigidBody* body = (*m_worldobjects_i)->getRigidBody();
         if (body && body->getMotionState()) {
             body->applyCentralImpulse(btVector3(1.0-rnd(0.5),
                                                 1.0-rnd(0.5),

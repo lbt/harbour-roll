@@ -16,6 +16,7 @@
 
 #include "glprogram.h"
 #include "bimesh.h"
+#include "worldobject.h"
 
 QMatrix4x4 bt2QMatrix4x4(btTransform *transform);
 QVector3D bt2QtVector3D(const btVector3 &bv);
@@ -68,7 +69,7 @@ public slots:
     void touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward);
     void release();
 
-    void addDice(QString name, btVector3 pos = btVector3(0,1,5));
+    void addDice(QString meshName, btVector3 pos = btVector3(0,1,5));
 
 protected:
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
@@ -76,6 +77,7 @@ protected:
     void addCube(btVector3 pos);
     void loadDice();
 
+    void removeObject(WorldObject *wobj);
 private:
     btDefaultCollisionConfiguration* collisionConfiguration;
     btCollisionDispatcher* dispatcher;
