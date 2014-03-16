@@ -63,7 +63,6 @@ signals:
 public slots:
     void setGravity(qreal x, qreal y, qreal z);
     void kick();
-    void setNumDice(int n);
     int numDice() const { return m_worldObjects.size();}
 
     void touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward);

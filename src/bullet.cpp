@@ -214,25 +214,6 @@ void Bullet::setupModel()
     }
 }
 
-void Bullet::setNumDice(int n)
-{
-    if (! m_meshes)
-        return;
-    QList<QString> names = m_meshes->getNames();
-    if (m_worldObjects.size() == n) return;
-    while (m_worldObjects.size() < n)
-        this->addDice( names[rand()%names.length()], btVector3(0,1,5));
-    m_worldMutex.lock();
-    while (m_worldObjects.size() > n) {
-        btRigidBody* body = btRigidBody::upcast(m_worldObjects.takeLast());
-        if (body && body->getMotionState()) { delete body->getMotionState(); }
-        dynamicsWorld->removeCollisionObject(body);
-        delete body;
-    }
-    m_worldMutex.unlock();
-}
-
-
 void Bullet::runStep(int ms)
 {
     m_worldMutex.lock();

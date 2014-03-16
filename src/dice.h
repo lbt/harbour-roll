@@ -76,7 +76,7 @@ class Dice : public GLItem
     Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(qreal z READ z WRITE setZ NOTIFY zChanged)
-    Q_PROPERTY(int numDice READ numDice WRITE setNumDice NOTIFY numDiceChanged)
+    Q_PROPERTY(int numDice READ numDice NOTIFY numDiceChanged)
     Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
     Q_PROPERTY(QStringList names READ getNames NOTIFY namesChanged)
 
@@ -117,7 +117,6 @@ public slots:
     void randomiseLights();
     void zoomAndSpin(bool state);
     void pickMode(bool state);
-    void setNumDice(int arg);
     void fancyLights(bool state);
     void gravity(bool state);
     void setDebugDraw(bool state);

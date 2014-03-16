@@ -120,14 +120,6 @@ void Dice::pickMode(bool state)
         bullet.release();
 }
 
-void Dice::setNumDice(int arg)
-{
-    if (numDice() != arg) {
-        bullet.setNumDice(arg);
-        emit numDiceChanged(arg);
-    }
-}
-
 void Dice::fancyLights(bool state)
 {
     m_fancyLights = state;
