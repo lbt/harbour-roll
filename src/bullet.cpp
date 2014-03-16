@@ -290,6 +290,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
     }
     m_cubeMutex.unlock();
 
+#if 0
     if (m_touchRayActive) {
         //  Setup shader for debug draw
         qDebug() << "Lasers!!!" ;
@@ -307,6 +308,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
         glLineWidth(2);
         glDisableVertexAttribArray(m_program_debug->getA("posA"));
     }
+#endif
 
     if (m_debug_mode == DBG_NoDebug ) return;
 

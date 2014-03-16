@@ -147,8 +147,6 @@ void Dice::setDebugDraw(bool state)
 void Dice::addDice(QString dice)
 {
     bullet.addDice(dice);
-    qDebug() << "emit num dicechanged() (not needed!)";
-    emit numDiceChanged(numDice());
 }
 
 void Dice::handleUse() {
