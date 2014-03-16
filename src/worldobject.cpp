@@ -8,7 +8,7 @@ WorldObject::WorldObject(BiMesh* bimesh, btRigidBody* body, QObject *parent) :
   , m_hit(false)
 {
     m_hitTimer.setSingleShot(true);
-    m_hitTimer.setInterval(1000);
+    m_hitTimer.setInterval(500);
     connect(&m_hitTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
 }
 
@@ -35,9 +35,9 @@ void WorldObject::render(GLProgram *p) {
 
         // If glowing...
         if (m_hit) {
-            p->setUniformValue(p->getU("Glow"), QVector4D(1.0, 0.0, 0.0, 1.0));
+            p->setUniformValue(p->getU("Glow"), QVector4D(1.0, -0.2, -0.2, 0.0));
         } else {
-            p->setUniformValue(p->getU("Glow"), QVector4D(0.0, 0.0, 0.0, 1.0));
+            p->setUniformValue(p->getU("Glow"), QVector4D(0.0, 0.0, 0.0, 0.0));
         }
         m_bimesh->render(p);
     }
