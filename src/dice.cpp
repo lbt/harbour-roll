@@ -305,6 +305,7 @@ void Dice::render()
 
 
     p->setUniformValue(p->getU("colU"), QVector4D(0.6, 0.7, 0.8, 1.0));
+    p->setUniformValue(p->getU("Glow"), QVector4D(0.0, 0.0, 0.0, 1.0));
 
     // Render the ground/walls /////////////////////////////////////////////////////////////////////
 

@@ -28,6 +28,7 @@ struct PointLight
 uniform sampler2D textureU;
 uniform DirectionalLight directionalLights[2];
 uniform PointLight pointLights[3];
+uniform vec4 Glow;
 
 uniform highp vec3 eyeWorldPosU;
 uniform highp float matSpecularIntensityU;
@@ -99,9 +100,14 @@ void main() {
 //    dot(check, vec3(0.0, 0.0, -1.0)));
 
     //    TotalColor = ColorFromPointLight(0, normal);
-    TotalColor = clamp(TotalColor, vec3(0.0,0.0,0.0), vec3(1.0, 1.0, 1.0));
+    //    TotalColor = clamp(TotalColor, vec3(0.0,0.0,0.0), vec3(1.0, 1.0, 1.0));
 
-    gl_FragColor = texture2D(textureU, texcoordV) * vec4(TotalColor, 1.0);
+    // Support an additional Glow which overrides the colour *and* alpha
+    highp vec4 col = vec4(TotalColor, 1.0);
+    col += Glow;
+//    col = clamp(col, vec4(0.0,0.0,0.0,0.0), vec4(1.0, 1.0, 1.0, 1.0));
+
+    gl_FragColor = texture2D(textureU, texcoordV) * col;
 //    gl_FragColor = texture2D(textureU, texcoordV) * vec4(TotalColor, 1.0) + vec4(TotalColor, 1.0); // super shiney
 //    gl_FragColor = vec4(texcoordV, 0.5, 1.0) * vec4(TotalColor, 1.0); // colourfull
 }
