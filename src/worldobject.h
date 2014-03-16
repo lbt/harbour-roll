@@ -2,7 +2,7 @@
 #define WORLDOBJECT_H
 
 #include "bimesh.h"
-#include <QElapsedTimer>
+#include <QTimer>
 
 // Declared in bullet.cpp
 QMatrix4x4 bt2QMatrix4x4(btTransform *transform);
@@ -16,13 +16,15 @@ public:
     btRigidBody* getRigidBody() const { return m_rigidBody; }
     BiMesh* getBiMesh() const { return m_bimesh; }
 
-    void setHit(bool h) {m_hit =  h;}
+    void setHit(bool hit);
     void render(GLProgram *p);
     void setup(GLProgram *p);
 
 signals:
+    void killMe(WorldObject* me);
 
 public slots:
+    void handleTimeout() { emit killMe(this); }
 
 private:
     BiMesh* m_bimesh;
@@ -30,6 +32,7 @@ private:
 
     QVector4D m_glow;
     bool m_hit;
+    QTimer m_hitTimer;
 
 };
 

@@ -1,10 +1,26 @@
 #include "worldobject.h"
+#include <QDebug>
 
 WorldObject::WorldObject(BiMesh* bimesh, btRigidBody* body, QObject *parent) :
     QObject(parent)
   , m_bimesh(bimesh)
   , m_rigidBody(body)
+  , m_hit(false)
 {
+    m_hitTimer.setSingleShot(true);
+    m_hitTimer.setInterval(1000);
+    connect(&m_hitTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+}
+
+void WorldObject::setHit(bool hit) {
+    if (!hit && !m_hit) return;
+    if (hit && m_hit) return;
+    m_hit =  hit;
+    if (hit) {
+        m_hitTimer.start();
+    } else {
+        m_hitTimer.stop();
+    }
 }
 
 void WorldObject::render(GLProgram *p) {
@@ -18,7 +34,13 @@ void WorldObject::render(GLProgram *p) {
         p->setUniformValue(p->getU("worldMatrixU"), pos);
 
         // If glowing...
-
+        if (m_hit) {
+            p->setUniformValue(p->getU("Glow"), QVector4D(1.0, 0.0, 0.0, 1.0));
+        } else {
+            p->setUniformValue(p->getU("Glow"), QVector4D(0.0, 0.0, 0.0, 1.0));
+        }
         m_bimesh->render(p);
     }
 }
+
+

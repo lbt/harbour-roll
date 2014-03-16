@@ -70,6 +70,7 @@ public slots:
     void release();
 
     void addDice(QString meshName, btVector3 pos = btVector3(0,1,5));
+    void removeObject(WorldObject *wobj);
 
 protected:
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
@@ -77,7 +78,6 @@ protected:
     void addCube(btVector3 pos);
     void loadDice();
 
-    void removeObject(WorldObject *wobj);
 private:
     btDefaultCollisionConfiguration* collisionConfiguration;
     btCollisionDispatcher* dispatcher;

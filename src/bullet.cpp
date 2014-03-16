@@ -39,6 +39,7 @@ Bullet::Bullet(QObject *parent) :
     QObject(parent)
   , m_qlinepoints(500)
   , m_touchRayActive(false)
+  , m_worldMutex(QMutex::Recursive)
 {
     ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
     collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -108,11 +109,13 @@ Bullet::~Bullet()
 }
 
 void Bullet::removeObject(WorldObject* wobj) {
+    m_worldMutex.lock();
     if (m_worldObjects.removeOne(wobj)) {
         if (wobj->getRigidBody() && wobj->getRigidBody()->getMotionState()) { delete wobj->getRigidBody()->getMotionState(); }
         dynamicsWorld->removeCollisionObject(wobj->getRigidBody());
         delete wobj->getRigidBody();
     }
+    m_worldMutex.unlock();
 }
 
 void Bullet::addWall(btVector3 normal, float offset) {
@@ -188,6 +191,8 @@ void Bullet::addDice(QString meshName, btVector3 pos)
     btRigidBody* body = new btRigidBody(rbInfo);
     WorldObject* wobj = new WorldObject(bimesh, body);
 
+    connect(wobj, SIGNAL(killMe(WorldObject*)), this, SLOT(removeObject(WorldObject*)));
+
     m_worldMutex.lock();
     m_worldObjects << wobj;
     m_worldMutex.unlock();
@@ -230,6 +235,10 @@ void Bullet::runStep(int ms)
             delete m_worldLines;
         m_worldLines = new QHash<Color, QList<Line> >;
         dynamicsWorld->debugDrawWorld();
+    }
+    // Ensure all objects are permanently activated
+    for (auto wobj : m_worldObjects) {
+        wobj->getRigidBody()->activate();
     }
     m_worldMutex.unlock();
 }
@@ -436,15 +445,8 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
             if (wobj) {
                 QString name = wobj->getBiMesh()->name();
                 qDebug() << "Hit a " << name;
-                if (name.startsWith("d")) {
-                    //                if (m_touchTimer.isValid()) {
-                    //                    if (m_touchTimer.elapsed() > 1000) {
-                    removeObject(wobj);
-                    //                    }
-                    //                } else {
-                    //                    m_touchTimer.start();
-                    //                }
-                }
+                wobj->setHit(true);
+//                removeObject(wobj);
             } else {
                 qDebug() << "Hit a non-wobj (wall)";
             }
@@ -459,13 +461,12 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
 
 void Bullet::release(){
     m_touchRayActive = false;
-    //    m_touchTimer.invalidate();
-    //    m_worldMutex.lock();
-    //    for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-    //        m_worldobjects_i->setHit(false);
-    //    }
-    //    m_worldMutex.unlock();
-
+//    for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
+//        (*m_worldobjects_i)->setHit(false);
+//    }
+    for (auto wobj : m_worldObjects) {
+        wobj->setHit(false);
+    }
 }
 
 
