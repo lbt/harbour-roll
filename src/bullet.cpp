@@ -190,7 +190,7 @@ void Bullet::addDice(QString die, btVector3 pos)
     body->setUserPointer((void*)new  QString(die));
 
     dynamicsWorld->addRigidBody(body);
-    emit numDiceChanged(m_worldObjects.size());
+    emit numWorldObjectsChanged(m_worldObjects.size());
     qDebug() << "add dice";
 }
 

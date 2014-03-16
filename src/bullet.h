@@ -58,7 +58,7 @@ public:
     const QList<QString> getNames() const;
 
 signals:
-    void numDiceChanged(int num);
+    void numWorldObjectsChanged(int num);
 
 public slots:
     void setGravity(qreal x, qreal y, qreal z);
@@ -85,9 +85,8 @@ private:
     btDiscreteDynamicsWorld* dynamicsWorld;
 
     QMutex m_worldMutex;
-    QList<btCollisionObject*> m_worldObjects;
-    QList<btCollisionObject*>::iterator m_worldobjects_i;
-    QHash<QString, btCollisionShape*> m_diceShape;
+    QList<WorldObject*> m_worldObjects;
+    QList<WorldObject*>::iterator m_worldobjects_i;
     BiMeshContainer* m_meshes;
     QHash<Color, QList<Line> > *m_worldLines;
     typedef QHash<Color, QList<Line> >::const_iterator m_worldLines_iter_type;

@@ -59,7 +59,7 @@ Dice::Dice(QObject *parent) :
     light.Direction = QVector3D(-2, 5, 1).normalized();
     m_dLights[0].set(light);
 
-    connect(&bullet, SIGNAL(numDiceChanged(int)), this, SIGNAL(numDiceChanged(int)));
+    connect(&bullet, SIGNAL(numWorldObjectsChanged(int)), this, SIGNAL(numDiceChanged(int)));
 }
 
 void Dice::setX(qreal x)
