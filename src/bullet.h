@@ -87,8 +87,7 @@ private:
 
     QMutex m_worldMutex;
     QList<btCollisionObject*> m_worldObjects;
-    QList<btCollisionObject*>::iterator m_cubes_i;
-    btCollisionShape* m_cubeShape;
+    QList<btCollisionObject*>::iterator m_worldobjects_i;
     QHash<QString, btCollisionShape*> m_diceShape;
     BiMeshContainer* m_meshes;
     QHash<Color, QList<Line> > *m_worldLines;
