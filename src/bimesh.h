@@ -36,6 +36,7 @@ public:
     void render(GLProgram *p);
     void setup(GLProgram *p);
     QString name() const { return m_name; }
+    btCollisionShape* tobtCollisionShape() { return dynamic_cast<btCollisionShape*>(this); }
 
 private:
 
