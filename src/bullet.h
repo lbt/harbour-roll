@@ -64,7 +64,7 @@ public slots:
     void setGravity(qreal x, qreal y, qreal z);
     void kick();
     void setNumDice(int n);
-    int numDice() const { return m_cubes.size();}
+    int numDice() const { return m_worldObjects.size();}
 
     void touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward);
     void release();
@@ -85,8 +85,8 @@ private:
 
     btDiscreteDynamicsWorld* dynamicsWorld;
 
-    QMutex m_cubeMutex;
-    QList<btCollisionObject*> m_cubes;
+    QMutex m_worldMutex;
+    QList<btCollisionObject*> m_worldObjects;
     QList<btCollisionObject*>::iterator m_cubes_i;
     btCollisionShape* m_cubeShape;
     QHash<QString, btCollisionShape*> m_diceShape;

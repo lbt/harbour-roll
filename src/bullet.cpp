@@ -153,7 +153,7 @@ void Bullet::loadDice()
 
 void Bullet::addDice(QString die, btVector3 pos)
 {
-    if (m_cubes.size() >= 20) {
+    if (m_worldObjects.size() >= 20) {
         qDebug() << "Too many dice";
         // emit tooManyDice();
         return;
@@ -183,14 +183,14 @@ void Bullet::addDice(QString die, btVector3 pos)
     rbInfo.m_restitution=0.7;
 
     btRigidBody* body = new btRigidBody(rbInfo);
-    m_cubeMutex.lock();
-    m_cubes << body;
-    m_cubeMutex.unlock();
+    m_worldMutex.lock();
+    m_worldObjects << body;
+    m_worldMutex.unlock();
 
-    body->setUserPointer((void*)new QString(die));
+    body->setUserPointer((void*)new  QString(die));
 
     dynamicsWorld->addRigidBody(body);
-    emit numDiceChanged(m_cubes.size());
+    emit numDiceChanged(m_worldObjects.size());
     qDebug() << "add dice";
 }
 
@@ -219,23 +219,23 @@ void Bullet::setNumDice(int n)
     if (! m_meshes)
         return;
     QList<QString> names = m_meshes->getNames();
-    if (m_cubes.size() == n) return;
-    while (m_cubes.size() < n)
+    if (m_worldObjects.size() == n) return;
+    while (m_worldObjects.size() < n)
         this->addDice( names[rand()%names.length()], btVector3(0,1,5));
-    m_cubeMutex.lock();
-    while (m_cubes.size() > n) {
-        btRigidBody* body = btRigidBody::upcast(m_cubes.takeLast());
+    m_worldMutex.lock();
+    while (m_worldObjects.size() > n) {
+        btRigidBody* body = btRigidBody::upcast(m_worldObjects.takeLast());
         if (body && body->getMotionState()) { delete body->getMotionState(); }
         dynamicsWorld->removeCollisionObject(body);
         delete body;
     }
-    m_cubeMutex.unlock();
+    m_worldMutex.unlock();
 }
 
 
 void Bullet::runStep(int ms)
 {
-    m_cubeMutex.lock();
+    m_worldMutex.lock();
     dynamicsWorld->stepSimulation(ms/1000.f, 10, 1.f/300.f);
     if (m_debug_mode != DBG_NoDebug )
     {
@@ -245,7 +245,7 @@ void Bullet::runStep(int ms)
         m_worldLines = new QHash<Color, QList<Line> >;
         dynamicsWorld->debugDrawWorld();
     }
-    m_cubeMutex.unlock();
+    m_worldMutex.unlock();
 }
 
 void Bullet::report()
@@ -271,8 +271,8 @@ void Bullet::renderWalls(GLProgram *p)
 
 void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 {
-    m_cubeMutex.lock();
-    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
+    m_worldMutex.lock();
+    for (m_cubes_i = m_worldObjects.begin(); m_cubes_i != m_worldObjects.end(); ++m_cubes_i) {
         btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
         if (body && body->getMotionState())
         {
@@ -288,7 +288,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
             body->activate();
         }
     }
-    m_cubeMutex.unlock();
+    m_worldMutex.unlock();
 
 #if 0
     if (m_touchRayActive) {
@@ -324,7 +324,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 
     // iterate over worldlines
     glLineWidth(2);
-    m_cubeMutex.lock();
+    m_worldMutex.lock();
     auto i = m_worldLines->constBegin();
     while (i != m_worldLines->constEnd()) {
         Color color = i.key();
@@ -359,7 +359,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
         //        qDebug() << "Drew " << n2 << " vertices";
 
     }
-    m_cubeMutex.unlock();
+    m_worldMutex.unlock();
 
     if (m_touchRayActive) {
         //  Setup shader for debug draw
@@ -448,25 +448,37 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
     btCollisionWorld::AllHitsRayResultCallback RayResults(bstart, bend);
     dynamicsWorld->rayTest(bstart, bend, RayResults );
 
+    // Any dice moved out of range
+    m_worldMutex.lock();
+    for (m_cubes_i = m_worldObjects.begin(); m_cubes_i != m_worldObjects.end(); ++m_cubes_i) {
+        m_cubes_i->setHit(false);
+    }
+    m_worldMutex.unlock();
     if (RayResults.hasHit()) {
         qDebug() << "Hit ";
         // const BiMesh* bimesh = dynamic_cast<const BiMesh *>(RayResults.m_collisionObject); // This will fail when it hits a non-bimesh (like a wall!)
-        m_cubeMutex.lock();
+        m_worldMutex.lock();
         for (int i = 0; i< RayResults.m_collisionObjects.size(); i++) {
             QString *name = (QString*)(RayResults.m_collisionObjects[i]->getUserPointer());
             qDebug() << "Hit a " << *name;
             if (name->startsWith("d")) {
-                // cast away the const (I think this makes sense)
-                btRigidBody* body = (btRigidBody*)btRigidBody::upcast(RayResults.m_collisionObjects[i]);
-                if (m_cubes.removeOne(body)) {
-                    qDebug() << "Deleting a " << *name;
-                    if (body && body->getMotionState()) { delete body->getMotionState(); }
-                    dynamicsWorld->removeCollisionObject(body);
-                    delete body;
+                if (m_touchTimer.isValid()) {
+                    if (m_touchTimer.elapsed() > 1000) {
+                        // cast away the const (I think this makes sense)
+                        btRigidBody* body = (btRigidBody*)btRigidBody::upcast(RayResults.m_collisionObjects[i]);
+                        if (m_worldObjects.removeOne(body)) {
+                            qDebug() << "Deleting a " << *name;
+                            if (body && body->getMotionState()) { delete body->getMotionState(); }
+                            dynamicsWorld->removeCollisionObject(body);
+                            delete body;
+                        }
+                    }
+                } else {
+                    m_touchTimer.start();
                 }
             }
         }
-        m_cubeMutex.unlock();
+        m_worldMutex.unlock();
         qDebug() << "Drawing touchRay " << m_touchRay[0] <<" to "<< m_touchRay[1];
     } else {
         qDebug() << "Missed ";
@@ -489,12 +501,19 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
 
 void Bullet::release(){
     m_touchRayActive = false;
+    m_touchTimer.invalidate();
+    m_worldMutex.lock();
+    for (m_cubes_i = m_worldObjects.begin(); m_cubes_i != m_worldObjects.end(); ++m_cubes_i) {
+        m_cubes_i->setHit(false);
+    }
+    m_worldMutex.unlock();
+
 }
 
 
 void Bullet::kick(){
-    m_cubeMutex.lock();
-    for (m_cubes_i = m_cubes.begin(); m_cubes_i != m_cubes.end(); ++m_cubes_i) {
+    m_worldMutex.lock();
+    for (m_cubes_i = m_worldObjects.begin(); m_cubes_i != m_worldObjects.end(); ++m_cubes_i) {
         btRigidBody* body = btRigidBody::upcast(*m_cubes_i);
         if (body && body->getMotionState()) {
             body->applyCentralImpulse(btVector3(1.0-rnd(0.5),
@@ -502,7 +521,7 @@ void Bullet::kick(){
                                                 1.0-rnd(0.5)));
         }
     }
-    m_cubeMutex.unlock();
+    m_worldMutex.unlock();
 }
 
 // This sets up the GL objects/meshes that *can* be used in bullet
