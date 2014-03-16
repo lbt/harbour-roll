@@ -14,7 +14,6 @@ Page {                                          id: page
         Dice {                                 id: dice
             anchors.fill: parent
             running : applicationActive || runWhenMinimised
-            numDice: numDiceS.value
             MouseArea {                         id: bgMA
                 anchors.fill: parent
                 preventStealing: true
@@ -112,14 +111,6 @@ Page {                                          id: page
                             anchors.margins: Theme.paddingMedium
                         }
                     }
-                }
-                Slider {                        id: numDiceS
-                    label: "number of dice"
-                    width: parent.width
-                    minimumValue: 1; maximumValue: 20
-                    stepSize: 1
-                    value: dice.numDice
-                    valueText: value.toFixed(0);
                 }
                 Row { width: parent.width; height: childrenRect.height
                     TextSwitch {                    id: fancy
