@@ -267,8 +267,8 @@ void Bullet::renderWalls(GLProgram *p)
 void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 {
     m_worldMutex.lock();
-    for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-        (*m_worldobjects_i)->render(p);
+    for (auto wobj : m_worldObjects) {
+        wobj->render(p);
     }
     m_worldMutex.unlock();
 
@@ -384,23 +384,23 @@ void Bullet::setGravity(qreal x, qreal y, qreal z) {
 ///
 void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward){
     m_touchRayActive = true;
-    qDebug() <<"touched ("<< x <<","<< y <<")";
+//    qDebug() <<"touched ("<< x <<","<< y <<")";
 
-    qDebug() <<"projViewMatrix "<< projViewMatrix;
-    qDebug() <<"lookingToward "<< lookingToward;
+//    qDebug() <<"projViewMatrix "<< projViewMatrix;
+//    qDebug() <<"lookingToward "<< lookingToward;
 
     QMatrix4x4 pvInverse = projViewMatrix.inverted();
-    qDebug() <<"inverse " << pvInverse;
+//    qDebug() <<"inverse " << pvInverse;
     // Create start/end in the world space based on the position on the near/far planes
     // http://www.khronos.org/opengles/sdk/docs/man/xhtml/glDepthRangef.xml
     // says: After clipping and division by w, depth coordinates range from -1 to 1,
     // corresponding to the near and far clipping planes.
     QVector4D start = pvInverse * QVector4D(x, y, -1.0, 1.0);
-    qDebug() <<"start " << start;
+//    qDebug() <<"start " << start;
     start /= start.w();
     //    qDebug() <<"start " << start;
     QVector4D end = pvInverse * QVector4D(x, y, 1.0, 1.0);
-    qDebug() <<"end " << end;
+//    qDebug() <<"end " << end;
     end /= end.w();
     //    qDebug() <<"end " << end;
     //    QVector3D end = start - (lookingToward * 20.0);
@@ -430,11 +430,6 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
     btCollisionWorld::AllHitsRayResultCallback RayResults(bstart, bend);
     dynamicsWorld->rayTest(bstart, bend, RayResults );
 
-    // Any dice moved out of range
-    m_worldMutex.lock();
-    for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-        //        m_worldobjects_i->setHit(false);
-    }
     m_worldMutex.unlock();
     if (RayResults.hasHit()) {
         qDebug() << "Hit ";
@@ -443,27 +438,20 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
         for (int i = 0; i< RayResults.m_collisionObjects.size(); i++) {
             WorldObject* wobj = (WorldObject*)(RayResults.m_collisionObjects[i]->getUserPointer());
             if (wobj) {
-                QString name = wobj->getBiMesh()->name();
-                qDebug() << "Hit a " << name;
+                qDebug() << "Hit a " << wobj->getBiMesh()->name();
                 wobj->setHit(true);
-//                removeObject(wobj);
             } else {
                 qDebug() << "Hit a non-wobj (wall)";
             }
         }
         m_worldMutex.unlock();
-        qDebug() << "Drawing touchRay " << m_touchRay[0] <<" to "<< m_touchRay[1];
-    } else {
-        qDebug() << "Missed ";
+//        qDebug() << "Drawing touchRay " << m_touchRay[0] <<" to "<< m_touchRay[1];
     }
 
 }
 
 void Bullet::release(){
     m_touchRayActive = false;
-//    for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-//        (*m_worldobjects_i)->setHit(false);
-//    }
     for (auto wobj : m_worldObjects) {
         wobj->setHit(false);
     }
@@ -472,8 +460,8 @@ void Bullet::release(){
 
 void Bullet::kick(){
     m_worldMutex.lock();
-    for (m_worldobjects_i = m_worldObjects.begin(); m_worldobjects_i != m_worldObjects.end(); ++m_worldobjects_i) {
-        btRigidBody* body = (*m_worldobjects_i)->getRigidBody();
+    for (auto wobj : m_worldObjects) {
+        btRigidBody* body = wobj->getRigidBody();
         if (body && body->getMotionState()) {
             body->applyCentralImpulse(btVector3(1.0-rnd(0.5),
                                                 1.0-rnd(0.5),
