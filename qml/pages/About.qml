@@ -59,20 +59,32 @@ Page {id: aboutPage
             }
             Text {
                 color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
-                text: "Turning on the 'Fancy Lights' makes the lights move around. They're given random" +
-                      " colours and movement so tap on 'Change Colours' to randomise them.<p>"
+                text: "There are different kinds of dice you can add- and to remove a dice just long tap" +
+                      " it and it'll go red and then vanish.<p>"
             }
             Text {
                 color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
-                text: "The 'Zoom and spin mode' lets you move around." +
-                      " Touch in the bottom half of the screen to zoom in and out and side-to-side;" +
-                      " touch in the top half and you can rotate the dice. Turning off zoom and spin" +
-                      " will reset the dice position. (I'm working on a much more fun way of moving).<p>"
+                text: "Turning on the 'Fancy Lights' makes the lights move around. They're given random" +
+                      " colours and movement so tap on 'Change Colours' to randomise them. You can also" +
+                      " turn the main white light on and off if you prefer more colour (I do!)<p>"
             }
+            Text {
+                color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
+                text: "The 'Fly' mode lets you move around." +
+                      " Touch in the bottom half of the screen to fly forward and back and turn side-to-side;" +
+                      " touch in the top half and you can change which way you're looking. Turning off 'Fly'" +
+                      " will reset the dice position.<p>"
+            }          
             Text {
                 color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
                 text: "Turning gravity off makes the dice float around - most fun if you do it"+
                       " after a little shake or when you change the number of dice.<p>"
+            }
+            Text {
+                color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
+                text: "I left the 'Debug Draw' option in because it looks quite cool. The moving dots"+
+                      " on sticks are the light and if you're quick and careful you can see the laser"+
+                      " that shoots the dice.<p>"
             }
             Text {
                 color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
