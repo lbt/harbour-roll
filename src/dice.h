@@ -79,6 +79,7 @@ class Dice : public GLItem
     Q_PROPERTY(int numDice READ numDice NOTIFY numDiceChanged)
     Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
     Q_PROPERTY(QStringList names READ getNames NOTIFY namesChanged)
+    Q_PROPERTY(bool mainLight READ mainLight WRITE setMainLight NOTIFY mainLightChanged)
 
 public:
     explicit Dice(QObject *parent = 0);
@@ -97,6 +98,8 @@ public:
     int numDice() const { return bullet.numDice(); }
     const QStringList getNames() const;
 
+    bool mainLight() const { return m_mainLight; }
+
 signals:
     void xChanged(qreal);
     void yChanged(qreal);
@@ -104,8 +107,8 @@ signals:
     void runningChanged();
     void pressedChanged();
     void namesChanged();
-
     void numDiceChanged(int arg);
+    void mainLightChanged(bool arg);
 
 public slots:
     void setRunning(bool running);
@@ -121,7 +124,7 @@ public slots:
     void gravity(bool state);
     void setDebugDraw(bool state);
     void addDice(QString dice);
-
+    void setMainLight(bool arg);
 
 private:
     void handleTouchAsRotation();
@@ -161,6 +164,7 @@ private:
     QElapsedTimer m_lightTime;
     QThread m_runnerThread;
     DiceRunner* m_runner;
+    bool m_mainLight;
 };
 
 #endif // DICE_H

@@ -50,7 +50,7 @@ Page {                                          id: page
         // This is the height of the panel. It does not clip.
         // When opened the dock will slide this far to display contents
         // When nesting a flickable, ensure it clips to avoid overdrawing.
-        height: page.isPortrait ? parent.height * 0.75 : parent.height
+        height: page.isPortrait ? parent.height * 0.5 : parent.height
         width:  page.isPortrait ? parent.width : parent.width/2
         dock: page.isPortrait ? Dock.Top : Dock.Left
         open: true // Will close automatically
@@ -122,6 +122,11 @@ Page {                                          id: page
                         onClicked: dice.randomiseLights();
                         width: parent.width/2
                     }
+                }
+                TextSwitch {                    id: main
+                    text: "Main Light"
+                    width: parent.width
+                    onClicked: dice.setMainLight(checked)
                 }
                 Row { width: parent.width; height: childrenRect.height
                     TextSwitch {                    id: spin

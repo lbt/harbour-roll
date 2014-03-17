@@ -41,23 +41,13 @@ Dice::Dice(QObject *parent) :
   , m_zoomAndSpin(false)
   , m_pickMode(true)
   , m_gravity(true)
+  , m_mainLight(true)
 {
     Q_UNUSED(parent)
     m_sensor.start();
 
-    for (int i=0; i<2; i++) { m_dLights[i].randomise(); }
-    for (int i=0; i<3; i++) {
-        m_pLights[i].lightManager.setScale(QVector3D(4.0, 5.0, 3.0));
-        m_pLights[i].randomise();
-    }
-
-    _DirectionalLight light;
-    // Ensure that the first throw has a visible dlight
-    light.Base.Color = QVector3D(1.0, 1.0, 1.0);
-    light.Base.AmbientIntensity=0.2;
-    light.Base.DiffuseIntensity=0.6;
-    light.Direction = QVector3D(-2, 5, 1).normalized();
-    m_dLights[0].set(light);
+    for (int i=0; i<3; i++) { m_pLights[i].lightManager.setScale(QVector3D(4.0, 5.0, 4.0)); }
+    randomiseLights();
 
     connect(&bullet, SIGNAL(numWorldObjectsChanged(int)), this, SIGNAL(numDiceChanged(int)));
 }
@@ -93,15 +83,6 @@ void Dice::useXYZ(QString use) {
     m_use = use;
 }
 
-void Dice::randomiseLights()
-{
-    for (int i=0; i<2; i++) {
-        m_dLights[i].randomise();
-    }
-    for (int i=0; i<3; i++) {
-        m_pLights[i].randomise();
-    }
-}
 
 void Dice::zoomAndSpin(bool state)
 {
@@ -125,6 +106,40 @@ void Dice::fancyLights(bool state)
     m_fancyLights = state;
 }
 
+void Dice::setMainLight(bool arg)
+{
+    if (m_mainLight != arg) {
+        m_mainLight = arg;
+        emit mainLightChanged(arg);
+    }
+    _DirectionalLight light;
+    if (arg) {
+        // Ensure that the first throw has a visible dlight
+        light.Base.Color = QVector3D(1.0, 1.0, 1.0);
+        light.Base.AmbientIntensity=0.4;
+        light.Base.DiffuseIntensity=0.8;
+        light.Direction = QVector3D(-1, 1, 4).normalized();
+        m_dLights[0].set(light);
+    } else {
+        m_dLights[0].randomise();
+    }
+}
+
+void Dice::randomiseLights()
+{
+    for (int i=0; i<2; i++) { m_dLights[i].randomise(); }
+    for (int i=0; i<3; i++) { m_pLights[i].randomise(); }
+    if (m_mainLight) {
+        _DirectionalLight light;
+        // Ensure that the first throw has a visible dlight
+        light.Base.Color = QVector3D(1.0, 1.0, 1.0);
+        light.Base.AmbientIntensity=0.4;
+        light.Base.DiffuseIntensity=0.8;
+        light.Direction = QVector3D(-1, 1, 4).normalized();
+        m_dLights[0].set(light);
+    }
+}
+
 void Dice::gravity(bool state)
 {
     m_gravity = state;
@@ -140,6 +155,7 @@ void Dice::addDice(QString dice)
 {
     bullet.addDice(dice);
 }
+
 
 void Dice::handleUse() {
 }
@@ -170,12 +186,12 @@ void Dice::handlePressed(int x, int y) {
     if (m_zoomAndSpin)
         m_cammanager.touch(p_x, p_y);
 
-//    if (m_pickMode) { // Bullet knows nothing about the screen. It needs world info:
-        float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
-        float fy = (0.5f - (float)y/(float)m_cammanager.screenHeight()) * 2.0f; // [yyy,0] -> [-1,1] (screen is inverted compared to GL)
-        qDebug()<< "Camera at " << m_cammanager.at();
-        bullet.touch(fx, fy, m_cammanager.projViewMatrix(), m_cammanager.forward());
-//    }
+    //    if (m_pickMode) { // Bullet knows nothing about the screen. It needs world info:
+    float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
+    float fy = (0.5f - (float)y/(float)m_cammanager.screenHeight()) * 2.0f; // [yyy,0] -> [-1,1] (screen is inverted compared to GL)
+    qDebug()<< "Camera at " << m_cammanager.at();
+    bullet.touch(fx, fy, m_cammanager.projViewMatrix(), m_cammanager.forward());
+    //    }
 }
 void Dice::handleReleased(int x, int y) {
     Q_UNUSED(x)
@@ -186,8 +202,8 @@ void Dice::handleReleased(int x, int y) {
 
     if (m_zoomAndSpin)
         m_cammanager.release();
-//    if (m_pickMode)
-        bullet.release();
+    //    if (m_pickMode)
+    bullet.release();
 
 }
 
