@@ -126,6 +126,7 @@ Page {                                          id: page
                 TextSwitch {                    id: main
                     text: "Main Light"
                     width: parent.width
+                    checked: dice.mainLight
                     onClicked: dice.setMainLight(checked)
                 }
                 Row { width: parent.width; height: childrenRect.height
