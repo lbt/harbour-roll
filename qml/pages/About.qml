@@ -60,7 +60,7 @@ Page {id: aboutPage
             Text {
                 color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
                 text: "There are different kinds of dice you can add- and to remove a dice just long tap" +
-                      " it and it'll go red and then vanish.<p>"
+                      " it and it'll go red and then vanish. Dice will remember what you were using last time too.<p>"
             }
             Text {
                 color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
@@ -88,7 +88,7 @@ Page {id: aboutPage
             }
             Text {
                 color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
-                text: "You can see the dice when the app is minimised - and if you like you"+
+                text: "You can optionally see the dice when the app is minimised - and if you like you"+
                       " can even keep it running (and eating your battery!).<p>"
             }
         }
