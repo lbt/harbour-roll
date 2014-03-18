@@ -64,6 +64,7 @@ public:
     BiMesh* importChildren(const aiScene *scene, aiNode *node, BiMesh *targetParent, QMatrix4x4 accTransform);
     BiMesh* nodeToMesh(const aiScene *scene, aiNode *node);
 
+    bool contains(QString name) { return m_biShapes.contains(name); }
     btCollisionShape *getCollisionMesh(QString name);
     BiMesh *getBiMesh(QString name);
     QList<QString> getNames();
