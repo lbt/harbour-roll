@@ -15,6 +15,7 @@
 #include <QMutex>
 #include <QSGTexture>
 #include <QtSensors/QAccelerometer>
+#include <QSettings>
 
 #include <QThread>
 
@@ -83,6 +84,8 @@ class Dice : public GLItem
 
 public:
     explicit Dice(QObject *parent = 0);
+    ~Dice();
+
     qreal x() const { return p_x; }
     void setX(qreal x);
     qreal y() const { return p_y; }
@@ -126,10 +129,12 @@ public slots:
     void addDice(QString dice);
     void setMainLight(bool arg);
 
+    void saveSettings();
 private:
     void handleTouchAsRotation();
 
 private:
+    QSettings m_settings;
     QMatrix4x4 m_currMatrix;
     GLuint m_vboIds[2];
     GLProgram *m_program_dice;

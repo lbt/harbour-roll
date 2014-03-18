@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QVector>
+#include <QStringList>
 
 #include <sailfishapp.h>
 
@@ -118,6 +119,31 @@ void Bullet::removeObject(WorldObject* wobj) {
     m_worldMutex.unlock();
 }
 
+QString Bullet::serialise() {
+    QString state;
+    m_worldMutex.lock();
+    for (auto wobj : m_worldObjects) {
+        state += wobj->getBiMesh()->name() + ",";
+    }
+    m_worldMutex.unlock();
+//    qDebug() << "Saved state " << state;
+    return state;
+}
+
+void Bullet::restore(QString state) {
+//    qDebug() << "Restore state " << state;
+    m_worldMutex.lock();
+    for (auto wobj : m_worldObjects) {
+        removeObject(wobj);
+    }
+    for (auto die : state.split(",")) {
+//        qDebug() << "Adding " << die;
+        addDice(die);
+    }
+    m_worldMutex.unlock();
+}
+
+
 void Bullet::addWall(btVector3 normal, float offset) {
     btTransform groundTransform;
     groundTransform.setIdentity();
@@ -165,6 +191,11 @@ void Bullet::addDice(QString meshName, btVector3 pos)
         return;
     }
 
+    if (!m_meshes->contains(meshName)) {
+        qDebug() << "No mesh called " << meshName;
+        return;
+    }
+
     /// Create Dynamic Objects
     btTransform startTransform;
     startTransform.setIdentity();
@@ -173,7 +204,6 @@ void Bullet::addDice(QString meshName, btVector3 pos)
     btScalar	mass(0.01f);
     //rigidbody is dynamic if and only if mass is non zero, otherwise static
     bool isDynamic = (mass != 0.f);
-    qDebug() << "add dice";
 
     btVector3 localInertia(0,0,0);
 
@@ -201,11 +231,10 @@ void Bullet::addDice(QString meshName, btVector3 pos)
 
     dynamicsWorld->addRigidBody(body);
     emit numWorldObjectsChanged(m_worldObjects.size());
-    qDebug() << "add dice";
 }
 
 
-void Bullet::setupModel()
+void Bullet::setupModel(QString state)
 {
     qDebug() << "Doing bullet setup";
     loadDice();
@@ -218,10 +247,16 @@ void Bullet::setupModel()
     this->addWall(btVector3( 1, 0, 0), -MAXX);
     this->addWall(btVector3(-1, 0, 0), -MAXX);
 
-    QList<QString> names = m_meshes->getNames();
-    for (int i=0; i++<6;)  {
-        this->addDice(names[rand()%names.length()], btVector3(0,1,5));
+    if (!state.isEmpty()) {
+        restore(state);
     }
+    if (numDice() == 0) { // either no state, invalid or empty state
+        QList<QString> names = m_meshes->getNames();
+        for (int i=0; i++<6;)  {
+            this->addDice(names[rand()%names.length()], btVector3(0,1,5));
+        }
+    }
+
 }
 
 void Bullet::runStep(int ms)
@@ -384,23 +419,23 @@ void Bullet::setGravity(qreal x, qreal y, qreal z) {
 ///
 void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward){
     m_touchRayActive = true;
-//    qDebug() <<"touched ("<< x <<","<< y <<")";
+    //    qDebug() <<"touched ("<< x <<","<< y <<")";
 
-//    qDebug() <<"projViewMatrix "<< projViewMatrix;
-//    qDebug() <<"lookingToward "<< lookingToward;
+    //    qDebug() <<"projViewMatrix "<< projViewMatrix;
+    //    qDebug() <<"lookingToward "<< lookingToward;
 
     QMatrix4x4 pvInverse = projViewMatrix.inverted();
-//    qDebug() <<"inverse " << pvInverse;
+    //    qDebug() <<"inverse " << pvInverse;
     // Create start/end in the world space based on the position on the near/far planes
     // http://www.khronos.org/opengles/sdk/docs/man/xhtml/glDepthRangef.xml
     // says: After clipping and division by w, depth coordinates range from -1 to 1,
     // corresponding to the near and far clipping planes.
     QVector4D start = pvInverse * QVector4D(x, y, -1.0, 1.0);
-//    qDebug() <<"start " << start;
+    //    qDebug() <<"start " << start;
     start /= start.w();
     //    qDebug() <<"start " << start;
     QVector4D end = pvInverse * QVector4D(x, y, 1.0, 1.0);
-//    qDebug() <<"end " << end;
+    //    qDebug() <<"end " << end;
     end /= end.w();
     //    qDebug() <<"end " << end;
     //    QVector3D end = start - (lookingToward * 20.0);
@@ -445,7 +480,7 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
             }
         }
         m_worldMutex.unlock();
-//        qDebug() << "Drawing touchRay " << m_touchRay[0] <<" to "<< m_touchRay[1];
+        //        qDebug() << "Drawing touchRay " << m_touchRay[0] <<" to "<< m_touchRay[1];
     }
 
 }

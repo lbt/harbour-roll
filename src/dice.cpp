@@ -6,6 +6,11 @@
 #include <QImage>
 #include <QVector3D>
 
+#include <QCoreApplication>
+#include <QStandardPaths>
+#include <QDir>
+#include <QVariant>
+
 #include <sailfishapp.h>
 
 #include "math.h"
@@ -42,6 +47,9 @@ Dice::Dice(QObject *parent) :
   , m_pickMode(true)
   , m_gravity(true)
   , m_mainLight(true)
+  , m_settings(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
+               .filePath(QCoreApplication::applicationName())+"/dice.ini",
+               QSettings::IniFormat)
 {
     Q_UNUSED(parent)
     m_sensor.start();
@@ -50,6 +58,17 @@ Dice::Dice(QObject *parent) :
     randomiseLights();
 
     connect(&bullet, SIGNAL(numWorldObjectsChanged(int)), this, SIGNAL(numDiceChanged(int)));
+}
+
+Dice::~Dice()
+{
+    saveSettings();
+}
+
+
+void Dice::saveSettings() {
+    qDebug() << "Saving settings";
+    m_settings.setValue("diceState", bullet.serialise());
 }
 
 void Dice::setX(qreal x)
@@ -230,11 +249,10 @@ void Dice::prep()
     //    m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("debug_frag.glsl"));
     qDebug() << "created programs";
 
-    bullet.setupModel();
+    QVariant state(m_settings.value("diceState"));
+    bullet.setupModel(state.toString());
     emit namesChanged();
     emit numDiceChanged(numDice());
-    qDebug() << "emit numDiceChanged " << numDice();
-    qDebug() << "names " << getNames();
     m_lightTime.start();
 
     // and then prepare any one-time data like VBOs

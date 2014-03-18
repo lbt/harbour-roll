@@ -48,7 +48,7 @@ public:
     explicit Bullet(QObject *parent = 0);
     ~Bullet();
 
-    virtual void setupModel();
+    virtual void setupModel(QString state="");
     void runStep(int ms);
     void report();
 
@@ -110,6 +110,8 @@ public:
     void	setDebugMode(int debugMode);
     int		getDebugMode() const;
     void render2(GLProgram *p, QMatrix4x4 projViewMatrix);
+    QString serialise();
+    void restore(QString state);
 private:
     GLProgram* m_program_debug;
     int m_debug_mode;
