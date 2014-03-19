@@ -202,14 +202,15 @@ void Dice::handlePressed(int x, int y) {
     m_XYdeltaTime = 0;
 
     // Decide who gets events. Note that changing mode whilst p_pressed should stop one and start another
-    if (m_zoomAndSpin)
+    if (m_zoomAndSpin) {
         m_cammanager.touch(p_x, p_y);
-
-    //    if (m_pickMode) { // Bullet knows nothing about the screen. It needs world info:
-    float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
-    float fy = (0.5f - (float)y/(float)m_cammanager.screenHeight()) * 2.0f; // [yyy,0] -> [-1,1] (screen is inverted compared to GL)
-    qDebug()<< "Camera at " << m_cammanager.at();
-    bullet.touch(fx, fy, m_cammanager.projViewMatrix(), m_cammanager.forward());
+    } else {
+        //    if (m_pickMode) { // Bullet knows nothing about the screen. It needs world info:
+        float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
+        float fy = (0.5f - (float)y/(float)m_cammanager.screenHeight()) * 2.0f; // [yyy,0] -> [-1,1] (screen is inverted compared to GL)
+        qDebug()<< "Camera at " << m_cammanager.at();
+        bullet.touch(fx, fy, m_cammanager.projViewMatrix(), m_cammanager.forward());
+    }
     //    }
 }
 void Dice::handleReleased(int x, int y) {

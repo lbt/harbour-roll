@@ -73,7 +73,8 @@ Page {id: aboutPage
                 text: "The 'Fly' mode lets you move around." +
                       " Touch in the bottom half of the screen to fly forward and back and turn side-to-side;" +
                       " touch in the top half and you can change which way you're looking. Turning off 'Fly'" +
-                      " will reset the dice position.<p>"
+                      " will reset the dice position. Dice destruction is disabled in fly mode to avoid " +
+                      " destroying the scenery.<p>"
             }          
             Text {
                 color: "white"; width: parent.width; wrapMode:Text.WrapAtWordBoundaryOrAnywhere
