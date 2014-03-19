@@ -7,7 +7,7 @@ Name:       harbour-dice
 
 # >> macros
 %define __provides_exclude_from ^%{_datadir}/.*$
-%define __requires_exclude ^libBulletDynamics.*|libBulletSoftBody.*|libBulletCollision.*|libLinearMath.*|libfontconfig.*$
+%define __requires_exclude ^libassimp.*$
 # << macros
 
 %{!?qtc_qmake:%define qtc_qmake %qmake}
@@ -15,7 +15,7 @@ Name:       harbour-dice
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Dice
-Version:    0.2
+Version:    0.3
 Release:    1
 Group:      Qt/Qt
 License:    LICENSE
@@ -58,7 +58,7 @@ rm -rf %{buildroot}
 
 # >> install post
 mkdir -p  %{buildroot}%{_datadir}/%{name}/lib
-cp -a /usr/lib/libBullet* /usr/lib/libLinearMath*  %{buildroot}%{_datadir}/%{name}/lib/
+# cp -a /usr/lib/libBullet* /usr/lib/libLinearMath*  %{buildroot}%{_datadir}/%{name}/lib/
 cp -a /usr/lib/libassimp* %{buildroot}%{_datadir}/%{name}/lib/
 # << install post
 
@@ -68,9 +68,6 @@ desktop-file-install --delete-original       \
 
 %files
 %defattr(-,root,root,-)
-/usr/share/applications
-/usr/share/harbour-dice
-/usr/bin
 %defattr(755,root,root,-)
 %{_bindir}
 %defattr(644,root,root,-)

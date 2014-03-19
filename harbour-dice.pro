@@ -45,7 +45,7 @@ glsl.files = \
     src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
-model.files = model/*
+model.files = model/*.png model/*.obj model/*.mtl
 model.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl model

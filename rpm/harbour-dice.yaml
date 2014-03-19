@@ -1,6 +1,6 @@
 Name: harbour-dice
 Summary: Dice
-Version: 0.2
+Version: 0.3
 Release: 1
 Group: Qt/Qt
 License: LICENSE
@@ -19,9 +19,6 @@ PkgConfigBR:
 Requires:
 - sailfishsilica-qt5
 Files:
-- /usr/share/applications
-- /usr/share/harbour-dice
-- /usr/bin
 - '%defattr(755,root,root,-)'
 - '%{_bindir}'
 - '%defattr(644,root,root,-)'
