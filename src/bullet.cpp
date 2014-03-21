@@ -465,7 +465,6 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
     btCollisionWorld::AllHitsRayResultCallback RayResults(bstart, bend);
     dynamicsWorld->rayTest(bstart, bend, RayResults );
 
-    m_worldMutex.unlock();
     if (RayResults.hasHit()) {
         qDebug() << "Hit ";
         // const BiMesh* bimesh = dynamic_cast<const BiMesh *>(RayResults.m_collisionObject); // This will fail when it hits a non-bimesh (like a wall!)
