@@ -29,3 +29,5 @@ Changed the 'Fly' mode to let you actually fly past the dice.
 There's a brief splash screen and the menu shows when it starts because some users missed that feature - let me know if it gets annoying.
 
 Also - don't forget to 'Like' the apps that you like best (and I hope 3D Dice is one of them) :)
+
+0.4 has a tiny change to fix a bug/crash for people using debug builds of Qt - Thanks for telling me Niels :)
