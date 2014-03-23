@@ -33,15 +33,15 @@
 
 #include <QTimer>
 #include <sailfishapp.h>
-#include "dice.h"
+#include "roll.h"
 
 int main(int argc, char *argv[])
 {
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     QScopedPointer<QQuickView> view(SailfishApp::createView());
 
-    qmlRegisterType<Dice>("harbour.dice.Dice", 1, 0, "Dice");
-    view->setSource(SailfishApp::pathTo("qml/harbour-dice.qml"));
+    qmlRegisterType<Roll>("harbour.roll.Roll", 1, 0, "Roll");
+    view->setSource(SailfishApp::pathTo("qml/harbour-roll.qml"));
     view->show();
 
     return app->exec();

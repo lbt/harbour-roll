@@ -1,0 +1,32 @@
+Name: harbour-roll
+Summary: Roll
+Version: 0.4
+Release: 1
+Group: Qt/Qt
+License: LICENSE
+Sources:
+- '%{name}-%{version}.tar.bz2'
+Description: |
+  Short description of my SailfishOS Application
+Configure: none
+Builder: qtc5
+PkgConfigBR:
+- bullet
+- sailfishapp
+- Qt5Quick
+- Qt5Qml
+- Qt5Core
+Requires:
+- sailfishsilica-qt5
+Files:
+- /usr/share/harbour-roll
+- /usr/share/icons/hicolor/86x86/apps
+- '%{_datadir}/%{name}'
+- '%{_datadir}/applications/%{name}.desktop'
+- '%defattr(644,root,root,-)'
+- '%{_bindir}'
+- '%defattr(755,root,root,-)'
+- /usr/bin
+- /usr/share/harbour-roll
+- /usr/share/applications
+PkgBR: []

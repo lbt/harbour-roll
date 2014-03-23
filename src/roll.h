@@ -1,5 +1,5 @@
-#ifndef DICE_H
-#define DICE_H
+#ifndef ROLL_H
+#define ROLL_H
 
 #include "glitem.h"
 #include "glprogram.h"
@@ -26,11 +26,11 @@ struct Accel {
 };
 
 
-class DiceRunner : public QObject
+class RollRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit DiceRunner(Bullet *b, QObject *parent = 0);
+    explicit RollRunner(Bullet *b, QObject *parent = 0);
 
 signals:
     void ready();
@@ -54,7 +54,7 @@ private:
     bool m_fly;
 };
 
-class Dice : public GLItem
+class Roll : public GLItem
 {
     Q_OBJECT
 
@@ -85,8 +85,8 @@ class Dice : public GLItem
     Q_PROPERTY(bool mainLight READ mainLight WRITE setMainLight NOTIFY mainLightChanged)
 
 public:
-    explicit Dice(QObject *parent = 0);
-    ~Dice();
+    explicit Roll(QObject *parent = 0);
+    ~Roll();
 
     qreal x() const { return p_x; }
     void setX(qreal x);
@@ -170,8 +170,8 @@ private:
     Bullet bullet;
     QElapsedTimer m_lightTime;
     QThread m_runnerThread;
-    DiceRunner* m_runner;
+    RollRunner* m_runner;
     bool m_mainLight;
 };
 
-#endif // DICE_H
+#endif // ROLL_H

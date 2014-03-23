@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import ".."
-import harbour.dice.Dice 1.0
+import harbour.roll.Roll 1.0
 
 Page {                                          id: page
     property bool runWhenMinimised: coverS.checked
@@ -11,16 +11,16 @@ Page {                                          id: page
         width: parent.width
         height: page.height - menu.height
         anchors.bottomMargin: panel.margin
-        Dice {                                 id: dice
+        Roll {                                 id: roll
             anchors.fill: parent
             running : applicationActive || runWhenMinimised
             MouseArea {                         id: bgMA
                 anchors.fill: parent
                 preventStealing: true
                 Connections {
-                    onPositionChanged: dice.handlePositionChanged(mouse.x,mouse.y)
-                    onPressed: dice.handlePressed(mouse.x,mouse.y)
-                    onReleased: dice.handleReleased(mouse.x,mouse.y)
+                    onPositionChanged: roll.handlePositionChanged(mouse.x,mouse.y)
+                    onPressed: roll.handlePressed(mouse.x,mouse.y)
+                    onReleased: roll.handleReleased(mouse.x,mouse.y)
                 }
             }
         }
@@ -28,7 +28,7 @@ Page {                                          id: page
 
     Text { id: shake
         color: "white";
-        text: "Shake the Dice!"
+        text: "Shake the Roll!"
         font.pixelSize: Theme.fontSizeHuge
         anchors.centerIn: parent
     }
@@ -38,7 +38,7 @@ Page {                                          id: page
         PageHeader {                            id: hdr
             width: parent.width
             anchors.top: parent.top
-            title:"Dice"
+            title:"Roll"
             MouseArea { anchors.fill: parent
                 onClicked: { panel.open = !panel.open }
             }
@@ -55,7 +55,7 @@ Page {                                          id: page
         dock: page.isPortrait ? Dock.Top : Dock.Left
         open: true // Will close automatically
         visible: applicationActive
-        PageHeader {title: "Dice"
+        PageHeader {title: "Roll"
             anchors.top:panelFlick.bottom
             anchors.topMargin: 0
             width:panelFlick.width; visible: page.isPortrait
@@ -105,9 +105,9 @@ Page {                                          id: page
                     anchors.left: parent.left
                     anchors.right: parent.right
                     Repeater {
-                        model: dice.names
+                        model: roll.names
                         Button { text: "Add a " + modelData
-                            onClicked: dice.addDice(modelData)
+                            onClicked: roll.addRoll(modelData)
                             anchors.margins: Theme.paddingMedium
                         }
                     }
@@ -116,30 +116,30 @@ Page {                                          id: page
                     TextSwitch {                    id: fancy
                         text: "Fancy Lights"
                         width: parent.width/2
-                        onClicked: dice.fancyLights(checked);
+                        onClicked: roll.fancyLights(checked);
                     }
                     Button {text: "Change colours"
-                        onClicked: dice.randomiseLights();
+                        onClicked: roll.randomiseLights();
                         width: parent.width/2
                     }
                 }
                 TextSwitch {                    id: main
                     text: "Main Light"
                     width: parent.width
-                    checked: dice.mainLight
-                    onClicked: dice.setMainLight(checked)
+                    checked: roll.mainLight
+                    onClicked: roll.setMainLight(checked)
                 }
                 Row { width: parent.width; height: childrenRect.height
                     TextSwitch {                    id: spin
                         text: "Fly mode"
                         width: parent.width/2
-                        onClicked: dice.zoomAndSpin(checked);
+                        onClicked: roll.zoomAndSpin(checked);
                     }
                     TextSwitch {                    id: gravity
                         text: "Gravity"
                         width: parent.width/2
                         checked: true
-                        onClicked: dice.gravity(checked);
+                        onClicked: roll.gravity(checked);
                     }
                 }
                 TextSwitch {                    id: coverS
@@ -151,7 +151,7 @@ Page {                                          id: page
                     text: "Debug Draw"
                     width: parent.width
                     checked: false
-                    onClicked: dice.setDebugDraw(checked);
+                    onClicked: roll.setDebugDraw(checked);
                 }
             }
         }

@@ -5,7 +5,7 @@ import "pages"
 ApplicationWindow
 {
     _backgroundVisible : false
-    initialPage: Component { DicePage { } }
+    initialPage: Component { RollPage { } }
     cover: undefined
     onApplicationActiveChanged: {
         // This exits the About page if it is open when the app is minimised

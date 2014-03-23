@@ -1,4 +1,4 @@
-#include "dice.h"
+#include "roll.h"
 #include <QtQuick/qquickwindow.h>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QOpenGLShader>
@@ -36,7 +36,7 @@
 
 namespace { float rnd(float max) { return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max); } }
 
-Dice::Dice(QObject *parent) :
+Roll::Roll(QObject *parent) :
     GLItem()
   , m_frame(0)
   , p_x(0)
@@ -48,7 +48,7 @@ Dice::Dice(QObject *parent) :
   , m_gravity(true)
   , m_mainLight(true)
   , m_settings(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
-               .filePath(QCoreApplication::applicationName())+"/dice.ini",
+               .filePath(QCoreApplication::applicationName())+"/roll.ini",
                QSettings::IniFormat)
 {
     Q_UNUSED(parent)
@@ -60,50 +60,50 @@ Dice::Dice(QObject *parent) :
     connect(&bullet, SIGNAL(numWorldObjectsChanged(int)), this, SIGNAL(numDiceChanged(int)));
 }
 
-Dice::~Dice()
+Roll::~Roll()
 {
     saveSettings();
 }
 
 
-void Dice::saveSettings() {
+void Roll::saveSettings() {
     qDebug() << "Saving settings";
-    m_settings.setValue("diceState", bullet.serialise());
+    m_settings.setValue("rollState", bullet.serialise());
 }
 
-void Dice::setX(qreal x)
+void Roll::setX(qreal x)
 {
     if (x == p_x)
         return;
     p_x = x;
     emit xChanged(x);
 }
-void Dice::setY(qreal y)
+void Roll::setY(qreal y)
 {
     if (y == p_y)
         return;
     p_y = y;
     emit yChanged(y);
 }
-void Dice::setZ(qreal z)
+void Roll::setZ(qreal z)
 {
     if (z == p_z)
         return;
     p_z = z;
     emit zChanged(z);
 }
-void Dice::setXYZ(QVector3D v) {
+void Roll::setXYZ(QVector3D v) {
     setX(v.x());
     setY(v.y());
     setZ(v.z());
 }
 
-void Dice::useXYZ(QString use) {
+void Roll::useXYZ(QString use) {
     m_use = use;
 }
 
 
-void Dice::zoomAndSpin(bool state)
+void Roll::zoomAndSpin(bool state)
 {
     m_zoomAndSpin = state;
     // Change of state should also handle press/release
@@ -113,7 +113,7 @@ void Dice::zoomAndSpin(bool state)
     QMetaObject::invokeMethod(m_runner, "fly", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
-void Dice::pickMode(bool state)
+void Roll::pickMode(bool state)
 {
     m_pickMode = state;
     // Change of state should also handle press/release
@@ -121,12 +121,12 @@ void Dice::pickMode(bool state)
         bullet.release();
 }
 
-void Dice::fancyLights(bool state)
+void Roll::fancyLights(bool state)
 {
     m_fancyLights = state;
 }
 
-void Dice::setMainLight(bool arg)
+void Roll::setMainLight(bool arg)
 {
     if (m_mainLight != arg) {
         m_mainLight = arg;
@@ -145,7 +145,7 @@ void Dice::setMainLight(bool arg)
     }
 }
 
-void Dice::randomiseLights()
+void Roll::randomiseLights()
 {
     for (int i=0; i<2; i++) { m_dLights[i].randomise(); }
     for (int i=0; i<3; i++) { m_pLights[i].randomise(); }
@@ -160,27 +160,27 @@ void Dice::randomiseLights()
     }
 }
 
-void Dice::gravity(bool state)
+void Roll::gravity(bool state)
 {
     m_gravity = state;
     QMetaObject::invokeMethod(m_runner, "gravity", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
-void Dice::setDebugDraw(bool state)
+void Roll::setDebugDraw(bool state)
 {
     QMetaObject::invokeMethod(m_runner, "setDebugDraw", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
-void Dice::addDice(QString dice)
+void Roll::addDice(QString dice)
 {
     bullet.addDice(dice);
 }
 
 
-void Dice::handleUse() {
+void Roll::handleUse() {
 }
 
-void Dice::handlePositionChanged(int x, int y)
+void Roll::handlePositionChanged(int x, int y)
 {
     m_lastx = x;
     m_lasty = y;
@@ -195,7 +195,7 @@ void Dice::handlePositionChanged(int x, int y)
     }
 }
 
-void Dice::handlePressed(int x, int y) {
+void Roll::handlePressed(int x, int y) {
     p_pressed = true;
     m_lastTime.start(); // set touch velocity timer on when touched
     p_x = x;
@@ -214,7 +214,7 @@ void Dice::handlePressed(int x, int y) {
     }
     //    }
 }
-void Dice::handleReleased(int x, int y) {
+void Roll::handleReleased(int x, int y) {
     Q_UNUSED(x)
     Q_UNUSED(y)
     p_pressed = false;
@@ -228,30 +228,30 @@ void Dice::handleReleased(int x, int y) {
 
 }
 
-void Dice::setRunning(bool running)
+void Roll::setRunning(bool running)
 {
     m_running = running;
     QMetaObject::invokeMethod(m_runner, "setRunning", Qt::QueuedConnection, Q_ARG(bool, running));
 }
 
 extern QQuickWindow* global_hack_window;
-void Dice::prep()
+void Roll::prep()
 {
     global_hack_window = window(); // This is until we get 5.2 and QOpenGLTextures
-    qDebug() << "dice Prep";
+    qDebug() << "roll Prep";
     // Setup a worker Thread to do the bullet calcs
-    m_runner = new DiceRunner(&bullet);
+    m_runner = new RollRunner(&bullet);
     m_runner->moveToThread(&m_runnerThread);
     connect(&m_runnerThread, &QThread::finished, m_runner, &QObject::deleteLater);
-    connect(&m_runnerThread, &QThread::started, m_runner, &DiceRunner::setup);
+    connect(&m_runnerThread, &QThread::started, m_runner, &RollRunner::setup);
     connect(m_runner, SIGNAL(ready()), this->window(), SLOT(update()) );
     m_runnerThread.start();
 
-    m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("dice_frag.glsl.out"));
-    //    m_program_dice = new GLProgram(SailfishApp::pathTo("dice_vert.glsl.out"), SailfishApp::pathTo("debug_frag.glsl"));
+    m_program_dice = new GLProgram(SailfishApp::pathTo("roll_vert.glsl.out"), SailfishApp::pathTo("roll_frag.glsl.out"));
+    //    m_program_dice = new GLProgram(SailfishApp::pathTo("roll_vert.glsl.out"), SailfishApp::pathTo("debug_frag.glsl"));
     qDebug() << "created programs";
 
-    QVariant state(m_settings.value("diceState"));
+    QVariant state(m_settings.value("rollState"));
     bullet.setupModel(state.toString());
     emit namesChanged();
     emit numDiceChanged(numDice());
@@ -282,7 +282,7 @@ void Dice::prep()
 
 // This is the world render routine.
 
-void Dice::render()
+void Roll::render()
 {
     QElapsedTimer t;
     t.start();
@@ -363,18 +363,18 @@ void Dice::render()
 
 }
 
-const QStringList Dice::getNames() const {
+const QStringList Roll::getNames() const {
     QStringList l = bullet.getNames();
     l.sort();
     return l;
 }
 
-void Dice::sync()
+void Roll::sync()
 {
     ++m_frame;
 }
 
-DiceRunner::DiceRunner(Bullet *b, QObject *parent):
+RollRunner::RollRunner(Bullet *b, QObject *parent):
     m_running(false)
   , m_gravity(true)
   , m_fly(false)
@@ -382,7 +382,7 @@ DiceRunner::DiceRunner(Bullet *b, QObject *parent):
     m_workerBullet = b;
 }
 
-void DiceRunner::setup() {
+void RollRunner::setup() {
     m_bulletTime.start();
     m_sensor.start();
     m_timer = new QTimer(this);
@@ -391,7 +391,7 @@ void DiceRunner::setup() {
     m_timer->start();
 }
 
-void DiceRunner::setRunning(bool running){
+void RollRunner::setRunning(bool running){
     if (m_running == running) return;
 
     m_running = running;
@@ -402,12 +402,12 @@ void DiceRunner::setRunning(bool running){
     }
 }
 
-void DiceRunner::gravity(bool state)
+void RollRunner::gravity(bool state)
 {
     m_gravity = state;
 }
 
-void DiceRunner::setDebugDraw(bool state)
+void RollRunner::setDebugDraw(bool state)
 {
     if (state)
         m_workerBullet->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
@@ -415,7 +415,7 @@ void DiceRunner::setDebugDraw(bool state)
         m_workerBullet->setDebugMode(0);
 }
 
-void DiceRunner::runStep() {
+void RollRunner::runStep() {
     if (m_gravity) {
         if (!m_fly) {
             QAccelerometerReading *reading = m_sensor.reading();

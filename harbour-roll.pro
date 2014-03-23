@@ -6,7 +6,7 @@
 #         - desktop icon filename must be changed
 #         - desktop filename must be changed
 #         - icon definition filename in desktop file must be changed
-TARGET = harbour-dice
+TARGET = harbour-roll
 
 QT += sensors
 
@@ -23,12 +23,12 @@ include(src/bullet/bullet.pri)
 
 # INCLUDEPATH += bullet/
 
-SOURCES += src/harbour-dice.cpp \
+SOURCES += src/harbour-roll.cpp \
     src/glitem.cpp \
     src/glprogram.cpp \
     src/cameramanager.cpp \
     src/bullet.cpp \
-    src/dice.cpp \
+    src/roll.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
     src/bimesh.cpp \
@@ -40,7 +40,7 @@ DEPLOYMENT_PATH = /usr/share/$$TARGET
 QMAKE_RPATHDIR += /opt/sdk/$$TARGET/$$DEPLOYMENT_PATH/lib/:$$DEPLOYMENT_PATH/lib/
 
 glsl.files = \
-    src/dice_vert.glsl.out src/dice_frag.glsl.out \
+    src/roll_vert.glsl.out src/roll_frag.glsl.out \
     src/debug_vert.glsl src/debug_frag.glsl \
     src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
@@ -50,26 +50,27 @@ model.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl model
 
-OTHER_FILES += qml/harbour-dice.qml \
+OTHER_FILES += \
     qml/cover/CoverPage.qml \
-    qml/pages/DicePage.qml \
-    rpm/harbour-dice.spec \
-    rpm/harbour-dice.yaml \
-    harbour-dice.desktop \
-    src/dice_frag.glsl \
-    src/dice_vert.glsl \
+    rpm/harbour-roll.spec \
+    rpm/harbour-roll.yaml \
+    harbour-roll.desktop \
+    src/roll_frag.glsl \
+    src/roll_vert.glsl \
     qml/pages/About.qml \
     src/debug_frag.glsl \
     src/debug_vert.glsl \
     src/light_frag.glsl \
-    src/light_vert.glsl
+    src/light_vert.glsl \
+    qml/pages/RollPage.qml \
+    qml/harbour-roll.qml
 
 HEADERS += \
     src/glitem.h \
     src/glprogram.h \
     src/cameramanager.h \
     src/bullet.h \
-    src/dice.h \
+    src/roll.h \
     src/lightmanager.h \
     src/light.h \
     src/bimesh.h \
