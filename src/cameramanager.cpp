@@ -11,6 +11,7 @@ CameraManager::CameraManager(QObject *parent) :
     QObject(parent)
 {
     reset();
+    m_sensor.start();
 }
 
 void CameraManager::touch(qreal x, qreal y) {
@@ -23,11 +24,8 @@ void CameraManager::touch(qreal x, qreal y) {
     if (m_touchY < HEIGHT/2) { // rotation top half
 
         QMatrix4x4 r;
-        QVector3D prev_up = up();
-        QVector3D prev_right = right();
-        QVector3D prev_fwd = forward();
-        r.rotate((m_touchX - x)/WIDTH * 2, prev_up); // rotate around up
-        r.rotate((y - m_touchY)/HEIGHT * 2, prev_right); // rotate around right
+        r.rotate((m_touchX - x)/WIDTH * 2, up()); // rotate around up
+        r.rotate((y - m_touchY)/HEIGHT * 2, right()); // rotate around right
 
         QVector4D p = position(); // store position
         m_camera = r * m_camera; // rotate
@@ -47,6 +45,22 @@ void CameraManager::touch(qreal x, qreal y) {
 
 }
 
+void CameraManager::updatePosition() {
+    QAccelerometerReading *reading = m_sensor.reading();
+    if (reading) {
+//        QMatrix4x4 t;
+//        t.translate(forward()*(reading->y()/10.0)); // movement
+//        m_camera = t * m_camera; // move
+
+        QMatrix4x4 r;
+        r.rotate(reading->x()/5.0,  forward()) ; // rotation vector
+        r.rotate(reading->y()/5.0,  right()) ; // rotation vector
+        QVector4D p = position(); // store position
+        m_camera = r* m_camera; // rotate
+        setPosition(p); // restore position
+    }
+}
+
 void CameraManager::release() {
     m_pressed = false;
     m_touchX = 0;
@@ -61,9 +75,9 @@ QMatrix4x4 CameraManager::projViewMatrix() {
     projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
 
     return projMatrix * m_camera.inverted(); // The view matrix is the inverse of the camera position.
-//    QMatrix4x4 viewMatrix;
-//    viewMatrix.lookAt(at(), at() - forward(),  up());
-//    return projMatrix * viewMatrix;
+    //    QMatrix4x4 viewMatrix;
+    //    viewMatrix.lookAt(at(), at() - forward(),  up());
+    //    return projMatrix * viewMatrix;
 }
 
 // Extract up, right, forward and position vectors
@@ -92,10 +106,10 @@ void CameraManager::reset()
 {
     m_camera=QMatrix4x4();
     // Normally any messing with the orientation axis would require all 3 to be kept in sync.
-//    m_camera.setColumn(0, QVector4D(1,  0,  0,  0));
-//    m_camera.setColumn(1, QVector4D(0,  1,  0,  0));
-//    m_camera.setColumn(2, QVector4D(0,  0,  1,  0));
-//    m_camera.setColumn(3, QVector4D(0,  0,  10, 1));
+    //    m_camera.setColumn(0, QVector4D(1,  0,  0,  0));
+    //    m_camera.setColumn(1, QVector4D(0,  1,  0,  0));
+    //    m_camera.setColumn(2, QVector4D(0,  0,  1,  0));
+    //    m_camera.setColumn(3, QVector4D(0,  0,  10, 1));
     m_camera.translate(QVector3D(0,  0,  10));
     qDebug() << "camera set to " << m_camera;
     m_touchY=0;

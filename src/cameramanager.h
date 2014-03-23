@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMatrix4x4>
+#include <QtSensors/QAccelerometer>
 
 class CameraManager : public QObject
 {
@@ -21,6 +22,7 @@ public:
     int screenWidth() { return 540; }
     int screenHeight() { return 960; }
 
+    void updatePosition();
 signals:
 
 public slots:
@@ -30,6 +32,7 @@ public slots:
 private:
     QVector4D position();
     void setPosition(QVector4D position);
+    QAccelerometer m_sensor;
 
     bool m_pressed;
     qreal m_touchX;

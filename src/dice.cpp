@@ -110,6 +110,7 @@ void Dice::zoomAndSpin(bool state)
     if (!state)
         m_cammanager.reset();
     pickMode(! state);
+    QMetaObject::invokeMethod(m_runner, "fly", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
 void Dice::pickMode(bool state)
@@ -287,8 +288,11 @@ void Dice::render()
     t.start();
 
     handleUse(); // QML input from properties
-    if (m_zoomAndSpin && p_pressed) {
-        m_cammanager.touch(p_x, p_y);
+    if (m_zoomAndSpin) {
+        if (p_pressed) {
+            m_cammanager.touch(p_x, p_y);
+        }
+        m_cammanager.updatePosition();
     }
 
     int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time. Also FIXME and update in the DiceRunner thread
@@ -373,6 +377,7 @@ void Dice::sync()
 DiceRunner::DiceRunner(Bullet *b, QObject *parent):
     m_running(false)
   , m_gravity(true)
+  , m_fly(false)
 {
     m_workerBullet = b;
 }
@@ -412,8 +417,10 @@ void DiceRunner::setDebugDraw(bool state)
 
 void DiceRunner::runStep() {
     if (m_gravity) {
-        QAccelerometerReading *reading = m_sensor.reading();
-        m_workerBullet->setGravity(reading->x(), reading->y(), reading->z());
+        if (!m_fly) {
+            QAccelerometerReading *reading = m_sensor.reading();
+            m_workerBullet->setGravity(reading->x(), reading->y(), reading->z());
+        }
     } else {
         m_workerBullet->setGravity(0, 0, 0);
     }

@@ -41,6 +41,7 @@ public slots:
     void setup();
     void setRunning(bool state);
     void gravity(bool state);
+    void fly(bool state) { m_fly = state; }
     void setDebugDraw(bool state);
 
 private:
@@ -50,6 +51,7 @@ private:
     QAccelerometer m_sensor;
     bool m_running;
     bool m_gravity;
+    bool m_fly;
 };
 
 class Dice : public GLItem
