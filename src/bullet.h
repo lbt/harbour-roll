@@ -71,7 +71,7 @@ public slots:
 
     void addRoll(QString meshName, btVector3 pos = btVector3(0,1,5), btScalar mass = btScalar(0.1));
     void removeObject(WorldObject *wobj);
-    QVector3D getFollowPoint();
+    QMatrix4x4 getFollowInfo();
 
 protected:
     btAlignedObjectArray<btCollisionShape*> collisionShapes;

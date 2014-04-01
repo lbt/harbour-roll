@@ -1,5 +1,5 @@
 # Blender MTL File: 'curve1.blend'
-# Material Count: 4
+# Material Count: 5
 
 newmtl None
 Ns 0
@@ -19,7 +19,17 @@ d 1.000000
 illum 2
 map_Kd marble-tex.png
 
-newmtl gutterMaterial
+newmtl gutterBotMaterial
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd marble-tex.png
+
+newmtl gutterBotMaterial_Untitled
 Ns 96.078431
 Ka 0.000000 0.000000 0.000000
 Kd 0.640000 0.640000 0.640000
@@ -29,7 +39,7 @@ d 1.000000
 illum 2
 map_Kd ground-tex.png
 
-newmtl gutterMaterial.001
+newmtl gutterMaterial
 Ns 96.078431
 Ka 0.000000 0.000000 0.000000
 Kd 0.640000 0.640000 0.640000

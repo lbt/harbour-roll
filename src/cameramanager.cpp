@@ -45,11 +45,27 @@ void CameraManager::touch(qreal x, qreal y) {
 
 }
 
-void CameraManager::follow(QVector3D p)
+void CameraManager::follow(QMatrix4x4 r)
 {
+    QVector3D p = r.column(0).toVector3D();
+// This follows the ball from 'behind' using the velocity to determine behind.
+// But that's not as good as it could be when it's rolling up and down slopes.
+//    QVector3D v = r.column(1).toVector3D() * -0.5;
+//    v.setZ(18);
+//    qDebug() << "v " << v;
+    QVector3D v = QVector3D(0.2,0.2,15);
+
+    // Original
     m_camera=QMatrix4x4();
-    m_camera.translate(p + QVector3D(0,  0,  5));
-//    qDebug() << "At " << at() <<" Looking towards " << forward();
+    m_camera.translate(p + v);
+
+//    qDebug() << "At " << at() <<" Looking towards " << forward() << " using " << m_camera;
+
+    m_camera=QMatrix4x4();
+    m_camera.lookAt(p + v, p, QVector3D(0, 0, -1));
+    m_camera = m_camera.inverted();
+
+//    qDebug() << "At " << at() <<" Looking towards " << forward() << " using " << m_camera;
 }
 
 void CameraManager::updatePosition() {

@@ -28,8 +28,11 @@ Page {                                          id: page
 
     Text { id: shake
         color: "white";
-        text: "Shake the Roll!"
+        text: "\n\nRoll, roll, roll your boat...!"
+        wrapMode:Text.WrapAtWordBoundaryOrAnywhere
         font.pixelSize: Theme.fontSizeHuge
+        horizontalAlignment: Text.AlignHCenter
+        width: parent.width
         anchors.centerIn: parent
     }
     Item {                                  id: menu

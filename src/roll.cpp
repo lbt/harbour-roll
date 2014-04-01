@@ -297,7 +297,7 @@ void Roll::render()
 
     bool m_follow=true;
     if (m_follow) {
-        m_cammanager.follow(bullet.getFollowPoint());
+        m_cammanager.follow(bullet.getFollowInfo());
     }
 
     int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time. Also FIXME and update in the DiceRunner thread

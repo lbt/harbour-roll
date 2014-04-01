@@ -242,8 +242,9 @@ void Bullet::setupModel(QString state)
     loadDice();
 
     ///create a few basic rigid bodies
-    this->addWall(btVector3( 0, 0, 1),-5);
+    this->addWall(btVector3( 0, 0, 1),-6);
     this->addRoll("gutter", btVector3( 0, 0, 0), 0.0);
+    this->addRoll("gutterBot", btVector3( 0, 0, -0.01), 0.0);
     this->addWall(btVector3( 0, 0,-1), -5); // offset -9 from the normal - so location is z=10
     this->addWall(btVector3( 0, 1, 0), -20);
     this->addWall(btVector3( 0,-1, 0), -10);
@@ -262,13 +263,16 @@ void Bullet::setupModel(QString state)
 
 }
 
-QVector3D Bullet::getFollowPoint()
+// column 0 is pos, column 1 is velocity
+QMatrix4x4 Bullet::getFollowInfo()
 {
     btTransform trans;
     m_followObject->getRigidBody()->getMotionState()->getWorldTransform(trans);
-    QVector3D v= bt2QtVector3D(trans.getOrigin());
+    QMatrix4x4 res;
+    res.setColumn(0, bt2QtVector3D(trans.getOrigin()).toVector4D());
+    res.setColumn(1, bt2QtVector3D(m_followObject->getRigidBody()->getLinearVelocity()).toVector4D());
 //    qDebug() <<"following " << v;
-    return v;
+    return res;
 }
 
 void Bullet::runStep(int ms)
