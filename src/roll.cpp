@@ -107,8 +107,8 @@ void Roll::zoomAndSpin(bool state)
 {
     m_zoomAndSpin = state;
     // Change of state should also handle press/release
-    if (!state)
-        m_cammanager.reset();
+//    if (!state)
+//        m_cammanager.reset();
     pickMode(! state);
     QMetaObject::invokeMethod(m_runner, "fly", Qt::QueuedConnection, Q_ARG(bool, state));
 }
@@ -171,9 +171,9 @@ void Roll::setDebugDraw(bool state)
     QMetaObject::invokeMethod(m_runner, "setDebugDraw", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
-void Roll::addDice(QString dice)
+void Roll::addRoll(QString dice)
 {
-    bullet.addDice(dice);
+    bullet.addRoll(dice);
 }
 
 
@@ -293,6 +293,11 @@ void Roll::render()
             m_cammanager.touch(p_x, p_y);
         }
         m_cammanager.updatePosition();
+    }
+
+    bool m_follow=true;
+    if (m_follow) {
+        m_cammanager.follow(bullet.getFollowPoint());
     }
 
     int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time. Also FIXME and update in the DiceRunner thread
@@ -424,6 +429,7 @@ void RollRunner::runStep() {
     } else {
         m_workerBullet->setGravity(0, 0, 0);
     }
+
     //    qDebug() << "tick";
     int timeDelta_ms = m_bulletTime.restart();
     m_workerBullet->runStep(timeDelta_ms );

@@ -28,6 +28,7 @@ signals:
 public slots:
     void release(); // no longer in use
     void touch(qreal x, qreal y); // current position
+    void follow(QVector3D p);
 
 private:
     QVector4D position();

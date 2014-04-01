@@ -138,7 +138,7 @@ void Bullet::restore(QString state) {
     }
     for (auto die : state.split(",")) {
 //        qDebug() << "Adding " << die;
-        addDice(die);
+        addRoll(die);
     }
     m_worldMutex.unlock();
 }
@@ -179,11 +179,11 @@ const QList<QString> Bullet::getNames() const {
 void Bullet::loadDice()
 {
     m_meshes = new BiMeshContainer();
-    m_meshes->load(SailfishApp::pathTo("dice.obj").toLocalFile());
+    m_meshes->load(SailfishApp::pathTo("curve1.obj").toLocalFile());
 
 }
 
-void Bullet::addDice(QString meshName, btVector3 pos)
+void Bullet::addRoll(QString meshName, btVector3 pos, btScalar mass)
 {
     if (m_worldObjects.size() >= 20) {
         qDebug() << "Too many dice";
@@ -197,11 +197,13 @@ void Bullet::addDice(QString meshName, btVector3 pos)
     }
 
     /// Create Dynamic Objects
-    btTransform startTransform;
-    startTransform.setIdentity();
-    startTransform.setOrigin(pos);
+    btMatrix3x3 rot;
+    rot.setEulerZYX(90,0,0);
+    btTransform startTransform(rot,pos);
+//    startTransform.setIdentity();
+//    startTransform.rotate();
+//    startTransform.setOrigin(pos);
 
-    btScalar	mass(0.01f);
     //rigidbody is dynamic if and only if mass is non zero, otherwise static
     bool isDynamic = (mass != 0.f);
 
@@ -240,23 +242,33 @@ void Bullet::setupModel(QString state)
     loadDice();
 
     ///create a few basic rigid bodies
-    this->addWall(btVector3( 0, 0, 1), 0);
-    this->addWall(btVector3( 0, 0,-1), -9); // offset -9 from the normal - so location is z=10
-    this->addWall(btVector3( 0, 1, 0), -MAXY);
-    this->addWall(btVector3( 0,-1, 0), -MAXY);
-    this->addWall(btVector3( 1, 0, 0), -MAXX);
-    this->addWall(btVector3(-1, 0, 0), -MAXX);
+    this->addWall(btVector3( 0, 0, 1),-5);
+    this->addRoll("gutter", btVector3( 0, 0, 0), 0.0);
+    this->addWall(btVector3( 0, 0,-1), -5); // offset -9 from the normal - so location is z=10
+    this->addWall(btVector3( 0, 1, 0), -20);
+    this->addWall(btVector3( 0,-1, 0), -10);
+    this->addWall(btVector3( 1, 0, 0), -10);
+    this->addWall(btVector3(-1, 0, 0), -10);
 
-    if (!state.isEmpty()) {
-        restore(state);
-    }
-    if (numDice() == 0) { // either no state, invalid or empty state
-        QList<QString> names = m_meshes->getNames();
-        for (int i=0; i++<6;)  {
-            this->addDice(names[rand()%names.length()], btVector3(0,1,5));
-        }
-    }
+    this->addRoll("Sphere", btVector3(2.0,-6.4,-4), 0.1);
+    m_followObject = m_worldObjects.last();
 
+//    if (numDice() == 0) { // either no state, invalid or empty state
+//        QList<QString> names = m_meshes->getNames();
+//        for (int i=0; i++<6;)  {
+//            this->addRoll(names[rand()%names.length()], btVector3(0,1,5), 0.1);
+//        }
+//    }
+
+}
+
+QVector3D Bullet::getFollowPoint()
+{
+    btTransform trans;
+    m_followObject->getRigidBody()->getMotionState()->getWorldTransform(trans);
+    QVector3D v= bt2QtVector3D(trans.getOrigin());
+//    qDebug() <<"following " << v;
+    return v;
 }
 
 void Bullet::runStep(int ms)
@@ -406,7 +418,8 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 }
 
 void Bullet::setGravity(qreal x, qreal y, qreal z) {
-    dynamicsWorld->setGravity(btVector3(-x*20, -y*20, -z*20));
+//    dynamicsWorld->setGravity(btVector3(-x*20, -y*20, -z*20));
+    dynamicsWorld->setGravity(btVector3(-x*2, -y*2, -z*2));
     //    dynamicsWorld->setGravity(btVector3(0, 0, z/10.0));
 }
 

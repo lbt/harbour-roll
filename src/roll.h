@@ -128,7 +128,7 @@ public slots:
     void fancyLights(bool state);
     void gravity(bool state);
     void setDebugDraw(bool state);
-    void addDice(QString dice);
+    void addRoll(QString dice);
     void setMainLight(bool arg);
 
     void saveSettings();

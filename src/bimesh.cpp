@@ -160,6 +160,7 @@ BiMesh* BiMeshContainer::nodeToMesh(const aiScene *scene, aiNode *node)
     // Objective is to create a single VAO - look at the Vertex object (not in docs - see code/Vertex.h)
 
     // FIXME - only copes with the first mesh
+    QString name = node->mName.C_Str();
     aiMesh* m = scene->mMeshes[node->mMeshes[0]];
     qDebug() << "Processing mesh of " << m->mNumVertices << " vertices and " << m->mNumFaces << " faces to : " << node->mName.C_Str();
     btTriangleMesh* btMesh = new btTriangleMesh(true,false);
@@ -169,6 +170,7 @@ BiMesh* BiMeshContainer::nodeToMesh(const aiScene *scene, aiNode *node)
         unsigned int* ind = f->mIndices;
         if (f->mNumIndices != 3)
             qDebug() << "Error - non triangular face";
+        // Note that y/z are transposed. I think this matches a blender view
         btVector3 v1 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
         ind++;
         btVector3 v2 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
@@ -181,30 +183,41 @@ BiMesh* BiMeshContainer::nodeToMesh(const aiScene *scene, aiNode *node)
     // or a btConvexHull
     // For now we'll make a btGimpactMesh
 
-//#define USE_IMPACT_MESH
+    BiMesh* genericBiMesh;
+    if (name.startsWith("gutter")) {
+        qDebug() <<"btBvhTriangleMeshShape";
+        BibtBvhTriangleMeshShape* bimesh = new BibtBvhTriangleMeshShape(btMesh, true, scene, node);
+        genericBiMesh = bimesh;
+    } else if (name.startsWith("Sphere")) {
+        qDebug() <<"btSphereShape";
+        BibtSphereShape* bimesh = new BibtSphereShape(0.4, scene, node);
+        genericBiMesh = bimesh;
+    } else {
+        //#define USE_IMPACT_MESH
 #ifdef USE_IMPACT_MESH
-    qDebug() <<"ImpactMesh";
-    BibtGImpactMeshShape* bimesh = new BibtGImpactMeshShape(btMesh, scene, node);
-    bimesh->setMargin(0.04f);
-    bimesh->updateBound();
+        qDebug() <<"ImpactMesh";
+        BibtGImpactMeshShape* bimesh = new BibtGImpactMeshShape(btMesh, scene, node);
+        bimesh->setMargin(0.04f);
+        bimesh->updateBound();
 #else
-    qDebug() <<"ConvexHull";
-    BibtConvexHullShape* bimesh = new BibtConvexHullShape(scene, node, NULL);
-    QHash<aiVector3D, bool> seen;
-    for(unsigned int n=0; n < m->mNumVertices; n++) {
-        if (seen.contains(m->mVertices[n])) { continue; }
-        seen[m->mVertices[n]] = true;
-        aiVector3D &v = m->mVertices[n];
-        bimesh->addPoint(btVector3(v.x*0.92,v.y*0.92,v.z*0.92),false);
-    }
-    bimesh->recalcLocalAabb();
-    bimesh->setMargin(0.04f);
+        qDebug() <<"ConvexHull";
+        BibtConvexHullShape* bimesh = new BibtConvexHullShape(scene, node, NULL);
+        QHash<aiVector3D, bool> seen;
+        for(unsigned int n=0; n < m->mNumVertices; n++) {
+            if (seen.contains(m->mVertices[n])) { continue; }
+            seen[m->mVertices[n]] = true;
+            aiVector3D &v = m->mVertices[n];
+            bimesh->addPoint(btVector3(v.x*0.92,v.y*0.92,v.z*0.92),false);
+        }
+        bimesh->recalcLocalAabb();
+        bimesh->setMargin(0.04f);
 #endif
+        genericBiMesh = bimesh;
+    }
+    m_biShapes[name] = genericBiMesh;
 
 
-    m_biShapes[node->mName.C_Str()] = bimesh;
-
-    return bimesh;
+    return genericBiMesh;
 }
 
 QList<QString> BiMeshContainer::getNames(){
@@ -263,18 +276,18 @@ BiMesh::BiMesh(const aiScene *scene, aiNode *node, QObject *parent) :
                 m_texture = m_texture->removedFromAtlas();
             }
 
-//            m_texture->setFiltering(QSGTexture::Linear);
-//            m_texture->setHorizontalWrapMode(QSGTexture::Repeat);
-//            m_texture->setVerticalWrapMode(QSGTexture::Repeat);
+            //            m_texture->setFiltering(QSGTexture::Linear);
+            m_texture->setHorizontalWrapMode(QSGTexture::Repeat);
+            m_texture->setVerticalWrapMode(QSGTexture::Repeat);
 
-//            // Set nearest filtering mode for texture minification
-//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//            // Set bilinear filtering mode for texture magnification
-//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//            // Wrap texture coordinates by repeating
-//            // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            //            // Set nearest filtering mode for texture minification
+            //            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            //            // Set bilinear filtering mode for texture magnification
+            //            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            //            // Wrap texture coordinates by repeating
+            //            // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
+            //            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            //            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
             //            texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
             //            texture->setMagnificationFilter(QOpenGLTexture::Linear);

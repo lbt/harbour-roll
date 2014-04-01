@@ -69,8 +69,9 @@ public slots:
     void touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward);
     void release();
 
-    void addDice(QString meshName, btVector3 pos = btVector3(0,1,5));
+    void addRoll(QString meshName, btVector3 pos = btVector3(0,1,5), btScalar mass = btScalar(0.1));
     void removeObject(WorldObject *wobj);
+    QVector3D getFollowPoint();
 
 protected:
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
@@ -97,6 +98,7 @@ private:
 
     QVector3D m_touchRay[14];
     bool m_touchRayActive;
+    WorldObject* m_followObject;
 
     // Below here is the functionality needed to be a btIDebugDraw
 public:

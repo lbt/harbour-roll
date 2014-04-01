@@ -45,6 +45,13 @@ void CameraManager::touch(qreal x, qreal y) {
 
 }
 
+void CameraManager::follow(QVector3D p)
+{
+    m_camera=QMatrix4x4();
+    m_camera.translate(p + QVector3D(0,  0,  5));
+//    qDebug() << "At " << at() <<" Looking towards " << forward();
+}
+
 void CameraManager::updatePosition() {
     QAccelerometerReading *reading = m_sensor.reading();
     if (reading) {

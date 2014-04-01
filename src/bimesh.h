@@ -70,6 +70,15 @@ public:
     QList<QString> getNames();
 };
 
+class BibtBvhTriangleMeshShape : public btBvhTriangleMeshShape, public BiMesh
+{
+public:
+    BibtBvhTriangleMeshShape(btStridingMeshInterface *meshInterface, bool useQuantizedAabbCompression, const aiScene *scene, aiNode *node, QObject *parent = 0) :
+        btBvhTriangleMeshShape(meshInterface,useQuantizedAabbCompression)
+      , BiMesh(scene, node, parent) {}
+//    void upd() { this->calcLocalAABB(); }
+};
+
 class BibtGImpactMeshShape : public btGImpactMeshShape, public BiMesh
 {
 public:
@@ -87,5 +96,15 @@ public:
         btConvexHullShape()
       , BiMesh(scene, node, parent) {}
 };
+
+class BibtSphereShape : public btSphereShape, public BiMesh
+{
+    BiMesh* m_owner;
+public:
+    BibtSphereShape(btScalar r, const aiScene *scene, aiNode *node, QObject *parent =0) :
+        btSphereShape(r)
+      , BiMesh(scene, node, parent) {}
+};
+
 
 #endif // BIMESH_H
