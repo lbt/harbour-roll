@@ -277,6 +277,7 @@ void Roll::prep()
     glEnable(GL_TEXTURE_2D);
 
     bullet.setupGL(m_program_dice);
+    setRunning(true);
 }
 
 
@@ -393,7 +394,6 @@ void RollRunner::setup() {
     m_timer = new QTimer(this);
     connect(m_timer, SIGNAL(timeout()), this, SLOT(runStep()) );
     m_timer->setInterval(TICK);;
-    m_timer->start();
 }
 
 void RollRunner::setRunning(bool running){
