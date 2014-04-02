@@ -1,7 +1,7 @@
 #include "worldobject.h"
 #include <QDebug>
 
-WorldObject::WorldObject(BiMesh* bimesh, btRigidBody* body, QObject *parent) :
+WorldObject::WorldObject(BiMesh* bimesh, btRigidBody *body, QObject *parent) :
     QObject(parent)
   , m_bimesh(bimesh)
   , m_rigidBody(body)
@@ -24,6 +24,7 @@ void WorldObject::setHit(bool hit) {
 }
 
 void WorldObject::render(GLProgram *p) {
+    if (! m_bimesh) return;
     m_rigidBody = getRigidBody();
 
     if (m_rigidBody && m_rigidBody->getMotionState())

@@ -44,6 +44,23 @@ public:
         QVector4D m_c;
     };
 
+    class ContactResultCallback : public btCollisionWorld::ContactResultCallback
+    {
+    public:
+        btScalar addSingleResult(btManifoldPoint & cp,
+                                 const btCollisionObjectWrapper *colObj0Wrap,
+                                 int partId0,
+                                 int index0,
+                                 const btCollisionObjectWrapper *colObj1Wrap,
+                                 int partId1,
+                                 int index1
+                                 ) { m_contacts << colObj0Wrap->getCollisionObject()
+                                                << colObj1Wrap->getCollisionObject(); }
+        QList< const btCollisionObject *> getContacts() { return m_contacts; }
+    private:
+        QList< const btCollisionObject *> m_contacts;
+    };
+
 public:
     explicit Bullet(QObject *parent = 0);
     ~Bullet();
@@ -98,7 +115,8 @@ private:
 
     QVector3D m_touchRay[14];
     bool m_touchRayActive;
-    WorldObject* m_followObject;
+    WorldObject* m_ball;
+    WorldObject* m_floor;
 
     // Below here is the functionality needed to be a btIDebugDraw
 public:

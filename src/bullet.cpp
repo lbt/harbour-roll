@@ -7,6 +7,7 @@
 #include <sailfishapp.h>
 
 #include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
+#include <bullet/LinearMath/btMotionState.h>
 
 #define MAXX 2.4
 #define MAXY 4.2
@@ -161,7 +162,15 @@ void Bullet::addWall(btVector3 normal, float offset) {
     rbInfo.m_restitution=0.9;
 
     btRigidBody* body = new btRigidBody(rbInfo);
-    body->setUserPointer(NULL);
+    WorldObject* wobj = new WorldObject(NULL, body);
+
+    connect(wobj, SIGNAL(killMe(WorldObject*)), this, SLOT(removeObject(WorldObject*)));
+
+    m_worldMutex.lock();
+    m_worldObjects << wobj;
+    m_worldMutex.unlock();
+
+    body->setUserPointer((void*)wobj);
     dynamicsWorld->addRigidBody(body);
 }
 
@@ -243,6 +252,8 @@ void Bullet::setupModel(QString state)
 
     ///create a few basic rigid bodies
     this->addWall(btVector3( 0, 0, 1),-6);
+    m_floor = m_worldObjects.last();
+
     this->addRoll("gutter", btVector3( 0, 0, 0), 0.0);
     this->addRoll("gutterBot", btVector3( 0, 0, -0.01), 0.0);
     this->addWall(btVector3( 0, 0,-1), -5); // offset -9 from the normal - so location is z=10
@@ -252,7 +263,7 @@ void Bullet::setupModel(QString state)
     this->addWall(btVector3(-1, 0, 0), -10);
 
     this->addRoll("Sphere", btVector3(2.0,-6.4,-4), 0.1);
-    m_followObject = m_worldObjects.last();
+    m_ball = m_worldObjects.last();
 
 //    if (numDice() == 0) { // either no state, invalid or empty state
 //        QList<QString> names = m_meshes->getNames();
@@ -267,10 +278,10 @@ void Bullet::setupModel(QString state)
 QMatrix4x4 Bullet::getFollowInfo()
 {
     btTransform trans;
-    m_followObject->getRigidBody()->getMotionState()->getWorldTransform(trans);
+    m_ball->getRigidBody()->getMotionState()->getWorldTransform(trans);
     QMatrix4x4 res;
     res.setColumn(0, bt2QtVector3D(trans.getOrigin()).toVector4D());
-    res.setColumn(1, bt2QtVector3D(m_followObject->getRigidBody()->getLinearVelocity()).toVector4D());
+    res.setColumn(1, bt2QtVector3D(m_ball->getRigidBody()->getLinearVelocity()).toVector4D());
 //    qDebug() <<"following " << v;
     return res;
 }
@@ -290,6 +301,22 @@ void Bullet::runStep(int ms)
     // Ensure all objects are permanently activated
     for (auto wobj : m_worldObjects) {
         wobj->getRigidBody()->activate();
+    }
+    Bullet::ContactResultCallback result;
+    dynamicsWorld->contactTest(m_ball->getRigidBody(), result);
+    for (const btCollisionObject *obj : result.getContacts()) {
+        if (obj == m_ball->getRigidBody()) continue;
+        if (obj == m_floor->getRigidBody()) {
+            qDebug() << "Hit the floor";
+            btMotionState *motion;
+            motion = m_ball->getRigidBody()->getMotionState();
+            btTransform pos;
+            motion->getWorldTransform(pos);
+            pos.setOrigin(btVector3(2.0,-6.4,-4));
+            motion->setWorldTransform(pos);
+            m_ball->getRigidBody()->setMotionState(motion);
+            m_ball->getRigidBody()->setLinearVelocity(btVector3(0,0,0));
+        }
     }
     m_worldMutex.unlock();
 }
@@ -423,7 +450,7 @@ void Bullet::render(GLProgram *p, QMatrix4x4 projViewMatrix)
 
 void Bullet::setGravity(qreal x, qreal y, qreal z) {
 //    dynamicsWorld->setGravity(btVector3(-x*20, -y*20, -z*20));
-    dynamicsWorld->setGravity(btVector3(-x*2, -y*2, -z*2));
+    dynamicsWorld->setGravity(btVector3(-x*10, -y*10, -z*10));
     //    dynamicsWorld->setGravity(btVector3(0, 0, z/10.0));
 }
 
@@ -488,7 +515,8 @@ void Bullet::touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookin
         m_worldMutex.lock();
         for (int i = 0; i< RayResults.m_collisionObjects.size(); i++) {
             WorldObject* wobj = (WorldObject*)(RayResults.m_collisionObjects[i]->getUserPointer());
-            if (wobj) {
+
+            if (wobj && wobj->getBiMesh()) {
                 qDebug() << "Hit a " << wobj->getBiMesh()->name();
                 wobj->setHit(true);
             } else {
