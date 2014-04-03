@@ -132,6 +132,7 @@ public:
     void render2(GLProgram *p, QMatrix4x4 projViewMatrix);
     QString serialise();
     void restore(QString state);
+    void useTrack(QString track);
 private:
     GLProgram* m_program_debug;
     int m_debug_mode;

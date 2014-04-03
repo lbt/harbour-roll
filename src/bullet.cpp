@@ -254,13 +254,13 @@ void Bullet::setupModel(QString state)
     this->addWall(btVector3( 0, 0, 1),-6);
     m_floor = m_worldObjects.last();
 
-    this->addRoll("track2top", btVector3( 0, 0, 0), 0.0);
-    this->addRoll("track2bot", btVector3( 0, 0, -0.01), 0.0);
     this->addWall(btVector3( 0, 0,-1), -5); // offset -9 from the normal - so location is z=10
     this->addWall(btVector3( 0, 1, 0), -20);
     this->addWall(btVector3( 0,-1, 0), -10);
     this->addWall(btVector3( 1, 0, 0), -10);
     this->addWall(btVector3(-1, 0, 0), -10);
+
+    useTrack("track");
 
 #define START    btVector3(2.0,-0.0,0)
 //    this->addRoll("Sphere", btVector3(2.0,-6.4,-4), 0.1);
@@ -273,6 +273,13 @@ void Bullet::setupModel(QString state)
 //            this->addRoll(names[rand()%names.length()], btVector3(0,1,5), 0.1);
 //        }
 //    }
+
+}
+
+void Bullet::useTrack(QString track)
+{
+    this->addRoll("track2top", btVector3( 0, 0, 0), 0.0);
+    this->addRoll("track2bot", btVector3( 0, 0, -0.01), 0.0);
 
 }
 

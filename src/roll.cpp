@@ -171,9 +171,9 @@ void Roll::setDebugDraw(bool state)
     QMetaObject::invokeMethod(m_runner, "setDebugDraw", Qt::QueuedConnection, Q_ARG(bool, state));
 }
 
-void Roll::addRoll(QString dice)
+void Roll::useTrack(QString track)
 {
-    bullet.addRoll(dice);
+    bullet.useTrack(track);
 }
 
 
