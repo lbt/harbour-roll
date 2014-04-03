@@ -254,15 +254,17 @@ void Bullet::setupModel(QString state)
     this->addWall(btVector3( 0, 0, 1),-6);
     m_floor = m_worldObjects.last();
 
-    this->addRoll("gutter", btVector3( 0, 0, 0), 0.0);
-    this->addRoll("gutterBot", btVector3( 0, 0, -0.01), 0.0);
+    this->addRoll("track2top", btVector3( 0, 0, 0), 0.0);
+    this->addRoll("track2bot", btVector3( 0, 0, -0.01), 0.0);
     this->addWall(btVector3( 0, 0,-1), -5); // offset -9 from the normal - so location is z=10
     this->addWall(btVector3( 0, 1, 0), -20);
     this->addWall(btVector3( 0,-1, 0), -10);
     this->addWall(btVector3( 1, 0, 0), -10);
     this->addWall(btVector3(-1, 0, 0), -10);
 
-    this->addRoll("Sphere", btVector3(2.0,-6.4,-4), 0.1);
+#define START    btVector3(2.0,-0.0,0)
+//    this->addRoll("Sphere", btVector3(2.0,-6.4,-4), 0.1);
+    this->addRoll("Sphere", START, 0.1);
     m_ball = m_worldObjects.last();
 
 //    if (numDice() == 0) { // either no state, invalid or empty state
@@ -312,7 +314,7 @@ void Bullet::runStep(int ms)
             motion = m_ball->getRigidBody()->getMotionState();
             btTransform pos;
             motion->getWorldTransform(pos);
-            pos.setOrigin(btVector3(2.0,-6.4,-4));
+            pos.setOrigin(START);
             motion->setWorldTransform(pos);
             m_ball->getRigidBody()->setMotionState(motion);
             m_ball->getRigidBody()->setLinearVelocity(btVector3(0,0,0));

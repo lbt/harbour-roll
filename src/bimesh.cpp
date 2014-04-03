@@ -184,7 +184,7 @@ BiMesh* BiMeshContainer::nodeToMesh(const aiScene *scene, aiNode *node)
     // For now we'll make a btGimpactMesh
 
     BiMesh* genericBiMesh;
-    if (name.startsWith("gutter")) {
+    if (name.startsWith("gutter") or name.startsWith("track")) {
         qDebug() <<"btBvhTriangleMeshShape";
         BibtBvhTriangleMeshShape* bimesh = new BibtBvhTriangleMeshShape(btMesh, true, scene, node);
         genericBiMesh = bimesh;

@@ -294,12 +294,13 @@ void Roll::render()
             m_cammanager.touch(p_x, p_y);
         }
         m_cammanager.updatePosition();
-    }
-
-    bool m_follow=true;
-    if (m_follow) {
+    } else {
         m_cammanager.follow(bullet.getFollowInfo());
     }
+//    bool m_follow=true;
+//    if (m_follow) {
+//        m_cammanager.follow(bullet.getFollowInfo());
+//    }
 
     int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time. Also FIXME and update in the DiceRunner thread
     //for (unsigned int i = 0 ; i < 2 ; i++) { m_dLights[i].update(timeDelta_ms); }
@@ -422,10 +423,10 @@ void RollRunner::setDebugDraw(bool state)
 
 void RollRunner::runStep() {
     if (m_gravity) {
-        if (!m_fly) {
+//        if (!m_fly) {
             QAccelerometerReading *reading = m_sensor.reading();
             m_workerBullet->setGravity(reading->x(), reading->y(), reading->z());
-        }
+//        }
     } else {
         m_workerBullet->setGravity(0, 0, 0);
     }

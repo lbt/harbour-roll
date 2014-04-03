@@ -53,6 +53,7 @@ void CameraManager::follow(QMatrix4x4 r)
 //    QVector3D v = r.column(1).toVector3D() * -0.5;
 //    v.setZ(18);
 //    qDebug() << "v " << v;
+
     QVector3D v = QVector3D(0.2,0.2,15);
 
     // Original
@@ -76,8 +77,8 @@ void CameraManager::updatePosition() {
 //        m_camera = t * m_camera; // move
 
         QMatrix4x4 r;
-        r.rotate(reading->x()/5.0,  forward()) ; // rotation vector
-        r.rotate(reading->y()/5.0,  right()) ; // rotation vector
+//        r.rotate(reading->x()/5.0,  forward()) ; // rotation vector
+//        r.rotate(reading->y()/5.0,  right()) ; // rotation vector
         QVector4D p = position(); // store position
         m_camera = r* m_camera; // rotate
         setPosition(p); // restore position
