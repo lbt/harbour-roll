@@ -21,7 +21,7 @@ PKGCONFIG += assimp
 include(src/bullet/bullet.pri)
 
 
-# INCLUDEPATH += bullet/
+INCLUDEPATH += ./
 
 SOURCES += src/harbour-roll.cpp \
     src/glitem.cpp \
@@ -32,8 +32,12 @@ SOURCES += src/harbour-roll.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
     src/bimesh.cpp \
-    src/vaocontainer.cpp \
-    src/worldobject.cpp
+    src/worldobject.cpp \
+    src/renderable.cpp \
+    src/physics.cpp \
+    src/assetstore.cpp \
+    src/vao.cpp \
+    src/utils.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -74,8 +78,13 @@ HEADERS += \
     src/lightmanager.h \
     src/light.h \
     src/bimesh.h \
-    src/vaocontainer.h \
-    src/worldobject.h
+    src/worldobject.h \
+    src/renderable.h \
+    src/renderable.h \
+    src/physics.h \
+    src/assetstore.h \
+    src/vao.h \
+    src/utils.h
 
 # MerSDK david:~/src/glsl-optimizer > ./glslopt -f ../harbour-dice/src/dice_frag.glsl 
 # MerSDK david:~/src/glsl-optimizer > ./glslopt -v ../harbour-dice/src/dice_vert.glsl 

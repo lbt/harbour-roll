@@ -1,15 +1,15 @@
-#ifndef VAOCONTAINER_H
-#define VAOCONTAINER_H
+#ifndef VAO_H
+#define VAO_H
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <QOpenGLShaderProgram>
 
-class VAOContainer
+class VAO
 {
 public:
-    VAOContainer(aiMesh *m);
-    char* VAO() { return m_VAO ; }
+    VAO(aiMesh *m);
+    char* getVAO() { return m_VAO ; }
     GLushort* VAO_Indices() { return m_Indices ; }
     int numIndices() { return m_isize ; }
     int numVertices() { return m_vsize ; }
@@ -29,4 +29,4 @@ public:
     GLushort* m_Indices;
 };
 
-#endif // VAOCONTAINER_H
+#endif // VAO_H

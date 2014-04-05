@@ -11,16 +11,16 @@ Page {                                          id: page
         width: parent.width
         height: page.height - menu.height
         anchors.bottomMargin: panel.margin
-        Roll {                                 id: roll
+        Roll {                                 id: track
             anchors.fill: parent
             running : applicationActive || runWhenMinimised
             MouseArea {                         id: bgMA
                 anchors.fill: parent
                 preventStealing: true
                 Connections {
-                    onPositionChanged: roll.handlePositionChanged(mouse.x,mouse.y)
-                    onPressed: roll.handlePressed(mouse.x,mouse.y)
-                    onReleased: roll.handleReleased(mouse.x,mouse.y)
+                    onPositionChanged: track.handlePositionChanged(mouse.x,mouse.y)
+                    onPressed: track.handlePressed(mouse.x,mouse.y)
+                    onReleased: track.handleReleased(mouse.x,mouse.y)
                 }
             }
         }
@@ -108,9 +108,9 @@ Page {                                          id: page
                     anchors.left: parent.left
                     anchors.right: parent.right
                     Repeater {
-                        model: roll.names
-                        Button { text: "Add a " + modelData
-                            onClicked: roll.addRoll(modelData)
+                        model: track.names
+                        Button { text: "Use track " + modelData
+                            onClicked: track.useTrack(modelData)
                             anchors.margins: Theme.paddingMedium
                         }
                     }
@@ -119,30 +119,30 @@ Page {                                          id: page
                     TextSwitch {                    id: fancy
                         text: "Fancy Lights"
                         width: parent.width/2
-                        onClicked: roll.fancyLights(checked);
+                        onClicked: track.fancyLights(checked);
                     }
                     Button {text: "Change colours"
-                        onClicked: roll.randomiseLights();
+                        onClicked: track.randomiseLights();
                         width: parent.width/2
                     }
                 }
                 TextSwitch {                    id: main
                     text: "Main Light"
                     width: parent.width
-                    checked: roll.mainLight
-                    onClicked: roll.setMainLight(checked)
+                    checked: track.mainLight
+                    onClicked: track.setMainLight(checked)
                 }
                 Row { width: parent.width; height: childrenRect.height
                     TextSwitch {                    id: spin
                         text: "Fly mode"
                         width: parent.width/2
-                        onClicked: roll.zoomAndSpin(checked);
+                        onClicked: track.zoomAndSpin(checked);
                     }
                     TextSwitch {                    id: gravity
                         text: "Gravity"
                         width: parent.width/2
                         checked: true
-                        onClicked: roll.gravity(checked);
+                        onClicked: track.gravity(checked);
                     }
                 }
                 TextSwitch {                    id: coverS
@@ -154,7 +154,7 @@ Page {                                          id: page
                     text: "Debug Draw"
                     width: parent.width
                     checked: false
-                    onClicked: roll.setDebugDraw(checked);
+                    onClicked: track.setDebugDraw(checked);
                 }
             }
         }

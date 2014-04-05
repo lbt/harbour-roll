@@ -24,7 +24,7 @@
 #include <assimp/postprocess.h>
 
 #include "glprogram.h"
-#include "vaocontainer.h"
+#include "vao.h"
 
 class BiMesh : public QObject
 {
@@ -41,7 +41,7 @@ public:
 private:
 
     QString m_name;
-    VAOContainer *m_vao;
+    VAO *m_vao;
     QSGTexture *m_texture;
     GLuint m_vboIds[3];
     GLuint m_texIds[1];

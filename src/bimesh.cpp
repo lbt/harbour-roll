@@ -9,6 +9,8 @@
 
 #include "sailfishapp.h"
 
+#include "utils.h"
+
 class myStream :
         public Assimp::LogStream
 {
@@ -17,32 +19,8 @@ public:
     ~myStream() {}
 
     void write(const char* message) { qDebug() << message; }
+
 };
-
-static inline QVector3D qv3d(const aiVector3D &v) {
-    return QVector3D(v.x, v.y, v.z);
-}
-
-inline static QMatrix4x4 getNodeMatrix(aiNode *node)
-{
-    QMatrix4x4 nodeMatrix;
-    if (node->mTransformation.IsIdentity())
-        return nodeMatrix;
-    aiQuaternion rotation;
-    aiVector3D position;
-    aiVector3D scale;
-    node->mTransformation.Decompose(scale, rotation, position);
-    QVector3D qscale(scale.x,scale.y, scale.z);
-    QVector3D qposition(position.x, position.y, position.z);
-    QQuaternion qrotation(rotation.w, rotation.x, rotation.y, rotation.z);
-    if (!qscale.isNull())
-        nodeMatrix.scale(qscale);
-    if (!qposition.isNull())
-        nodeMatrix.translate(qposition);
-    if (!qrotation.isNull())
-        nodeMatrix.rotate(qrotation);
-    return nodeMatrix;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief BiMeshContainer::BiMeshContainer
@@ -77,7 +55,9 @@ bool BiMeshContainer::load(QString filename)
     // And have it read the given file with some example postprocessing
     // Usually - if speed is not the most important aspect for you - you'll
     // propably to request more postprocessing than we do in this example.
-    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+
+    //    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT);
     const aiScene* scene = importer.ReadFile( filename.toStdString(),
                                               aiProcess_CalcTangentSpace |
                                               aiProcess_Triangulate |
@@ -141,12 +121,6 @@ BiMesh * BiMeshContainer::importChildren(const aiScene *scene, aiNode *node, BiM
     //}
 }
 
-uint qHash(const aiVector3t<float> &v) { //
-    return  ((int)(v.x * 73856093) ^
-             (int)(v.y * 19349663) ^
-             (int)(v.z * 83492791))
-            % (uint)-1 ;
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief BiMeshContainer::copyMeshes
@@ -168,8 +142,10 @@ BiMesh* BiMeshContainer::nodeToMesh(const aiScene *scene, aiNode *node)
     aiFace* f = m->mFaces;
     for (unsigned int nf = 0 ; nf < m->mNumFaces; nf++, f++) {
         unsigned int* ind = f->mIndices;
-        if (f->mNumIndices != 3)
-            qDebug() << "Error - non triangular face";
+        if (f->mNumIndices != 3){
+            qDebug() << "This is a curve";
+            return NULL;
+        }
         // Note that y/z are transposed. I think this matches a blender view
         btVector3 v1 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
         ind++;
@@ -251,7 +227,7 @@ BiMesh::BiMesh(const aiScene *scene, aiNode *node, QObject *parent) :
     m_name = node->mName.C_Str();
 
     // construct an interleaved matrix for feeding to glVertexAttribPointer and glDrawElements
-    m_vao = new VAOContainer(m);
+    m_vao = new VAO(m);
 
     // Import a texture
     int nTex = m->GetNumUVChannels();
@@ -301,7 +277,7 @@ void BiMesh::setup(GLProgram* p) {
 
     glGenBuffers(2, m_vboIds); // one for VAO, other for indices
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBufferData(GL_ARRAY_BUFFER, m_vao->m_vaosize, m_vao->VAO(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_vao->m_vaosize, m_vao->getVAO(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_vao->numIndices() * sizeof(GLushort), m_vao->VAO_Indices(), GL_STATIC_DRAW);
 
@@ -315,9 +291,9 @@ void BiMesh::setup(GLProgram* p) {
 
     //    qDebug() << "VAO stride is :"<<  m_vao->stride();
     //    qDebug() << "PosA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_pos_loc
-    //             << " = " << (void *)((const char *)m_vao->VAO()+m_vao->m_pos_loc);
+    //             << " = " << (void *)((const char *)m_vao->getVAO()+m_vao->m_pos_loc);
     glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
-                          m_vao->VAO()+m_vao->m_pos_loc);
+                          m_vao->getVAO()+m_vao->m_pos_loc);
 
     //    if (m_vao->m_pos_loc >= 0) {
     //        char* p = (m_vao->VAO()+m_vao->m_pos_loc);
@@ -330,7 +306,7 @@ void BiMesh::setup(GLProgram* p) {
     //    qDebug() << "normalA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_normal_loc
     //             << " = " << (void *)((const char *)m_vao->VAO()+m_vao->m_normal_loc);
     glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
-                          m_vao->VAO()+m_vao->m_normal_loc);
+                          m_vao->getVAO()+m_vao->m_normal_loc);
 
     //    if (m_vao->m_normal_loc >= 0) {
 
@@ -344,7 +320,7 @@ void BiMesh::setup(GLProgram* p) {
     //    qDebug() << "texA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_texture_loc
     //             << " = " << (void *)((const char *)m_vao->VAO()+m_vao->m_texture_loc);
     glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, m_vao->stride(),
-                          m_vao->VAO()+m_vao->m_texture_loc);
+                          m_vao->getVAO()+m_vao->m_texture_loc);
 
     //    if (m_vao->m_texture_loc >= 0) {
     //        char* p = ((char *)m_vao->VAO()+m_vao->m_texture_loc);

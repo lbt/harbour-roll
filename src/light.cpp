@@ -3,8 +3,7 @@
 #define MAXY 5.0
 
 #include <sailfishapp.h>
-
-namespace { float rnd(float max) { return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max); } }
+#include "utils.h"
 
 GLProgram* PointLight::c_program_debug = 0;
 

@@ -9,33 +9,10 @@
 #include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 #include <bullet/LinearMath/btMotionState.h>
 
+#include "utils.h"
+
 #define MAXX 2.4
 #define MAXY 4.2
-
-namespace { float rnd(float max) { return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max); } }
-
-uint qHash(Bullet::Color c) {
-    return c.m_c.x()*10000 + c.m_c.y()*100 + c.m_c.z();
-}
-inline bool operator==(const Bullet::Color &c1, const Bullet::Color &c2) { return c1.m_c == c2.m_c; }
-
-QMatrix4x4 bt2QMatrix4x4(btTransform *transform) {
-    float ft[16];
-    transform->getOpenGLMatrix(ft);
-
-    return QMatrix4x4(ft[0], ft[1], ft[2], ft[3],
-            ft[4],  ft[5],  ft[6],  ft[7],
-            ft[8],  ft[9],  ft[10], ft[11],
-            ft[12], ft[13], ft[14], ft[15]).transposed();
-}
-
-QVector3D bt2QtVector3D(const btVector3 &bv) {
-    return QVector3D(bv.x(), bv.y(), bv.z());
-}
-btVector3 Q2btVector3 (const QVector3D  &qv) {
-    return btVector3(qv.x(), qv.y(), qv.z());
-}
-
 
 Bullet::Bullet(QObject *parent) :
     QObject(parent)

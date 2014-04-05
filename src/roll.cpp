@@ -15,12 +15,11 @@
 
 #include "math.h"
 #include <bullet/LinearMath/btIDebugDraw.h>
+#include "utils.h"
 
 #include <QDebug>
 
 #define RADIUS 5.0
-#define PI 3.1415926535
-#define PI2 6.283185307
 
 #define COUNT 1
 
@@ -33,8 +32,6 @@
 
 #define MAXX 2.5
 #define MAXY 5.0
-
-namespace { float rnd(float max) { return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max); } }
 
 Roll::Roll(QObject *parent) :
     GLItem()

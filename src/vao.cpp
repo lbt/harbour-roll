@@ -1,4 +1,4 @@
-#include "vaocontainer.h"
+#include "vao.h"
 #include <QDebug>
 
 inline void copyV3toLocation(aiVector3D *v, void* p)
@@ -6,7 +6,7 @@ inline void copyV3toLocation(aiVector3D *v, void* p)
 inline void copyV4toLocation(aiColor4D *v, void* p)
 { float* f = (float*)p; f[0] = v->r; f[1] = v->g; f[2] = v->b; f[3] = v->a; }
 
-VAOContainer::VAOContainer(aiMesh* m) :
+VAO::VAO(aiMesh* m) :
     m_pos_loc(-1)
   , m_normal_loc(-1)
   , m_tangent_loc(-1)

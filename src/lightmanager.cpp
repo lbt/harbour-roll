@@ -2,12 +2,10 @@
 #include <math.h>
 
 #define RADIUS 1.0
-#define PI 3.14159265
-#define PI180 (180/PI)
 #define DECEL 0.999
 #define MAXV 10.0
 
-namespace { float rnd(float max) { return static_cast <float> (rand()) / static_cast <float> (RAND_MAX/max); } }
+#include "utils.h"
 
 LightManager::LightManager(qreal radius, qreal theta, qreal phi,
                            qreal vr, qreal vth, qreal vph,

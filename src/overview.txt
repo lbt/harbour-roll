@@ -1,0 +1,93 @@
+harbour-roll
+
+main, initialises QML object "Roll"
+
+
+* roll : a GLItem : a QQuickItem
+
+handles user input from QML
+
+very app specific
+
+prep() is where GL one-time setup is done
+
+Calls bullet.setupGL(m_program_dice);
+
+BAD:
+  m_runner setup
+  bullet restore state
+  create GL_ARRAY_BUFFER
+  setRunning()
+
+render() is where the GL rendering is done
+
+BAD:
+camera update (move camera to world)
+light position update (move lights to world)
+bind program (move to world-render and let it control that)
+setup lighting uniforms (ditto, world-render can optimise order of programs)
+debug render (ditto)
+
+* glitem
+
+allows rendering of GL via prep()/render() in the paint() call
+
+
+*
+
+
+
+
+
+
+New
+
+http://bulletphysics.org/mediawiki-1.5.8/index.php/Canonical_Game_Loop
+
+Create QML and splash
+
+Create world and runner
+
+Connect world and runner to QML : in GLitem.prep()
+
+Setup GL for world items : in GLitem.prep()
+
+Render world during refresh : in GLitem.render()
+
+Pass UI to world at end of refresh using queue
+
+Start world runner
+
+
+World
+
+step()
+
+render()
+renders world objects by shader groups
+
+Shaders()
+
+World objects
+ 0/1 physics
+ 0+ renderable (invisible objects etc)
+register in the world
+
+
+Physics object
+
+Renderable 
+ 0+ shaders
+
+Game objects : World objects + sig/slots
+
+
+Paths
+ Mesh
+
+
+AssetStore
+  VAOs
+  meshes
+ 
+reads a scene, creates VAOs

@@ -18,10 +18,6 @@
 #include "bimesh.h"
 #include "worldobject.h"
 
-QMatrix4x4 bt2QMatrix4x4(btTransform *transform);
-QVector3D bt2QtVector3D(const btVector3 &bv);
-btVector3 Q2btVector3 (const QVector3D  &qv);
-
 class Bullet : public QObject, public btIDebugDraw
 {
     Q_OBJECT
@@ -137,5 +133,8 @@ private:
     GLProgram* m_program_debug;
     int m_debug_mode;
 };
+
+static uint qHash(Bullet::Color c) { return c.m_c.x()*10000 + c.m_c.y()*100 + c.m_c.z(); }
+inline bool operator==(const Bullet::Color &c1, const Bullet::Color &c2) { return c1.m_c == c2.m_c; }
 
 #endif // BULLET_H

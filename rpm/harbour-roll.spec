@@ -68,14 +68,14 @@ desktop-file-install --delete-original       \
 
 %files
 %defattr(-,root,root,-)
-/usr/share/icons/hicolor/86x86/apps
+/usr/share/applications
+/usr/share/harbour-roll
+/usr/bin
+%defattr(755,root,root,-)
+%{_bindir}
+%defattr(644,root,root,-)
 %{_datadir}/%{name}
 %{_datadir}/applications/%{name}.desktop
-%defattr(644,root,root,-)
-%{_bindir}
-%defattr(755,root,root,-)
-/usr/bin
-/usr/share/harbour-roll
-/usr/share/applications
+/usr/share/icons/hicolor/86x86/apps
 # >> files
 # << files

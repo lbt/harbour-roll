@@ -2,6 +2,8 @@
 #define WORLDOBJECT_H
 
 #include "bimesh.h"
+#include "renderable.h"
+#include "physics.h"
 #include <QTimer>
 
 // Declared in bullet.cpp
@@ -29,6 +31,9 @@ public slots:
 private:
     BiMesh* m_bimesh;
     btRigidBody* m_rigidBody;
+
+    QList<Renderable*> m_renderables;
+    QList<Physics*> m_physicals;
 
     QVector4D m_glow;
     bool m_hit;
