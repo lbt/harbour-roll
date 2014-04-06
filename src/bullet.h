@@ -104,10 +104,6 @@ private:
     QList<WorldObject*> m_worldObjects;
     QList<WorldObject*>::iterator m_worldobjects_i;
     BiMeshContainer* m_meshes;
-    QHash<Color, QList<Line> > *m_worldLines;
-    typedef QHash<Color, QList<Line> >::const_iterator m_worldLines_iter_type;
-    typedef QList<Line>::const_iterator m_worldLines_list_iter_type;
-    QVector<QVector3D> m_qlinepoints;
 
     QVector3D m_touchRay[14];
     bool m_touchRayActive;
@@ -132,6 +128,10 @@ public:
 private:
     GLProgram* m_program_debug;
     int m_debug_mode;
+    QHash<Color, QList<Line> > *m_worldLines;
+    typedef QHash<Color, QList<Line> >::const_iterator m_worldLines_iter_type;
+    typedef QList<Line>::const_iterator m_worldLines_list_iter_type;
+    QVector<QVector3D> m_qlinepoints;
 };
 
 static uint qHash(Bullet::Color c) { return c.m_c.x()*10000 + c.m_c.y()*100 + c.m_c.z(); }

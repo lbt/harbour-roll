@@ -23,16 +23,19 @@ class Renderable : public QObject
 {
     Q_OBJECT
 public:
-    explicit Renderable(const aiScene *scene, aiNode *node, QObject *parent = 0);
-    void render(GLProgram *p);
+    explicit Renderable(VAO* v, QSGTexture* t = 0, QObject *parent = 0);
+    void setTexture(QSGTexture *t) { m_texture = t; }
+    void setShader(GLProgram* p);
+    GLProgram* getShader() const { return m_p; }
     void setup(GLProgram *p);
-    QString name() const { return m_name; }
+    void render(GLProgram *activeProgram);
 
 signals:
 
 public slots:
 
 private:
+    GLProgram* m_p;
     QString m_name;
     VAO *m_vao;
     QSGTexture *m_texture;

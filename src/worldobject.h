@@ -2,8 +2,6 @@
 #define WORLDOBJECT_H
 
 #include "bimesh.h"
-#include "renderable.h"
-#include "physics.h"
 #include <QTimer>
 
 // Declared in bullet.cpp
@@ -32,24 +30,21 @@ private:
     BiMesh* m_bimesh;
     btRigidBody* m_rigidBody;
 
-    QList<Renderable*> m_renderables;
-    QList<Physics*> m_physicals;
-
     QVector4D m_glow;
     bool m_hit;
     QTimer m_hitTimer;
 
 };
 
-class World : public QObject
-{
-    Q_OBJECT
-private:
-    QSet<WorldObject*> m_objects;
+//class World : public QObject
+//{
+//    Q_OBJECT
+//private:
+//    QSet<WorldObject*> m_objects;
 
-public:
-    explicit World(QObject *parent = 0);
+//public:
+//    explicit World(QObject *parent = 0);
 
-};
+//};
 
 #endif // WORLDOBJECT_H

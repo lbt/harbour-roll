@@ -59,35 +59,78 @@ Pass UI to world at end of refresh using queue
 Start world runner
 
 
-World
+* AssetStore
+Things are keyed by name and typically a named vao/collisionshape
+will be used together.
 
-step()
-
-render()
-renders world objects by shader groups
-
-Shaders()
-
-World objects
- 0/1 physics
- 0+ renderable (invisible objects etc)
-register in the world
+Creates/contains:
+  * VAO
+  * Texture
+  * shader
+  * renderables
+  * btCollisionShapes
+  * curves
 
 
-Physics object
+* Renderable
+  Something that appears onscreen
+  * shaders (GLPrograms)
+  * Asset/VAO
+  * Asset/Texture
+methods:
+  + render()
 
-Renderable 
- 0+ shaders
+* WorldBuilder
+  reads a scene, aiMeshes, json etc
+ 1) reads data into AsssetStore from obj and json
+ 2) creates objects, adds to world
 
-Game objects : World objects + sig/slots
+* World
+WorldItems add themselves to a world.
+
+ * physicsWorld
+ * WorldItem
+ * physicsThread
+ * Containers
+
+methods
+ + render()
+   renders world objects by shader groups
+ + step()
+
+* WorldItem
+  World objects
+
+contains:
+ * geometry
+ * physics
+ * 0+ renderable (invisible objects etc)
+ * world
+
+methods
+ + register()
+   in the world ??
+ + render()
+
+* Physics
+simple wrapper around a btRigidBody
 
 
-Paths
+* Light
+
+* Camera
+
+
+
+* Shaders
+
+
+
+* Game objects : World objects + sig/slots
+
+
+* Paths
  Mesh
 
 
-AssetStore
-  VAOs
-  meshes
- 
-reads a scene, creates VAOs
+
