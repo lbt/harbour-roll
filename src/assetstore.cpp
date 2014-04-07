@@ -1,8 +1,10 @@
 #include "assetstore.h"
 #include "utils.h"
+#include "sailfishapp.h"
 
-AssetStore::AssetStore(QObject *parent) :
+AssetStore::AssetStore(World *w, QObject *parent) :
     QObject(parent)
+  , m_world(w)
 {
 }
 AssetStore::~AssetStore() {
@@ -23,7 +25,7 @@ AssetStore::~AssetStore() {
     }
 }
 
-btCollisionShape* AssetStore::addShape(QString name, QString modelType, btScalar r)
+btCollisionShape* AssetStore::makeShape(QString name, QString modelType, btScalar r)
 {
     btSphereShape* shape = NULL;
     if (m_shapes.contains(name)) {
@@ -39,18 +41,12 @@ btCollisionShape* AssetStore::addShape(QString name, QString modelType, btScalar
     return shape;
 }
 
-QSGTexture *AssetStore::addTexture(QString name, QSGTexture *t)
-{
-    if (m_textures.contains(name)) {
-        qDebug() <<"Existing texture " << name;
-    }
-    if (t) m_textures[name] = t;
-    return t;
-}
 
-btCollisionShape* AssetStore::addShape(QString name, QString modelType, aiMesh* m) {
+btCollisionShape* AssetStore::makeShape(QString name, QString modelType, aiMesh* m) {
     btCollisionShape* rshape= NULL;
-
+    if (m_shapes.contains(name)) {
+        qDebug() <<"Existing shape " << name;
+    }
     if (! m) {
         qDebug() << "Mesh type "<< modelType << " requested and no mesh passed";
         return rshape;
@@ -109,14 +105,158 @@ btCollisionShape* AssetStore::addShape(QString name, QString modelType, aiMesh* 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VAO* AssetStore::addVAO(QString name, aiMesh* m) {
+
+Renderable *AssetStore::makeRenderable(QString name, VAO *v, QSGTexture *t)
+{
+    if (m_renderables.contains(name)) {
+        qDebug() <<"Existing renderable " << name;
+    }
+    Renderable *r = new Renderable(v, t);
+    m_renderables[name] = r;
+    return r;
+}
+
+Shader* AssetStore::makeShader(QString name, QString v_glsl_path, QString s_glsl_path) {
+    if (m_shaders.contains(name)) {
+        qDebug() <<"Existing shader " << name;
+    }
+    Shader *s = new Shader(SailfishApp::pathTo("roll_vert.glsl.out").toLocalFile(),
+                           SailfishApp::pathTo("roll_frag.glsl.out").toLocalFile(),
+                           m_world);
+    m_shaders[name] = s;
+    return s;
+}
+
+// Declare an external hack window :: FIXME 5.2
+#include <QQuickWindow>
+extern QQuickWindow* global_hack_window;
+QSGTexture *AssetStore::makeTexture(QString name, QImage img)
+{
+    if (m_textures.contains(name)) {
+        qDebug() <<"Existing texture " << name;
+    }
+    glEnable(GL_TEXTURE_2D);
+    QSGTexture* texture = global_hack_window ->
+            createTextureFromImage(img);
+    if (texture->isAtlasTexture()) { texture = texture->removedFromAtlas(); }
+    texture->setHorizontalWrapMode(QSGTexture::Repeat);
+    texture->setVerticalWrapMode(QSGTexture::Repeat);
+
+    if (texture) m_textures[name] = texture;
+    return texture;
+}
+
+VAO* AssetStore::makeVAO(QString name, aiMesh* m) {
     VAO* v = new VAO(m);
     m_vaos[name] = v;
     return v;
 }
 
-Renderable *AssetStore::addRenderable(QString name, VAO *v, QSGTexture *t)
+/////////////////////////////////////////////////////////////////////////
+/// \brief AssetStore::load
+/// \param filename
+/// \return
+///
+bool AssetStore::load(QString filename)
 {
-    Renderable *r = new Renderable(v, t);
-    return r;
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
+
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+
+    }
+
+    // Create an instance of the Importer class
+    Assimp::Importer importer;
+    importer.SetExtraVerbose(true);
+    // Attaching myStream to the default logger
+    Assimp::DefaultLogger::create("",Assimp::Logger::VERBOSE);
+
+    const unsigned int severity = Assimp::Logger::Debugging|Assimp::Logger::Info|Assimp::Logger::Err|Assimp::Logger::Warn;
+    Assimp::DefaultLogger::get()->attachStream( new dbgStream(), severity );
+    Assimp::DefaultLogger::get()->setLogSeverity( Assimp::Logger::VERBOSE );
+    // And have it read the given file with some example postprocessing
+    // Usually - if speed is not the most important aspect for you - you'll
+    // propably to request more postprocessing than we do in this example.
+
+    //    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT);
+    const aiScene* scene = importer.ReadFile( filename.toStdString(),
+                                              aiProcess_CalcTangentSpace |
+                                              aiProcess_Triangulate |
+                                              aiProcess_JoinIdenticalVertices |
+                                              aiProcess_SortByPType|
+                                              aiProcess_ValidateDataStructure|
+                                              aiProcess_FindDegenerates
+                                              );
+    qDebug() << "Parsed " << filename;
+
+    // If the import failed, report it
+    if( !scene)
+    {
+        qDebug() << importer.GetErrorString();
+        return false;
+    }
+
+    qDebug() << "There are " << scene->mNumTextures << " textures in the file and " << scene->mNumMaterials << " materials";
+
+    // Now we can access the file's contents.
+    importChildren(scene, scene->mRootNode);
+
+    Assimp::DefaultLogger::kill();
+    // We're done. Everything will be cleaned up by the importer destructor
+    return true;
+}
+
+// Declare an external hack window :: FIXME
+#include <QQuickWindow>
+extern QQuickWindow* global_hack_window;
+
+void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
+    QMatrix4x4 transform;
+
+    QString name = node->mName.C_Str();
+
+    qDebug() << "Processing node " << name;
+
+    if( node->mNumMeshes > 0)
+    {
+        qDebug() << "found a full node with " << node->mNumMeshes << " meshes";
+        // copy the mesh : FIXME assuming only 1 mesh
+        aiMesh* m = scene->mMeshes[node->mMeshes[0]];
+        VAO* v = makeVAO(name, m);
+
+        // Import any textures
+        int nTex = m->GetNumUVChannels();
+        if (nTex > 0) {// http://assimp.sourceforge.net/lib_html/materials.html
+            qDebug() << "Found " << nTex << " texture (UV) channels in material[" << m->mMaterialIndex << "]";
+            aiMaterial *mat = scene->mMaterials[m->mMaterialIndex];
+            aiString matname, path;
+            mat->Get(AI_MATKEY_NAME, matname);
+            if(mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
+            {
+                qDebug() << "and lives at " << path.C_Str();
+                // FIXME at 5.2:
+                //            m_texture = new QOpenGLTexture(QImage(path.data).mirrored());
+                QSGTexture* texture = makeTexture(matname.C_Str(), QImage(SailfishApp::pathTo(path.data).toLocalFile()).mirrored());
+
+                // This is a mesh with a texture - we can probably render that so link them as a Renderable
+                makeRenderable(name, v, texture);
+            } else {
+                qDebug() << "and has no path";
+            }
+        }
+    } else  {
+        qDebug() << "found an empty node with no meshes";
+        // if no meshes, skip the node, but keep its transformation
+        // transform = getNodeMatrix(node) * accTransform;
+    }
+
+    // continue for all child nodes
+    for( unsigned int a = 0; a < node->mNumChildren; a++) {
+        qDebug() << "found a child mesh";
+        importChildren(scene, node->mChildren[a]);
+    }
 }

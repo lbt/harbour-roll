@@ -1,6 +1,7 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
+#include <QObject>
 #include <QVector3D>
 #include "lightmanager.h"
 #include "glprogram.h"
@@ -26,30 +27,32 @@ struct _PointLight
     qreal AExp;
 };
 
-class Light
+class Light : public QObject
 {
-
+    Q_OBJECT
 public:
-    Light();
+    explicit Light(QObject *parent=0);
 
     LightManager lightManager;
+
     void update(int deltaT) { }
     virtual void randomise() = 0;
-    void debugRender(QMatrix4x4 projViewMatrix) {}
+    virtual void debugRender(QMatrix4x4 projViewMatrix) {}
+    virtual void setUniforms(GLProgram *p, int i) = 0;
 };
 
 class PointLight : public Light
 {
 
 public:
-    PointLight();
+    explicit PointLight(QObject *parent=0);
 
     _PointLight light() const { return m_light ; }
     void set(_PointLight light);
     void update(int deltaT);
     void randomise();
     void debugRender(QMatrix4x4 projViewMatrix);
-    void setUniforms(GLProgram *p, int i);
+    virtual void setUniforms(GLProgram *p, int i);
 private:
     _PointLight m_light;
 
@@ -60,13 +63,13 @@ class DirectionalLight : public Light
 {
 
 public:
-    DirectionalLight();
+    explicit DirectionalLight(QObject *parent=0);
 
     void set(_DirectionalLight light);
     _DirectionalLight light() const { return m_light ; }
     void randomise();
+    virtual void setUniforms(GLProgram *p, int i);
 
-    void setUniforms(GLProgram *p, int i);
 private:
     _DirectionalLight m_light;
 };

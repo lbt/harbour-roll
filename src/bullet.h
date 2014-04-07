@@ -77,7 +77,6 @@ signals:
 public slots:
     void setGravity(qreal x, qreal y, qreal z);
     void kick();
-    int numDice() const { return m_worldObjects.size();}
 
     void touch(float x, float y, QMatrix4x4 projViewMatrix, QVector3D lookingToward);
     void release();
@@ -99,11 +98,6 @@ private:
     btSequentialImpulseConstraintSolver* solver;
 
     btDiscreteDynamicsWorld* dynamicsWorld;
-
-    QMutex m_worldMutex;
-    QList<WorldObject*> m_worldObjects;
-    QList<WorldObject*>::iterator m_worldobjects_i;
-    BiMeshContainer* m_meshes;
 
     QVector3D m_touchRay[14];
     bool m_touchRayActive;

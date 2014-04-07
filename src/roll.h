@@ -7,7 +7,8 @@
 #include "light.h"
 #include "lightmanager.h"
 
-#include "bullet.h"
+#include "rollworld.h"
+#include "worldbuilder.h"
 
 #include <QTimer>
 #include <QElapsedTimer>
@@ -25,34 +26,6 @@ struct Accel {
     float z;
 };
 
-
-class RollRunner : public QObject
-{
-    Q_OBJECT
-public:
-    explicit RollRunner(Bullet *b, QObject *parent = 0);
-
-signals:
-    void ready();
-
-public slots:
-    void runStep();
-
-    void setup();
-    void setRunning(bool state);
-    void gravity(bool state);
-    void fly(bool state) { m_fly = state; }
-    void setDebugDraw(bool state);
-
-private:
-    QTimer* m_timer;
-    Bullet* m_workerBullet;
-    QElapsedTimer m_bulletTime;
-    QAccelerometer m_sensor;
-    bool m_running;
-    bool m_gravity;
-    bool m_fly;
-};
 
 class Roll : public GLItem
 {
@@ -79,7 +52,6 @@ class Roll : public GLItem
     Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(qreal z READ z WRITE setZ NOTIFY zChanged)
-    Q_PROPERTY(int numDice READ numDice NOTIFY numDiceChanged)
     Q_PROPERTY(bool running READ running WRITE setRunning NOTIFY runningChanged)
     Q_PROPERTY(QStringList names READ getNames NOTIFY namesChanged)
     Q_PROPERTY(bool mainLight READ mainLight WRITE setMainLight NOTIFY mainLightChanged)
@@ -100,7 +72,6 @@ public:
     void prep();
     void render();
 
-    int numDice() const { return bullet.numDice(); }
     const QStringList getNames() const;
 
     bool mainLight() const { return m_mainLight; }
@@ -167,10 +138,9 @@ private:
     bool m_gravity;
 
     QAccelerometer m_sensor;
-    Bullet bullet;
+    WorldBuilder* m_builder;
+    RollWorld* m_world;
     QElapsedTimer m_lightTime;
-    QThread m_runnerThread;
-    RollRunner* m_runner;
     bool m_mainLight;
 };
 

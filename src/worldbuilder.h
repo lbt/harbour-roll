@@ -4,11 +4,8 @@
 #include <QObject>
 #include <QFile>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 #include "assetstore.h"
+#include "shader.h"
 #include "world.h"
 #include "worlditem.h"
 
@@ -16,22 +13,13 @@
 class WorldBuilder : public QObject
 {
     Q_OBJECT
-    class dbgStream : public Assimp::LogStream // Used by load
-    {
-    public:
-        dbgStream() {}
-        void write(const char* message) { qDebug() << message; }
-    };
 
 public:
-    explicit WorldBuilder(QObject *parent = 0);
-
-    bool load(QString filename);
+    explicit WorldBuilder(World *w, QObject *parent = 0);
 
     AssetStore* getAssetStore() const {return m_assetStore; }
     World* getWorld() const {return m_world; }
 
-    void importChildren(const aiScene *scene, aiNode *node);
     void setup();
 signals:
 

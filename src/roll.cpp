@@ -14,7 +14,6 @@
 #include <sailfishapp.h>
 
 #include "math.h"
-#include <bullet/LinearMath/btIDebugDraw.h>
 #include "utils.h"
 
 #include <QDebug>
@@ -23,7 +22,6 @@
 
 #define COUNT 1
 
-#define TICK 17
 #define VMIN -1.0
 #define VMAX 1.0
 
@@ -51,10 +49,12 @@ Roll::Roll(QObject *parent) :
     Q_UNUSED(parent)
     m_sensor.start();
 
+    m_world = new RollWorld();
+    m_builder = new WorldBuilder(m_world);
+
     for (int i=0; i<3; i++) { m_pLights[i].lightManager.setScale(QVector3D(4.0, 5.0, 4.0)); }
     randomiseLights();
 
-    connect(&bullet, SIGNAL(numWorldObjectsChanged(int)), this, SIGNAL(numDiceChanged(int)));
 }
 
 Roll::~Roll()
@@ -65,7 +65,7 @@ Roll::~Roll()
 
 void Roll::saveSettings() {
     qDebug() << "Saving settings";
-    m_settings.setValue("rollState", bullet.serialise());
+//    m_settings.setValue("rollState", m_world->serialise());
 }
 
 void Roll::setX(qreal x)
@@ -107,15 +107,15 @@ void Roll::zoomAndSpin(bool state)
 //    if (!state)
 //        m_cammanager.reset();
     pickMode(! state);
-    QMetaObject::invokeMethod(m_runner, "fly", Qt::QueuedConnection, Q_ARG(bool, state));
+    m_world->fly(state);
 }
 
 void Roll::pickMode(bool state)
 {
     m_pickMode = state;
     // Change of state should also handle press/release
-    if (!state)
-        bullet.release();
+//    if (!state)
+//        m_world->release();
 }
 
 void Roll::fancyLights(bool state)
@@ -160,17 +160,20 @@ void Roll::randomiseLights()
 void Roll::gravity(bool state)
 {
     m_gravity = state;
-    QMetaObject::invokeMethod(m_runner, "gravity", Qt::QueuedConnection, Q_ARG(bool, state));
+    m_world->gravity(state);
 }
 
 void Roll::setDebugDraw(bool state)
 {
-    QMetaObject::invokeMethod(m_runner, "setDebugDraw", Qt::QueuedConnection, Q_ARG(bool, state));
+    m_world->setDebugDraw(state);
+}
+void Roll::setRunning(bool running) {
+    m_world->setRunning(running);
 }
 
 void Roll::useTrack(QString track)
 {
-    bullet.useTrack(track);
+//    m_world->useTrack(track);
 }
 
 
@@ -207,7 +210,7 @@ void Roll::handlePressed(int x, int y) {
         float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
         float fy = (0.5f - (float)y/(float)m_cammanager.screenHeight()) * 2.0f; // [yyy,0] -> [-1,1] (screen is inverted compared to GL)
         qDebug()<< "Camera at " << m_cammanager.at();
-        bullet.touch(fx, fy, m_cammanager.projViewMatrix(), m_cammanager.forward());
+        //m_world->touch(fx, fy, m_cammanager.projViewMatrix(), m_cammanager.forward());
     }
     //    }
 }
@@ -221,60 +224,28 @@ void Roll::handleReleased(int x, int y) {
     if (m_zoomAndSpin)
         m_cammanager.release();
     //    if (m_pickMode)
-    bullet.release();
+    //m_world->release();
 
 }
 
-void Roll::setRunning(bool running)
-{
-    m_running = running;
-    QMetaObject::invokeMethod(m_runner, "setRunning", Qt::QueuedConnection, Q_ARG(bool, running));
-}
 
 extern QQuickWindow* global_hack_window;
 void Roll::prep()
 {
     global_hack_window = window(); // This is until we get 5.2 and QOpenGLTextures
     qDebug() << "roll Prep";
-    // Setup a worker Thread to do the bullet calcs
-    m_runner = new RollRunner(&bullet);
-    m_runner->moveToThread(&m_runnerThread);
-    connect(&m_runnerThread, &QThread::finished, m_runner, &QObject::deleteLater);
-    connect(&m_runnerThread, &QThread::started, m_runner, &RollRunner::setup);
-    connect(m_runner, SIGNAL(ready()), this->window(), SLOT(update()) );
-    m_runnerThread.start();
 
-    m_program_dice = new GLProgram(SailfishApp::pathTo("roll_vert.glsl.out"), SailfishApp::pathTo("roll_frag.glsl.out"));
-    //    m_program_dice = new GLProgram(SailfishApp::pathTo("roll_vert.glsl.out"), SailfishApp::pathTo("debug_frag.glsl"));
     qDebug() << "created programs";
 
     QVariant state(m_settings.value("rollState"));
-    bullet.setupModel(state.toString());
+    m_world->restore(state.toString());
     emit namesChanged();
-    emit numDiceChanged(numDice());
     m_lightTime.start();
 
     // and then prepare any one-time data like VBOs
-    glGenBuffers(2, m_vboIds);
-
-#define AXIS_LEN 1
-    QVector3D axes[] = {
-        QVector3D(-AXIS_LEN, 0, 0), QVector3D(AXIS_LEN, 0, 0),
-        QVector3D(0, -AXIS_LEN, 0), QVector3D(0, AXIS_LEN, 0),
-        QVector3D(0, 0, -AXIS_LEN), QVector3D(0, 0, AXIS_LEN),
-    };
-    GLushort axesorder[] = {0, 1, 1, 2, 2, 3, 3, 4, 4, 5};
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(QVector3D), axes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 10 * sizeof(GLushort), axesorder, GL_STATIC_DRAW);
-
-    // Load cube.png image
-    glEnable(GL_TEXTURE_2D);
-
-    bullet.setupGL(m_program_dice);
-    setRunning(true);
+    connect(m_world, SIGNAL(stepReady()), this->window(), SLOT(update()) );
+    m_world->setupGL();
+    m_world->start();
 }
 
 
@@ -292,7 +263,7 @@ void Roll::render()
         }
         m_cammanager.updatePosition();
     } else {
-        m_cammanager.follow(bullet.getFollowInfo());
+//        m_cammanager.follow(m_world->getFollowInfo());
     }
 //    bool m_follow=true;
 //    if (m_follow) {
@@ -304,71 +275,13 @@ void Roll::render()
     if (m_fancyLights)
         for (unsigned int i = 0 ; i < 3 ; i++) { m_pLights[i].update(timeDelta_ms); }
 
-    // Prepare to actually draw ///////////////////////////////////////////////////////////
-    GLProgram *p = m_program_dice;
-    p->bind();
-
-    QMatrix4x4 projViewMatrix = m_cammanager.projViewMatrix();
-
-    p->setUniformValue(p->getU("projViewMatrixU"), projViewMatrix);
-
-
-    // Setup lighting /////////////////////////////////////////////////////////////////////
-    for (unsigned int i = 0 ; i < 2 ; i++) {
-        QString pln("directionalLights[%1].");
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_dLights[i].light().Base.Color);
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_dLights[i].light().Base.AmbientIntensity);
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_dLights[i].light().Base.DiffuseIntensity);
-        p->setUniformValue(p->getU(pln.arg(i)+"Direction"), m_dLights[i].light().Direction);
-    }
-
-    for (unsigned int i = 0 ; i < 3 ; i++) {
-        QString pln("pointLights[%1].");
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_pLights[i].light().Base.Color);
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_pLights[i].light().Base.AmbientIntensity);
-        p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_pLights[i].light().Base.DiffuseIntensity);
-        p->setUniformValue(p->getU(pln.arg(i)+"Position"), m_pLights[i].light().Position);
-        //qDebug() << "Setting " << pln.arg(i)+"Position" << "] " << m_pLights[i].light().Position << " in " << p->getU(pln.arg(i)+"Position");
-        p->setUniformValue(p->getU(pln.arg(i)+"AConstant"), m_pLights[i].light().AConstant);
-        p->setUniformValue(p->getU(pln.arg(i)+"ALinear"), m_pLights[i].light().ALinear);
-        p->setUniformValue(p->getU(pln.arg(i)+"AExp"), m_pLights[i].light().AExp);
-    }
-
-    p->setUniformValue(p->getU("matSpecularIntensityU"), 2.0f);
-    p->setUniformValue(p->getU("specularPowerU"), 32.0f);
-    p->setUniformValue(p->getU("eyeWorldPosU"), m_cammanager.at());
-
-
-    p->setUniformValue(p->getU("colU"), QVector4D(0.6, 0.7, 0.8, 1.0));
-    p->setUniformValue(p->getU("Glow"), QVector4D(0.0, 0.0, 0.0, 1.0));
-
-    // Render the ground/walls /////////////////////////////////////////////////////////////////////
-
-    // TODO
-
-    // Setup Model for cubes /////////////////////////////////////////////////////////////////////
-
     // Draw the world
-    bullet.render(p, projViewMatrix);
-
-    if (bullet.getDebugMode()) {
-        // Draw the lights
-        for (unsigned int i = 0 ; i < 2 ; i++) {
-            m_dLights[i].debugRender(projViewMatrix);
-        }
-        for (unsigned int i = 0 ; i < 3 ; i++) {
-            m_pLights[i].debugRender(projViewMatrix);
-        }
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    //    qDebug() << "Render took " << t.elapsed();
+    m_world->render();
 
 }
 
 const QStringList Roll::getNames() const {
-    QStringList l = bullet.getNames();
+    QStringList l = m_world->getTrackNames();
     l.sort();
     return l;
 }
@@ -378,58 +291,3 @@ void Roll::sync()
     ++m_frame;
 }
 
-RollRunner::RollRunner(Bullet *b, QObject *parent):
-    m_running(false)
-  , m_gravity(true)
-  , m_fly(false)
-{
-    m_workerBullet = b;
-}
-
-void RollRunner::setup() {
-    m_bulletTime.start();
-    m_sensor.start();
-    m_timer = new QTimer(this);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(runStep()) );
-    m_timer->setInterval(TICK);;
-}
-
-void RollRunner::setRunning(bool running){
-    if (m_running == running) return;
-
-    m_running = running;
-    if (running) {
-        m_timer->start();
-    } else {
-        m_timer->stop();
-    }
-}
-
-void RollRunner::gravity(bool state)
-{
-    m_gravity = state;
-}
-
-void RollRunner::setDebugDraw(bool state)
-{
-    if (state)
-        m_workerBullet->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-    else
-        m_workerBullet->setDebugMode(0);
-}
-
-void RollRunner::runStep() {
-    if (m_gravity) {
-//        if (!m_fly) {
-            QAccelerometerReading *reading = m_sensor.reading();
-            m_workerBullet->setGravity(reading->x(), reading->y(), reading->z());
-//        }
-    } else {
-        m_workerBullet->setGravity(0, 0, 0);
-    }
-
-    //    qDebug() << "tick";
-    int timeDelta_ms = m_bulletTime.restart();
-    m_workerBullet->runStep(timeDelta_ms );
-    emit ready();
-}

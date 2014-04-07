@@ -4,11 +4,14 @@
 #include <QObject>
 #include <QList>
 
-#include "renderable.h"
 #include "physics.h"
-class Physics; // Mutual link with Physics from physics.h
+class Physics;    // Mutual link with Physics from physics.h
+#include "renderable.h"
+class Renderable; // Mutual link
+#include "shader.h"
+class Shader;     // Mutual link
 #include "world.h"
-class World; // Mutual link with World from world.h
+class World;      // Mutual link
 
 class WorldItem : public QObject
 {
@@ -22,7 +25,8 @@ public:
     Physics* physics() const {return m_physics;}
     QMatrix4x4 pos() const { return m_pos; }
 
-    void render(GLProgram *activeProgram);
+    void render(const Shader *activeProgram);
+    void setupGL();
 signals:
 
 public slots:

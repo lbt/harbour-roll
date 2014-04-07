@@ -5,6 +5,23 @@ World::World(QObject *parent) :
   , m_worldMutex(QMutex::Recursive)
   , m_debugDrawer(this)
 {
+
+    setupPhysicsWorld();
+
+    createRunner();
+    m_runner->moveToThread(&m_runnerThread);
+    connect(&m_runnerThread, &QThread::finished, m_runner, &QObject::deleteLater);
+    connect(&m_runnerThread, &QThread::started, m_runner, &WorldRunner::setup);
+    connect(m_runner, SIGNAL(ready()), this, SIGNAL(stepReady()) );
+
+}
+
+World::~World()
+{
+    destroyPhysicsWorld();
+}
+
+void World::setupPhysicsWorld() {
     // Setup the bullet physics world
     ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
     collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -19,10 +36,10 @@ World::World(QObject *parent) :
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
     dynamicsWorld->setGravity(btVector3(0,0,0));
     dynamicsWorld->setDebugDrawer(&m_debugDrawer);
+
 }
 
-World::~World()
-{
+void World::destroyPhysicsWorld() {
     qDebug() << "Doing bullet cleanup";
     //cleanup in the reverse order of creation/initialization
     int i;
@@ -48,27 +65,131 @@ World::~World()
     delete collisionConfiguration;
 
     qDebug() << "Done bullet cleanup";
+
 }
 
-void World::render()
+void World::createRunner() {
+    // Setup a worker Thread to do the bullet calcs
+    m_runner = new WorldRunner(this);
+}
+
+void World::start() {
+    m_runnerThread.start();
+}
+
+void World::setRunning(bool running)
 {
+    QMetaObject::invokeMethod(m_runner, "setRunning", Qt::QueuedConnection, Q_ARG(bool, running));
+}
+
+QString World::serialise() {
+    QString state;
     m_worldMutex.lock();
-//    for (auto wobj : m_worldObjects) { // ideally group by shader
-//        wobj->render();
-//    }
+    //    for (auto wobj : m_worldObjects) {
+    //        state += wobj->getBiMesh()->name() + ",";
+    //    }
+    m_worldMutex.unlock();
+    //    qDebug() << "Saved state " << state;
+    return state;
+}
+
+void World::restore(QString state) {
+    //    qDebug() << "Restore state " << state;
+    m_worldMutex.lock();
+    //    for (auto wobj : m_worldObjects) {
+    //        removeObject(wobj);
+    //    }
+    //    for (auto die : state.split(",")) {
+    ////        qDebug() << "Adding " << die;
+    //        addRoll(die);
+    //    }
     m_worldMutex.unlock();
 }
 
+void World::runStep(int ms)
+{
+    m_worldMutex.lock();
+    dynamicsWorld->stepSimulation(ms/1000.f, 10, 1.f/300.f);
+    if (m_debugDrawer.getDebugMode() != WorldDebugDrawer::DBG_NoDebug )
+    {
+        m_debugDrawer.newFrame();
+        dynamicsWorld->debugDrawWorld();
+    }
+    // Ensure all objects are permanently activated
+    for (auto wi : m_worlditems) {
+        if (wi->physics()) {
+            wi->physics()->getRigidBody()->activate();
+        }
+    }
+    m_worldMutex.unlock();
+}
+
+////////////////////////////////////////////////
+/// \brief World::setupGL
+/// Call this when there's an active GL context
+///
+void World::setupGL(){
+    for (auto k : m_worlditems.keys()){
+        m_worlditems[k]->setupGL();
+    }
+
+}
+/////////////////////////////////////////////////
+/// \brief World::render
+///
+/// Iterate through the Worlditems by shader
+/// Setup each shader (they pull Camera and light from the world - and anything else they may need)
+/// Render relevant WorldItems
+///
+void World::render()
+{
+    m_worldMutex.lock();
+
+    for (Shader* s : m_byShader.keys()) {
+        s->renderPrep(); // bind and setup Lights (maybe do that here?)
+        for (WorldItem* wi : m_byShader[s]) {
+            wi->render(s);
+        }
+    }
+    m_worldMutex.unlock();
+
+    if (m_debugDrawer.getDebugMode() != 0) {
+        m_debugShader->renderPrep();
+        for (Light* l : getLights()) {
+            l->debugRender(getActiveCameraPVM());
+        }
+
+    }
+}
+
+QList<Light *> World::getLights()
+{
+
+}
+
+QMatrix4x4 World::getActiveCameraPVM()
+{
+
+}
+
+QVector3D World::getActiveCameraAt()
+{
+
+}
 // Called by the item
 // Store by item Name and by all item->Renderable[]->shader
 void World::add(WorldItem* i){
     m_worldMutex.lock();
-    m_world[i->objectName()] = i;
+    m_worlditems[i->objectName()] = i;
     for (Renderable* r: i->m_renderables) {
-        m_byShader[r->getShader()] = i;
+        m_byShader[r->getShader()] << i;
     }
     m_worldMutex.unlock();
 }
+
 void World::add(Physics* i){
+    m_worldMutex.lock();
     dynamicsWorld->addRigidBody(i->getRigidBody());
+    m_worldMutex.unlock();
 }
+

@@ -16,6 +16,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "shader.h"
+class Shader;      // Mutual link
 #include "glprogram.h"
 #include "vao.h"
 
@@ -25,17 +27,17 @@ class Renderable : public QObject
 public:
     explicit Renderable(VAO* v, QSGTexture* t = 0, QObject *parent = 0);
     void setTexture(QSGTexture *t) { m_texture = t; }
-    void setShader(GLProgram* p);
-    GLProgram* getShader() const { return m_p; }
-    void setup(GLProgram *p);
-    void render(GLProgram *activeProgram);
+    void setShader(Shader* p);
+    Shader* getShader() const { return m_shader; }
+    void setupGL();
+    void render(const Shader *activeShader);
 
 signals:
 
 public slots:
 
 private:
-    GLProgram* m_p;
+    Shader* m_shader;
     QString m_name;
     VAO *m_vao;
     QSGTexture *m_texture;

@@ -63,7 +63,9 @@ Start world runner
 Things are keyed by name and typically a named vao/collisionshape
 will be used together.
 
-Creates/contains:
+The Asset Store creates/owns everything in it.
+
+Creates:
   * VAO
   * Texture
   * shader
@@ -71,6 +73,8 @@ Creates/contains:
   * btCollisionShapes
   * curves
 
+There is a problem that some things in the AssetStore depend on the current world.
+Fix this.
 
 * Renderable
   Something that appears onscreen
@@ -82,16 +86,19 @@ methods:
 
 * WorldBuilder
   reads a scene, aiMeshes, json etc
- 1) reads data into AsssetStore from obj and json
- 2) creates objects, adds to world
+ 1) primes the AssetStore with obj
+ 2) uses json to create world objects
+ 3) creates objects, adds to world
 
 * World
 WorldItems add themselves to a world.
 
+Containers
  * physicsWorld
  * WorldItem
  * physicsThread
- * Containers
+ * Shaders
+ * Lights
 
 methods
  + render()
@@ -117,6 +124,10 @@ simple wrapper around a btRigidBody
 
 
 * Light
+Lights have various attributes which are passed to GLSL (col, intensity etc)
+They have a light manager which they update each tick and which provides position/direction.
+
+ * Point / Directional
 
 * Camera
 
@@ -134,3 +145,17 @@ simple wrapper around a btRigidBody
 
 
 
+* GLSL variables
+These variables will automatically be populated if used
+
+uniform mat4 worldMatrixU;          // ??
+uniform mat4 projViewMatrixU;       // Standard pvm
+uniform vec3 eyeWorldPosU;          // Eye/Camera position
+
+
+uniform sampler2D textureU;
+uniform DirectionalLight directionalLights[n];
+uniform PointLight pointLights[n];
+
+uniform float matSpecularIntensityU;
+uniform float specularPowerU;

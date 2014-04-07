@@ -7,14 +7,22 @@
 
 GLProgram* PointLight::c_program_debug = 0;
 
+Light::Light(QObject *parent) :
+    QObject(parent)
+{
+
+}
+void Light::setUniforms(GLProgram *p, int i) {
+}
+
+PointLight::PointLight(QObject *parent) :
+    Light(parent)
+{}
+
 void PointLight::update(int deltaT)
 {
     lightManager.update(deltaT);
     m_light.Position= lightManager.pos();
-}
-
-PointLight::PointLight()
-{
 }
 
 void PointLight::set(_PointLight light)
@@ -34,7 +42,9 @@ void PointLight::randomise(){
     update(0);
 }
 
-DirectionalLight::DirectionalLight() {}
+DirectionalLight::DirectionalLight(QObject *parent) :
+    Light(parent)
+{}
 
 void DirectionalLight::set(_DirectionalLight light)
 {
@@ -83,10 +93,4 @@ void PointLight::setUniforms(GLProgram *p, int i) {
     p->setUniformValue(p->getU(pln.arg(i)+"AConstant"), m_light.AConstant);
     p->setUniformValue(p->getU(pln.arg(i)+"ALinear"), m_light.ALinear);
     p->setUniformValue(p->getU(pln.arg(i)+"AExp"), m_light.AExp);
-}
-
-
-Light::Light()
-{
-
 }

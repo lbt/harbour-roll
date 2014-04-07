@@ -10,6 +10,7 @@
 
 // When the 5.2 Qt hits use this:
 // #include <QOpenGLTexture>
+#include <QImage>
 #include <QSGTexture>
 
 #include <assimp/Importer.hpp>
@@ -43,18 +44,17 @@
 
 class AssetStore : public QObject
 {
-    class Asset
+    Q_OBJECT
+
+    class dbgStream : public Assimp::LogStream // Used by load
     {
     public:
-        explicit Asset(Asset* parent, QMatrix4x4 transform);
-    private:
-        Asset* m_parent;
-        QMatrix4x4 m_transform;
+        dbgStream() {}
+        void write(const char* message) { qDebug() << message; }
     };
 
-    Q_OBJECT
 public:
-    explicit AssetStore(QObject *parent = 0);
+    explicit AssetStore(World* w, QObject *parent = 0);
     ~AssetStore();
 
     bool load(QString filename);
@@ -64,20 +64,25 @@ public:
     aiMesh* getMesh(QString name);
     QList<QString> getNames();
 
-    btCollisionShape* addShape(QString name, QString modelType, aiMesh *m);
-    btCollisionShape* addShape(QString name, QString modelType, btScalar r);
-    QSGTexture* addTexture(QString name, QSGTexture* t);
-    VAO* addVAO(QString name, aiMesh *m);
-    Renderable* addRenderable(QString name, VAO *v, QSGTexture *t);
+    btCollisionShape* makeShape(QString name, QString modelType, aiMesh *m);
+    btCollisionShape* makeShape(QString name, QString modelType, btScalar r);
+    VAO* makeVAO(QString name, aiMesh *m);
+    Renderable* makeRenderable(QString name, VAO *v, QSGTexture *t);
+
+    QSGTexture* makeTexture(QString name, QImage img);
+
+    Shader *makeShader(QString name, QString v_glsl_path,
+                       QString s_glsl_path);
 
 signals:
 
 public slots:
 
 private:
+    World* m_world;
     QMap<QString, btCollisionShape*> m_shapes;
     QMap<QString, VAO*> m_vaos;
-    QMap<QString, GLProgram*> m_shaders;
+    QMap<QString, Shader*> m_shaders;
     QMap<QString, Renderable*> m_renderables;
     QMap<QString, QSGTexture*> m_textures;
 

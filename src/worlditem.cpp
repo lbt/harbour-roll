@@ -1,4 +1,5 @@
 #include "worlditem.h"
+#include "shader.h"
 #include <QDebug>
 
 #include "utils.h"
@@ -19,11 +20,18 @@ void WorldItem::add(Physics *p)
     }
 }
 
+void WorldItem::setupGL(){
+    for (auto r : m_renderables){
+        r->setupGL();
+    }
+
+}
+
 ////
 /// \brief WorldItem::render
 /// \param p - This is used to select the correct VAO for the currently active GLProgram
 ///
-void WorldItem::render(GLProgram* activeProgram) {
+void WorldItem::render(const Shader *activeProgram) {
 
     // If we're a physics body then we update using physics.
     // Other moving classes will need to update pos some other way
@@ -37,6 +45,9 @@ void WorldItem::render(GLProgram* activeProgram) {
     for (auto r: m_renderables) {
         r->render(activeProgram);
     }
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 

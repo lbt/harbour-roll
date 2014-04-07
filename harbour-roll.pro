@@ -27,7 +27,7 @@ SOURCES += src/harbour-roll.cpp \
     src/glitem.cpp \
     src/glprogram.cpp \
     src/cameramanager.cpp \
-    src/bullet.cpp \
+#    src/bullet.cpp \
     src/roll.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
@@ -42,7 +42,9 @@ SOURCES += src/harbour-roll.cpp \
     src/world.cpp \
     src/rollworld.cpp \
     src/worlddebugdrawer.cpp \
-    src/worldbuilder.cpp
+    src/worldbuilder.cpp \
+    src/worldrunner.cpp \
+    src/shader.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -78,7 +80,7 @@ HEADERS += \
     src/glitem.h \
     src/glprogram.h \
     src/cameramanager.h \
-    src/bullet.h \
+#    src/bullet.h \
     src/roll.h \
     src/lightmanager.h \
     src/light.h \
@@ -94,7 +96,9 @@ HEADERS += \
     src/world.h \
     src/rollworld.h \
     src/worlddebugdrawer.h \
-    src/worldbuilder.h
+    src/worldbuilder.h \
+    src/worldrunner.h \
+    src/shader.h
 
 # MerSDK david:~/src/glsl-optimizer > ./glslopt -f ../harbour-dice/src/dice_frag.glsl 
 # MerSDK david:~/src/glsl-optimizer > ./glslopt -v ../harbour-dice/src/dice_vert.glsl 

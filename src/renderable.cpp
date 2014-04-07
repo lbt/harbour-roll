@@ -18,7 +18,9 @@ Renderable::Renderable(VAO *v, QSGTexture *t, QObject *parent) :
   , m_vao(v)
 { }
 
-void Renderable::setup(GLProgram* p) {
+void Renderable::setupGL() {
+
+    GLProgram* p = m_shader->getProgram();
 
     glGenBuffers(2, m_vboIds); // one for VAO, other for indices
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
@@ -85,9 +87,12 @@ void Renderable::setup(GLProgram* p) {
 // The approach that's likely to work is to define the app's model format and which attribs
 // must be used. Then preset all the lighting in one area and then render each object
 
-void Renderable::render(GLProgram *activeProgram)
+void Renderable::render(const Shader *activeShader)
 {
-    if (activeProgram != m_p) return; // This is not our program
+    GLProgram* p = m_shader->getProgram();
+
+    if (activeShader != m_shader) return; // This is not our program
+
     if (!m_texture) {
         qDebug() << "no texture, not rendering " << m_name;
         return;
@@ -99,22 +104,25 @@ void Renderable::render(GLProgram *activeProgram)
 
     // This is probably the same for all VAOs at the moment - it may change if some
     // VAOs have different layouts
-    glVertexAttribPointer(m_p->getA("posA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
+    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
                           (const GLvoid*)m_vao->m_pos_loc);
-    glVertexAttribPointer(m_p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
+    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
                           (const GLvoid*)m_vao->m_normal_loc);
-    glVertexAttribPointer(m_p->getA("texA"), 2, GL_FLOAT, GL_FALSE, m_vao->stride(),
+    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, m_vao->stride(),
                           (const GLvoid*)m_vao->m_texture_loc);
 
-    glEnableVertexAttribArray(m_p->getA("posA"));
-    glEnableVertexAttribArray(m_p->getA("texA"));
-    glEnableVertexAttribArray(m_p->getA("normalA"));
+    glEnableVertexAttribArray(p->getA("posA"));
+    glEnableVertexAttribArray(p->getA("texA"));
+    glEnableVertexAttribArray(p->getA("normalA"));
+
+    p->setUniformValue(p->getU("matSpecularIntensityU"), 2.0f);
+    p->setUniformValue(p->getU("specularPowerU"), 32.0f);
 
     m_texture->bind();
 
     glDrawElements(GL_TRIANGLES, m_vao->numIndices(), GL_UNSIGNED_SHORT, 0);
 
-    glDisableVertexAttribArray(m_p->getA("posA"));
-    glDisableVertexAttribArray(m_p->getA("texA"));
-    glDisableVertexAttribArray(m_p->getA("normalA"));
+    glDisableVertexAttribArray(p->getA("posA"));
+    glDisableVertexAttribArray(p->getA("texA"));
+    glDisableVertexAttribArray(p->getA("normalA"));
 }
