@@ -62,7 +62,8 @@ RollRunner::RollRunner(RollWorld *w, QObject *parent):
 {
 }
 
-void RollRunner::setup() {
+void RollRunner::setup()
+{
     WorldRunner::setup();
     m_sensor.start();
 }

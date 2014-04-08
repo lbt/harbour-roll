@@ -22,6 +22,7 @@ class World : public QObject
 {
     Q_OBJECT
 
+    friend class WorldBuilder;
     friend class WorldItem;
     friend class WorldRunner;
 public:
@@ -47,7 +48,7 @@ public:
 protected:
     void add(WorldItem *i);
     void add(Physics *p);
-    void add(Light *l);
+    void add(QString name, Light *l);
 
     // Support subclassing
     void setupPhysicsWorld();
@@ -69,6 +70,8 @@ protected:
 
     QMap<QString, WorldItem*> m_worlditems;
     QMap<Shader*, QList<WorldItem*>> m_byShader;
+
+    QMap<QString, Light*> m_lights;
 
     WorldDebugDrawer m_debugDrawer;
     Shader* m_debugShader;

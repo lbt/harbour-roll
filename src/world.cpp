@@ -121,6 +121,9 @@ void World::runStep(int ms)
             wi->physics()->getRigidBody()->activate();
         }
     }
+    for (auto l : getLights()) {
+        l->update(ms);
+    }
     m_worldMutex.unlock();
 }
 
@@ -164,7 +167,7 @@ void World::render()
 
 QList<Light *> World::getLights()
 {
-
+    return m_lights.values();
 }
 
 QMatrix4x4 World::getActiveCameraPVM()
@@ -187,9 +190,18 @@ void World::add(WorldItem* i){
     m_worldMutex.unlock();
 }
 
-void World::add(Physics* i){
+void World::add(Physics* p){
     m_worldMutex.lock();
-    dynamicsWorld->addRigidBody(i->getRigidBody());
+    dynamicsWorld->addRigidBody(p->getRigidBody());
+    m_worldMutex.unlock();
+}
+
+void World::add(QString name, Light* l){
+    m_worldMutex.lock();
+    if (m_lights.contains(name)) {
+        qDebug() <<"Existing light " << name;
+    }
+    m_lights[name] = l;
     m_worldMutex.unlock();
 }
 

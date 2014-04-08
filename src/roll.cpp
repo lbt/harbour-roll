@@ -33,27 +33,21 @@
 
 Roll::Roll(QObject *parent) :
     GLItem()
-  , m_frame(0)
   , p_x(0)
   , p_y(0)
-  , m_thread_t(0)
   , p_pressed(false)
   , m_zoomAndSpin(false)
   , m_pickMode(true)
   , m_gravity(true)
-  , m_mainLight(true)
+  , m_mainLightOn(true)
   , m_settings(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
                .filePath(QCoreApplication::applicationName())+"/roll.ini",
                QSettings::IniFormat)
 {
     Q_UNUSED(parent)
-    m_sensor.start();
 
     m_world = new RollWorld();
     m_builder = new WorldBuilder(m_world);
-
-    for (int i=0; i<3; i++) { m_pLights[i].lightManager.setScale(QVector3D(4.0, 5.0, 4.0)); }
-    randomiseLights();
 
 }
 
@@ -95,10 +89,6 @@ void Roll::setXYZ(QVector3D v) {
     setZ(v.z());
 }
 
-void Roll::useXYZ(QString use) {
-    m_use = use;
-}
-
 
 void Roll::zoomAndSpin(bool state)
 {
@@ -120,13 +110,17 @@ void Roll::pickMode(bool state)
 
 void Roll::fancyLights(bool state)
 {
+    if (m_fancyLights == state) return;
     m_fancyLights = state;
+    for (auto l : m_world->getLights()) {
+        l->lightManager.active(state);
+    }
 }
 
 void Roll::setMainLight(bool arg)
 {
-    if (m_mainLight != arg) {
-        m_mainLight = arg;
+    if (m_mainLightOn != arg) {
+        m_mainLightOn = arg;
         emit mainLightChanged(arg);
     }
     _DirectionalLight light;
@@ -136,24 +130,25 @@ void Roll::setMainLight(bool arg)
         light.Base.AmbientIntensity=0.4;
         light.Base.DiffuseIntensity=0.8;
         light.Direction = QVector3D(-1, 1, 4).normalized();
-        m_dLights[0].set(light);
+        m_mainLight->set(light);
     } else {
-        m_dLights[0].randomise();
+        m_mainLight->randomise();
     }
 }
 
 void Roll::randomiseLights()
 {
-    for (int i=0; i<2; i++) { m_dLights[i].randomise(); }
-    for (int i=0; i<3; i++) { m_pLights[i].randomise(); }
-    if (m_mainLight) {
+    for (auto l : m_world->getLights()) {
+        l->randomise();
+    }
+    if (m_mainLightOn) {
         _DirectionalLight light;
         // Ensure that the first throw has a visible dlight
         light.Base.Color = QVector3D(1.0, 1.0, 1.0);
         light.Base.AmbientIntensity=0.4;
         light.Base.DiffuseIntensity=0.8;
         light.Direction = QVector3D(-1, 1, 4).normalized();
-        m_dLights[0].set(light);
+        m_mainLight->set(light);
     }
 }
 
@@ -176,8 +171,10 @@ void Roll::useTrack(QString track)
 //    m_world->useTrack(track);
 }
 
-
-void Roll::handleUse() {
+const QStringList Roll::getNames() const {
+    QStringList l = m_world->getTrackNames();
+    l.sort();
+    return l;
 }
 
 void Roll::handlePositionChanged(int x, int y)
@@ -235,12 +232,8 @@ void Roll::prep()
     global_hack_window = window(); // This is until we get 5.2 and QOpenGLTextures
     qDebug() << "roll Prep";
 
-    qDebug() << "created programs";
-
     QVariant state(m_settings.value("rollState"));
     m_world->restore(state.toString());
-    emit namesChanged();
-    m_lightTime.start();
 
     // and then prepare any one-time data like VBOs
     connect(m_world, SIGNAL(stepReady()), this->window(), SLOT(update()) );
@@ -253,10 +246,6 @@ void Roll::prep()
 
 void Roll::render()
 {
-    QElapsedTimer t;
-    t.start();
-
-    handleUse(); // QML input from properties
     if (m_zoomAndSpin) {
         if (p_pressed) {
             m_cammanager.touch(p_x, p_y);
@@ -270,24 +259,7 @@ void Roll::render()
 //        m_cammanager.follow(bullet.getFollowInfo());
 //    }
 
-    int timeDelta_ms = m_lightTime.restart();  /// FIXME this is not bullet time. Also FIXME and update in the DiceRunner thread
-    //for (unsigned int i = 0 ; i < 2 ; i++) { m_dLights[i].update(timeDelta_ms); }
-    if (m_fancyLights)
-        for (unsigned int i = 0 ; i < 3 ; i++) { m_pLights[i].update(timeDelta_ms); }
-
     // Draw the world
     m_world->render();
 
 }
-
-const QStringList Roll::getNames() const {
-    QStringList l = m_world->getTrackNames();
-    l.sort();
-    return l;
-}
-
-void Roll::sync()
-{
-    ++m_frame;
-}
-

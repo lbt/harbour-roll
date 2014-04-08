@@ -27,11 +27,9 @@ SOURCES += src/harbour-roll.cpp \
     src/glitem.cpp \
     src/glprogram.cpp \
     src/cameramanager.cpp \
-#    src/bullet.cpp \
     src/roll.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
-    src/bimesh.cpp \
     src/worldobject.cpp \
     src/renderable.cpp \
     src/physics.cpp \
@@ -80,11 +78,9 @@ HEADERS += \
     src/glitem.h \
     src/glprogram.h \
     src/cameramanager.h \
-#    src/bullet.h \
     src/roll.h \
     src/lightmanager.h \
     src/light.h \
-    src/bimesh.h \
     src/worldobject.h \
     src/renderable.h \
     src/renderable.h \

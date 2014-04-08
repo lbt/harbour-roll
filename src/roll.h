@@ -31,24 +31,6 @@ class Roll : public GLItem
 {
     Q_OBJECT
 
-    struct VertexData
-    {
-#define VertexData_0 (0)
-        QVector3D position;
-#define VertexData_1 (sizeof(QVector3D))
-        QVector2D texCoord;
-#define VertexData_2 (VertexData_1+sizeof(QVector2D))
-        QVector3D normal;
-#define VertexData_3 (VertexData_2+sizeof(QVector3D))
-    };
-
-    struct Model
-    {
-        VertexData* vertices;
-        GLushort* indices;
-    };
-
-
     Q_PROPERTY(qreal x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(qreal y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(qreal z READ z WRITE setZ NOTIFY zChanged)
@@ -68,13 +50,12 @@ public:
     void setZ(qreal z);
     bool running() const { return m_running; }
     void setXYZ(QVector3D v);
-    void handleUse();
     void prep();
     void render();
 
     const QStringList getNames() const;
 
-    bool mainLight() const { return m_mainLight; }
+    bool mainLight() const { return m_mainLightOn; }
 
 signals:
     void xChanged(qreal);
@@ -83,16 +64,13 @@ signals:
     void runningChanged();
     void pressedChanged();
     void namesChanged();
-    void numDiceChanged(int arg);
     void mainLightChanged(bool arg);
 
 public slots:
     void setRunning(bool running);
-    void sync();
     void handlePressed(int x, int y);
     void handlePositionChanged(int x, int y);
     void handleReleased(int x, int y);
-    void useXYZ(QString use);
     void randomiseLights();
     void zoomAndSpin(bool state);
     void pickMode(bool state);
@@ -108,25 +86,15 @@ private:
 
 private:
     QSettings m_settings;
-    QMatrix4x4 m_currMatrix;
-    GLuint m_vboIds[2];
-    GLProgram *m_program_dice;
     
     CameraManager m_cammanager;
 
-    DirectionalLight m_dLights[3];
-    PointLight m_pLights[3];
-
-    int m_frame;
     qreal p_x;
     qreal p_y;
     qreal p_z;
-    QString m_use;
     qreal m_lastx;
     qreal m_lasty;
     qint64 m_XYdeltaTime;
-    qreal m_thread_t;
-    Model m_model;
     int m_pcount;
     bool m_running;
     bool p_pressed;
@@ -137,11 +105,11 @@ private:
     bool m_fancyLights;
     bool m_gravity;
 
-    QAccelerometer m_sensor;
     WorldBuilder* m_builder;
     RollWorld* m_world;
     QElapsedTimer m_lightTime;
-    bool m_mainLight;
+    bool m_mainLightOn;
+    DirectionalLight* m_mainLight;
 };
 
 #endif // ROLL_H

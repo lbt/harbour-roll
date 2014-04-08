@@ -48,6 +48,7 @@ LightManager::LightManager() :
 
 void LightManager::update(int ms)
 {
+    if (!m_active) return;
     qreal deltaTime = ms/1000.0;
     m_r     += m_vr  * deltaTime;
     // bounce off RADIUS and origin
