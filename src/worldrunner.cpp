@@ -1,13 +1,14 @@
 #include "worldrunner.h"
 
-WorldRunner::WorldRunner(World *w, QObject *parent):
-    QObject(parent)
+WorldRunner::WorldRunner(World *w):
+    QObject(0)
   , m_running(false)
   , m_world (w)
 {
 }
 
 void WorldRunner::setup() {
+    qDebug() << "setup";
     m_worldTime.start();
     m_timer = new QTimer(this);
     connect(m_timer, SIGNAL(timeout()), this, SLOT(runStep()) );
@@ -31,7 +32,7 @@ void WorldRunner::setDebugDraw(int dbg)
 }
 
 void WorldRunner::runStep() {
-    //    qDebug() << "tick";
+    qDebug() << "tick";
     int timeDelta_ms = m_worldTime.restart();
     m_world->runStep(timeDelta_ms );
     emit stepReady();

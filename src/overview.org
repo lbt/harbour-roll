@@ -28,19 +28,11 @@ bind program (move to world-render and let it control that)
 setup lighting uniforms (ditto, world-render can optimise order of programs)
 debug render (ditto)
 
-* glitem
+** glitem
 
 allows rendering of GL via prep()/render() in the paint() call
 
-
-*
-
-
-
-
-
-
-New
+* Tasks
 
 http://bulletphysics.org/mediawiki-1.5.8/index.php/Canonical_Game_Loop
 
@@ -58,8 +50,17 @@ Pass UI to world at end of refresh using queue
 
 Start world runner
 
+* Threads
 
-* AssetStore
+** Main
+
+** Render calls glitem
+
+** WorldRunner
+
+* Components
+
+** AssetStore
 Things are keyed by name and typically a named vao/collisionshape
 will be used together.
 
@@ -76,7 +77,7 @@ Creates:
 There is a problem that some things in the AssetStore depend on the current world.
 Fix this.
 
-* Renderable
+** Renderable
   Something that appears onscreen
   * shaders (GLPrograms)
   * Asset/VAO
@@ -84,13 +85,13 @@ Fix this.
 methods:
   + render()
 
-* WorldBuilder
-  reads a scene, aiMeshes, json etc
- 1) primes the AssetStore with obj
- 2) uses json to create world objects
- 3) creates objects, adds to world
+** WorldBuilder
+   reads a scene, aiMeshes, json etc
+  1) primes the AssetStore with obj
+  2) uses json to create world objects
+  3) creates objects, adds to world
 
-* World
+** World
 WorldItems add themselves to a world.
 
 Containers
@@ -105,7 +106,7 @@ methods
    renders world objects by shader groups
  + step()
 
-* WorldItem
+** WorldItem
   World objects
 
 contains:
@@ -119,33 +120,35 @@ methods
    in the world ??
  + render()
 
-* Physics
+** Physics
 simple wrapper around a btRigidBody
 
+A Physics is typically owned by (parent=) the wi it belongs to and is
+destroyed when the wi is destroyed.
 
-* Light
+** Light
 Lights have various attributes which are passed to GLSL (col, intensity etc)
 They have a light manager which they update each tick and which provides position/direction.
 
  * Point / Directional
 
-* Camera
+** Camera
 
 
 
-* Shaders
+** Shaders
 
 
 
-* Game objects : World objects + sig/slots
+** Game objects : World objects + sig/slots
 
 
-* Paths
- Mesh
+** Paths
+  Mesh
 
 
 
-* GLSL variables
+** GLSL variables
 These variables will automatically be populated if used
 
 uniform mat4 worldMatrixU;          // ??

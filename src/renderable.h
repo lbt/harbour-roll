@@ -19,14 +19,15 @@
 #include "shader.h"
 class Shader;      // Mutual link
 #include "glprogram.h"
+#include "texture.h"
 #include "vao.h"
 
 class Renderable : public QObject
 {
     Q_OBJECT
 public:
-    explicit Renderable(VAO* v, QSGTexture* t = 0, QObject *parent = 0);
-    void setTexture(QSGTexture *t) { m_texture = t; }
+    explicit Renderable(VAO* v, Texture *t = 0, QObject *parent = 0);
+    void setTexture(Texture *t) { m_texture = t; }
     void setShader(Shader* p);
     Shader* getShader() const { return m_shader; }
     void setupGL();
@@ -40,7 +41,7 @@ private:
     Shader* m_shader;
     QString m_name;
     VAO *m_vao;
-    QSGTexture *m_texture;
+    Texture *m_texture;
     GLuint m_vboIds[3];
     GLuint m_texIds[1];
     void * m_texCoords;

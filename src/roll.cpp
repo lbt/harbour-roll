@@ -48,6 +48,7 @@ Roll::Roll(QObject *parent) :
 
     m_world = new RollWorld();
     m_builder = new WorldBuilder(m_world);
+    m_builder->setup();
 
 }
 
@@ -226,7 +227,11 @@ void Roll::handleReleased(int x, int y) {
 }
 
 
-extern QQuickWindow* global_hack_window;
+QQuickWindow* global_hack_window;
+///////////////////////////////////////////////////////
+/// \brief Roll::prep
+///
+/// called from the render thread
 void Roll::prep()
 {
     global_hack_window = window(); // This is until we get 5.2 and QOpenGLTextures
@@ -244,6 +249,10 @@ void Roll::prep()
 
 // This is the world render routine.
 
+///////////////////////////////////////////////////////
+/// \brief Roll::render
+///
+/// called from the render thread
 void Roll::render()
 {
     if (m_zoomAndSpin) {

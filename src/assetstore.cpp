@@ -25,8 +25,32 @@ AssetStore::~AssetStore() {
     }
 }
 
+Renderable *AssetStore::makeRenderable(QString name, VAO *v, Texture *t)
+{
+    qDebug() <<"Make renderable " << name;
+    if (m_renderables.contains(name)) {
+        qDebug() <<"Existing renderable " << name;
+    }
+    Renderable *r = new Renderable(v, t);
+    m_renderables[name] = r;
+    return r;
+}
+
+Shader* AssetStore::makeShader(QString name, QString v_glsl_path, QString s_glsl_path) {
+    qDebug() <<"Make shader " << name;
+    if (m_shaders.contains(name)) {
+        qDebug() <<"Existing shader " << name;
+    }
+    Shader *s = new Shader(SailfishApp::pathTo("roll_vert.glsl.out").toLocalFile(),
+                           SailfishApp::pathTo("roll_frag.glsl.out").toLocalFile(),
+                           m_world);
+    m_shaders[name] = s;
+    return s;
+}
+
 btCollisionShape* AssetStore::makeShape(QString name, QString modelType, btScalar r)
 {
+    qDebug() <<"Make "<< modelType << " shape " << name;
     btSphereShape* shape = NULL;
     if (m_shapes.contains(name)) {
         qDebug() <<"Existing shape " << name;
@@ -41,8 +65,54 @@ btCollisionShape* AssetStore::makeShape(QString name, QString modelType, btScala
     return shape;
 }
 
+btCollisionShape* AssetStore::makeShape(QString name, QString modelType, btScalar r, btScalar h)
+{
+    qDebug() <<"Make "<< modelType << " shape " << name;
+    btCollisionShape* shape = NULL;
+    if (m_shapes.contains(name)) {
+        qDebug() <<"Existing shape " << name;
+    }
+    if (modelType == "btCapsuleShapeX") {
+        qDebug() <<"btCapsuleShapeX";
+        shape = new btCapsuleShapeX(r, h);
+        if (shape) m_shapes[name] = shape;
+    } else if (modelType == "btCapsuleShapeZ") {
+        qDebug() <<"btCapsuleShapeZ";
+        shape = new btCapsuleShapeZ(r, h);
+        if (shape) m_shapes[name] = shape;
+    } else if (modelType == "btConeShapeZ") {
+        qDebug() <<"btConeShapeZ";
+        shape = new btConeShapeZ(r, h);
+        if (shape) m_shapes[name] = shape;
+    } else if (modelType == "btConeShapeZ") {
+        qDebug() <<"btConeShapeZ";
+        shape = new btConeShapeZ(r, h);
+        if (shape) m_shapes[name] = shape;
+    } else {
+        qDebug() <<"Unknown shape " << modelType;
+    }
+    return shape;
+}
+
+btCollisionShape* AssetStore::makeShape(QString name, QString modelType, btVector3 sides)
+{
+    qDebug() <<"Make "<< modelType << " shape " << name;
+    btBoxShape* shape = NULL;
+    if (m_shapes.contains(name)) {
+        qDebug() <<"Existing shape " << name;
+    }
+    if (modelType == "btBox") {
+        qDebug() <<"btBoxShape";
+        shape = new btBoxShape(sides);
+        if (shape) m_shapes[name] = shape;
+    } else {
+        qDebug() <<"Unknown shape " << modelType;
+    }
+    return shape;
+}
 
 btCollisionShape* AssetStore::makeShape(QString name, QString modelType, aiMesh* m) {
+    qDebug() <<"Make "<< modelType << " shape " << name;
     btCollisionShape* rshape= NULL;
     if (m_shapes.contains(name)) {
         qDebug() <<"Existing shape " << name;
@@ -103,50 +173,18 @@ btCollisionShape* AssetStore::makeShape(QString name, QString modelType, aiMesh*
     return rshape;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-Renderable *AssetStore::makeRenderable(QString name, VAO *v, QSGTexture *t)
+Texture *AssetStore::makeTexture(QString name, QImage img)
 {
-    if (m_renderables.contains(name)) {
-        qDebug() <<"Existing renderable " << name;
-    }
-    Renderable *r = new Renderable(v, t);
-    m_renderables[name] = r;
-    return r;
-}
-
-Shader* AssetStore::makeShader(QString name, QString v_glsl_path, QString s_glsl_path) {
-    if (m_shaders.contains(name)) {
-        qDebug() <<"Existing shader " << name;
-    }
-    Shader *s = new Shader(SailfishApp::pathTo("roll_vert.glsl.out").toLocalFile(),
-                           SailfishApp::pathTo("roll_frag.glsl.out").toLocalFile(),
-                           m_world);
-    m_shaders[name] = s;
-    return s;
-}
-
-// Declare an external hack window :: FIXME 5.2
-#include <QQuickWindow>
-extern QQuickWindow* global_hack_window;
-QSGTexture *AssetStore::makeTexture(QString name, QImage img)
-{
+    qDebug() <<"Make texture " << name;
     if (m_textures.contains(name)) {
         qDebug() <<"Existing texture " << name;
     }
-    glEnable(GL_TEXTURE_2D);
-    QSGTexture* texture = global_hack_window ->
-            createTextureFromImage(img);
-    if (texture->isAtlasTexture()) { texture = texture->removedFromAtlas(); }
-    texture->setHorizontalWrapMode(QSGTexture::Repeat);
-    texture->setVerticalWrapMode(QSGTexture::Repeat);
-
-    if (texture) m_textures[name] = texture;
-    return texture;
+    Texture* t = new Texture(img);
+    m_textures[name] = t;
 }
 
 VAO* AssetStore::makeVAO(QString name, aiMesh* m) {
+    qDebug() <<"Make VAO " << name;
     VAO* v = new VAO(m);
     m_vaos[name] = v;
     return v;
@@ -165,7 +203,6 @@ bool AssetStore::load(QString filename)
 
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
-
     }
 
     // Create an instance of the Importer class
@@ -175,6 +212,7 @@ bool AssetStore::load(QString filename)
     Assimp::DefaultLogger::create("",Assimp::Logger::VERBOSE);
 
     const unsigned int severity = Assimp::Logger::Debugging|Assimp::Logger::Info|Assimp::Logger::Err|Assimp::Logger::Warn;
+    // This next line enales/disables assimp logging
     Assimp::DefaultLogger::get()->attachStream( new dbgStream(), severity );
     Assimp::DefaultLogger::get()->setLogSeverity( Assimp::Logger::VERBOSE );
     // And have it read the given file with some example postprocessing
@@ -226,6 +264,8 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
         qDebug() << "found a full node with " << node->mNumMeshes << " meshes";
         // copy the mesh : FIXME assuming only 1 mesh
         aiMesh* m = scene->mMeshes[node->mMeshes[0]];
+        qDebug() <<"Make Mesh " << name;
+        m_meshes[name] = m;
         VAO* v = makeVAO(name, m);
 
         // Import any textures
@@ -240,7 +280,7 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
                 qDebug() << "and lives at " << path.C_Str();
                 // FIXME at 5.2:
                 //            m_texture = new QOpenGLTexture(QImage(path.data).mirrored());
-                QSGTexture* texture = makeTexture(matname.C_Str(), QImage(SailfishApp::pathTo(path.data).toLocalFile()).mirrored());
+                Texture* texture = makeTexture(matname.C_Str(), QImage(SailfishApp::pathTo(path.data).toLocalFile()).mirrored());
 
                 // This is a mesh with a texture - we can probably render that so link them as a Renderable
                 makeRenderable(name, v, texture);
@@ -258,5 +298,16 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
     for( unsigned int a = 0; a < node->mNumChildren; a++) {
         qDebug() << "found a child mesh";
         importChildren(scene, node->mChildren[a]);
+    }
+}
+
+/////////////////////////////////////////////////
+/// \brief AssetStore::setupGL
+///
+/// called from the render thread
+void AssetStore::setupGL(){
+    for (auto k : m_shaders.keys()) {
+        Shader *s = m_shaders[k];
+        s->setupGL();
     }
 }

@@ -30,7 +30,6 @@ SOURCES += src/harbour-roll.cpp \
     src/roll.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
-    src/worldobject.cpp \
     src/renderable.cpp \
     src/physics.cpp \
     src/assetstore.cpp \
@@ -42,7 +41,8 @@ SOURCES += src/harbour-roll.cpp \
     src/worlddebugdrawer.cpp \
     src/worldbuilder.cpp \
     src/worldrunner.cpp \
-    src/shader.cpp
+    src/shader.cpp \
+    src/texture.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -81,7 +81,6 @@ HEADERS += \
     src/roll.h \
     src/lightmanager.h \
     src/light.h \
-    src/worldobject.h \
     src/renderable.h \
     src/renderable.h \
     src/physics.h \
@@ -94,7 +93,8 @@ HEADERS += \
     src/worlddebugdrawer.h \
     src/worldbuilder.h \
     src/worldrunner.h \
-    src/shader.h
+    src/shader.h \
+    src/texture.h
 
 # MerSDK david:~/src/glsl-optimizer > ./glslopt -f ../harbour-dice/src/dice_frag.glsl 
 # MerSDK david:~/src/glsl-optimizer > ./glslopt -v ../harbour-dice/src/dice_vert.glsl 

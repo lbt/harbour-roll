@@ -18,7 +18,7 @@ class WorldItem : public QObject
     Q_OBJECT
     friend class World;
 public:
-    explicit WorldItem(World *w, World *parent);
+    explicit WorldItem(QString name, World *parent);
 
     void add(Renderable* r);
     void add(Physics* p);

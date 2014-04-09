@@ -4,23 +4,37 @@
 
 #include "utils.h"
 
-WorldItem::WorldItem(World *w, World *parent) :
+WorldItem::WorldItem(QString name, World *parent) :
     QObject(parent)
-  , m_world(w)
+  , m_world(parent)
 {
+    setObjectName(name);
 }
 
 void WorldItem::add(Physics *p)
 {
     if (! m_physics) {
-        m_physics = p;
-        m_world->add(p);
+        if (p) {
+            m_physics = p;
+            m_world->add(p);
+        } else {
+            qDebug() << "Refusing to add null";
+        }
     } else {
         qDebug() << "Already have a physics. Not adding another";
     }
 }
+void WorldItem::add(Renderable *r)
+{
+    if (r) {
+        m_renderables << r;
+    } else {
+        qDebug() << "Refusing to add null";
+    }
+}
 
 void WorldItem::setupGL(){
+    qDebug() << "Setup GL";
     for (auto r : m_renderables){
         r->setupGL();
     }

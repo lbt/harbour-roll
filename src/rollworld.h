@@ -56,7 +56,7 @@ class RollRunner : public WorldRunner
 {
     Q_OBJECT
 public:
-    explicit RollRunner(RollWorld *w, QObject *parent = 0);
+    explicit RollRunner(RollWorld *w);
 
 public slots:
     void setup();

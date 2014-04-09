@@ -54,16 +54,18 @@ void RollWorld::runStep(int ms) {
 /// \param w
 /// \param parent
 ///
-RollRunner::RollRunner(RollWorld *w, QObject *parent):
-    WorldRunner(w, parent)
+RollRunner::RollRunner(RollWorld *w):
+    WorldRunner(w)
   , m_rollWorld(w)
   , m_gravity(true)
   , m_fly(false)
 {
+    qDebug() << "create";
 }
 
 void RollRunner::setup()
 {
+    qDebug() << "setup";
     WorldRunner::setup();
     m_sensor.start();
 }
@@ -82,6 +84,7 @@ void RollRunner::setDebugDraw(bool state)
 }
 
 void RollRunner::runStep() {
+    qDebug() << "runstep";
     if (m_gravity) {
         //        if (!m_fly) {
         QAccelerometerReading *reading = m_sensor.reading();

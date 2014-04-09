@@ -79,12 +79,12 @@ VAO::VAO(aiMesh* m) :
     unsigned int nf = 0;
     for (aiFace* f = m->mFaces; nf < m->mNumFaces; nf++, f++) {
         unsigned int* f_ind = f->mIndices;
-        if (f->mNumIndices != 3)
-            qDebug() << "Error - non triangular face";
+//        if (f->mNumIndices != 3)
+//            qDebug() << "Error - non triangular face";
 //        qDebug() << "Face (" << f_ind[0] << "," << f_ind[1] << "," << f_ind[2] << ")";
-        *ind++ = *f_ind++;
-        *ind++ = *f_ind++;
-        *ind++ = *f_ind++;
+        for (int i=0; i < f->mNumIndices; i++ ) {
+            *ind++ = *f_ind++;
+        }
     }
 }
 

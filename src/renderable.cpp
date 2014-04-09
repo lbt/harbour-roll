@@ -12,14 +12,14 @@
 /// \param node
 /// \param parent
 ///
-Renderable::Renderable(VAO *v, QSGTexture *t, QObject *parent) :
+Renderable::Renderable(VAO *v, Texture *t, QObject *parent) :
     QObject(parent)
   , m_texture(t)
   , m_vao(v)
 { }
 
 void Renderable::setupGL() {
-
+    qDebug() << "Setup GL";
     GLProgram* p = m_shader->getProgram();
 
     glGenBuffers(2, m_vboIds); // one for VAO, other for indices

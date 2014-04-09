@@ -17,8 +17,10 @@ class Physics : public QObject
 {
     Q_OBJECT
 public:
-    explicit Physics(btCollisionShape* shape, btVector3 pos, btScalar mass, WorldItem* parent);
+    explicit Physics(btCollisionShape* shape, btScalar mass, WorldItem* parent);
     btRigidBody* getRigidBody(){ return m_body; }
+
+    void setPos(btVector3 pos, btVector3 velocity=btVector3(0,0,0));
 
 signals:
 

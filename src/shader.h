@@ -24,6 +24,8 @@ signals:
 public slots:
 
 private:
+    QString m_vpath;
+    QString m_spath;
     GLProgram* m_p;
     World* m_world;
 };

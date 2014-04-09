@@ -11,7 +11,6 @@
 // When the 5.2 Qt hits use this:
 // #include <QOpenGLTexture>
 #include <QImage>
-#include <QSGTexture>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -26,6 +25,7 @@
 
 #include "vao.h"
 #include "renderable.h"
+#include "texture.h"
 
 #include "glprogram.h"
 
@@ -61,18 +61,26 @@ public:
     void importChildren(const aiScene *scene, aiNode *node);
 
 //    bool contains(QString name) { return m_assets.contains(name); }
-    aiMesh* getMesh(QString name);
-    QList<QString> getNames();
 
-    btCollisionShape* makeShape(QString name, QString modelType, aiMesh *m);
+    btCollisionShape* getShape(QString name) { return m_shapes[name]; }
+    Shader*           getShader(QString name) { return m_shaders[name]; }
+    Renderable*       getRenderable(QString name)  { return m_renderables[name]; }
+    aiMesh*           getMesh(QString name) { return m_meshes[name]; }
+    VAO*              getVAO(QString name) { return m_vaos[name]; }
+
+    Renderable*       makeRenderable(QString name, VAO *v, Texture *t);
+    Shader*           makeShader(QString name, QString v_glsl_path,
+                                 QString s_glsl_path);
     btCollisionShape* makeShape(QString name, QString modelType, btScalar r);
-    VAO* makeVAO(QString name, aiMesh *m);
-    Renderable* makeRenderable(QString name, VAO *v, QSGTexture *t);
+    btCollisionShape *makeShape(QString name, QString modelType, btScalar r, btScalar h);
+    btCollisionShape *makeShape(QString name, QString modelType, btVector3 sides);
+    btCollisionShape* makeShape(QString name, QString modelType, aiMesh *m);
+    Texture*          makeTexture(QString name, QImage img);
+    VAO*              makeVAO(QString name, aiMesh *m);
 
-    QSGTexture* makeTexture(QString name, QImage img);
 
-    Shader *makeShader(QString name, QString v_glsl_path,
-                       QString s_glsl_path);
+    void setupGL();
+
 
 signals:
 
@@ -84,7 +92,8 @@ private:
     QMap<QString, VAO*> m_vaos;
     QMap<QString, Shader*> m_shaders;
     QMap<QString, Renderable*> m_renderables;
-    QMap<QString, QSGTexture*> m_textures;
+    QMap<QString, Texture*> m_textures;
+    QMap<QString, aiMesh*> m_meshes;
 
 };
 #endif // ASSETSTORE_H

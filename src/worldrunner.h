@@ -13,7 +13,7 @@ class WorldRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit WorldRunner(World *w, QObject *parent = 0);
+    explicit WorldRunner(World *w);
 
 signals:
     void stepReady();

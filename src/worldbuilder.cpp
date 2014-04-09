@@ -12,15 +12,35 @@ WorldBuilder::WorldBuilder(World *w, QObject *parent) :
 
 void WorldBuilder::setup(){
 
-    // for all in json
+    qDebug() << "Setup";
 
-    //    WorldItem* wi = new WorldItem();
+    m_assetStore->load(SailfishApp::pathTo("curve1.obj").toLocalFile());
+
+    // Simulate reading a json file:
+    WorldItem* wi;
+
+    qDebug() << "Setup track";
+    wi = new WorldItem("track", m_world);
+    wi->add(m_assetStore->getRenderable("gutter"));
+    wi->add(m_assetStore->getRenderable("gutterBot"));
+    // Create a Shape and a Physics and add to wi
+    wi->add(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
+                                                m_assetStore->getMesh("gutter")),
+                        0.0, wi));
+
+    qDebug() << "Setup ball";
+    wi = new WorldItem("ball", m_world);
+    wi->add(m_assetStore->getRenderable("Shere"));
+    wi->add(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
+                        0.1, wi));
+
+    qDebug() << "Setup shader";
 
     m_assetStore->makeShader("default",
                              SailfishApp::pathTo("roll_vert.glsl.out").toLocalFile(),
                              SailfishApp::pathTo("roll_frag.glsl.out").toLocalFile());
 
-
+    qDebug() << "Setup lights";
     _DirectionalLight dlight;
     // Ensure that the first throw has a visible dlight
     dlight.Base.Color = QVector3D(1.0, 1.0, 1.0);
