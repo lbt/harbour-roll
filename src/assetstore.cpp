@@ -129,15 +129,16 @@ btCollisionShape* AssetStore::makeShape(QString name, QString modelType, aiMesh*
     for (unsigned int nf = 0 ; nf < m->mNumFaces; nf++, f++) {
         unsigned int* ind = f->mIndices;
         if (f->mNumIndices != 3){
-            qDebug() << "This is a curve";
+            qDebug() << "This is a curve with " << f->mNumIndices << " indices for this face";
+        } else {
+            aiVector3D* av = (m->mVertices+*ind++);
+            btVector3 v1 = btVector3(av->x, av->y, av->z);
+            av = (m->mVertices+*ind++);
+            btVector3 v2 = btVector3(av->x, av->y, av->z);
+            av = (m->mVertices+*ind++);
+            btVector3 v3 = btVector3(av->x, av->y, av->z);
+            btMesh->addTriangle(v1, v2, v3);
         }
-        // Note that y/z are transposed. I think this matches a blender view
-        btVector3 v1 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
-        ind++;
-        btVector3 v2 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
-        ind++;
-        btVector3 v3 = btVector3((m->mVertices+*ind)->x,(m->mVertices+*ind)->y,(m->mVertices+*ind)->z);
-        btMesh->addTriangle(v1, v2, v3);
     }
 
     // we can now theoretically test the mesh to see if it's concave/convex and either make a btGimpactMesh
@@ -206,8 +207,8 @@ bool AssetStore::load(QString filename)
     }
 
     // Create an instance of the Importer class
-    Assimp::Importer importer;
-    importer.SetExtraVerbose(true);
+    m_importer = new Assimp::Importer();
+    m_importer->SetExtraVerbose(true);
     // Attaching myStream to the default logger
     Assimp::DefaultLogger::create("",Assimp::Logger::VERBOSE);
 
@@ -220,8 +221,8 @@ bool AssetStore::load(QString filename)
     // propably to request more postprocessing than we do in this example.
 
     //    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
-    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT);
-    const aiScene* scene = importer.ReadFile( filename.toStdString(),
+    m_importer->SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT);
+    const aiScene* scene = m_importer->ReadFile( filename.toStdString(),
                                               aiProcess_CalcTangentSpace |
                                               aiProcess_Triangulate |
                                               aiProcess_JoinIdenticalVertices |
@@ -234,7 +235,7 @@ bool AssetStore::load(QString filename)
     // If the import failed, report it
     if( !scene)
     {
-        qDebug() << importer.GetErrorString();
+        qDebug() << m_importer->GetErrorString();
         return false;
     }
 
@@ -244,8 +245,14 @@ bool AssetStore::load(QString filename)
     importChildren(scene, scene->mRootNode);
 
     Assimp::DefaultLogger::kill();
-    // We're done. Everything will be cleaned up by the importer destructor
+    // We're done. Everything will be cleaned up by the importer destructor when
+    // we call load_finished()
     return true;
+}
+
+void AssetStore::load_finished()
+{
+    delete m_importer;
 }
 
 // Declare an external hack window :: FIXME

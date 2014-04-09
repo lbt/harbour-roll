@@ -58,6 +58,7 @@ public:
     ~AssetStore();
 
     bool load(QString filename);
+    void load_finished();
     void importChildren(const aiScene *scene, aiNode *node);
 
 //    bool contains(QString name) { return m_assets.contains(name); }
@@ -87,6 +88,8 @@ signals:
 public slots:
 
 private:
+    Assimp::Importer* m_importer;
+
     World* m_world;
     QMap<QString, btCollisionShape*> m_shapes;
     QMap<QString, VAO*> m_vaos;

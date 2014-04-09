@@ -62,4 +62,6 @@ void WorldBuilder::setup(){
         pl->lightManager.setScale(QVector3D(4.0, 5.0, 4.0));
         m_world->add(QString("p%1").arg(i), pl);
     }
+
+    m_assetStore->load_finished();
 }
