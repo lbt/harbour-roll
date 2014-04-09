@@ -242,6 +242,7 @@ void Roll::prep()
 
     // and then prepare any one-time data like VBOs
     connect(m_world, SIGNAL(stepReady()), this->window(), SLOT(update()) );
+    m_builder->setupGL();
     m_world->setupGL();
     m_world->start();
 }

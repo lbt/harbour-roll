@@ -21,6 +21,8 @@ public:
     World* getWorld() const {return m_world; }
 
     void setup();
+    void setupGL() { m_assetStore->setupGL(); }
+
 signals:
 
 public slots:

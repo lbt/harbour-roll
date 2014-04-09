@@ -5,13 +5,15 @@ uint qHash(const Shader &s) { qHash(s.m_p); }
 Shader::Shader(QString v_glsl_path, QString s_glsl_path, World *parent) :
     QObject((QObject*)parent)
   , m_world(parent)
-  , m_vpath(v_glsl_path)
+  , m_p(NULL)
   , m_spath(s_glsl_path)
+  , m_vpath(v_glsl_path)
 {
 }
 
 void Shader::setupGL()
 {
+    qDebug() << "Setup GL";
     m_p = new GLProgram(m_vpath, m_spath);
 }
 
