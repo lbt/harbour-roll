@@ -28,6 +28,7 @@ class World : public QObject
 public:
     explicit World(QObject *parent = 0);
     ~World();
+    void setup();
     void start();
     QString serialise();
     void restore(QString state);
@@ -48,18 +49,20 @@ public:
 protected:
     void add(WorldItem *i);
     void add(Physics *p);
+    void remove(WorldItem *i);
+    void remove(Physics *p);
     void add(QString name, Light *l);
 
     // Support subclassing
-    void setupPhysicsWorld();
-    void destroyPhysicsWorld();
-    void createRunner();
+    virtual void setupPhysicsWorld();
+    virtual void destroyPhysicsWorld();
+    virtual void createRunner();
 
 signals:
     void stepReady();
 
 public slots:    
-    void setRunning(bool running);
+    virtual void setRunning(bool running);
 
 protected:
     btDefaultCollisionConfiguration* collisionConfiguration;
@@ -69,7 +72,7 @@ protected:
     btDiscreteDynamicsWorld* dynamicsWorld;
 
     QMap<QString, WorldItem*> m_worlditems;
-    QMap<Shader*, QList<WorldItem*>> m_byShader;
+    QMap<Shader*, QSet<WorldItem*>> m_byShader;
 
     QMap<QString, Light*> m_lights;
 

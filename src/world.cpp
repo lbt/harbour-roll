@@ -4,22 +4,31 @@ World::World(QObject *parent) :
     QObject(parent)
   , m_worldMutex(QMutex::Recursive)
   , m_debugDrawer(this)
+  , m_runner(NULL)
 {
-    setupPhysicsWorld();
-    createRunner();
-    m_runner->moveToThread(&m_runnerThread);
-    connect(&m_runnerThread, &QThread::finished, m_runner, &QObject::deleteLater);
-    connect(&m_runnerThread, &QThread::started, m_runner, &WorldRunner::setup);
-    connect(m_runner, SIGNAL(stepReady()), this, SIGNAL(stepReady()) );
-
 }
 
 World::~World()
 {
-    destroyPhysicsWorld();
+    this->destroyPhysicsWorld();
 }
+
+// This must be called outside the constructor to allow virtual setupXXX()
+// to be used
+void World::setup() {
+    this->setupPhysicsWorld();
+    qDebug() << "Making a Runner";
+    this->createRunner();
+
+    m_runner->moveToThread(&m_runnerThread);
+    connect(&m_runnerThread, &QThread::finished, m_runner, &QObject::deleteLater);
+    connect(&m_runnerThread, &QThread::started, m_runner, &WorldRunner::setup);
+    connect(m_runner, SIGNAL(stepReady()), this, SIGNAL(stepReady()) );
+}
+
 void World::createRunner() {
     // Setup a worker Thread to do the bullet calcs
+    qDebug() << "Making a WorldRunner";
     m_runner = new WorldRunner(this);
 }
 
@@ -136,9 +145,13 @@ void World::runStep(int ms)
 
 void World::setupGL(){
     qDebug() << "Setup GL";
-    for (auto k : m_worlditems.keys()){
-        qDebug() << "GL for " << k;
-        m_worlditems[k]->setupGL();
+    for (Shader* s : m_byShader.keys()) {
+        qDebug() << "setupGL for shader " << s;
+        s->setupGL(); // bind and setup Lights (maybe do that here?)
+        for (WorldItem* wi : m_byShader[s]) {
+            qDebug() << "setupGL for WI " << wi->objectName();
+            wi->setupGL();
+        }
     }
     qDebug() << "Setup GL done";
 }
@@ -155,8 +168,10 @@ void World::render()
     m_worldMutex.lock();
 
     for (Shader* s : m_byShader.keys()) {
+//        qDebug() << "renderPrep for shader " << s;
         s->renderPrep(); // bind and setup Lights (maybe do that here?)
         for (WorldItem* wi : m_byShader[s]) {
+//            qDebug() << "render for WI " << wi->objectName();
             wi->render(s);
         }
     }
@@ -191,7 +206,26 @@ void World::add(WorldItem* i){
     m_worldMutex.lock();
     m_worlditems[i->objectName()] = i;
     for (Renderable* r: i->m_renderables) {
-        m_byShader[r->getShader()] << i;
+        Shader* s = r->getShader();
+        if (!s) {
+            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << i->objectName();
+        } else {
+            m_byShader[r->getShader()] << i;
+        }
+    }
+    m_worldMutex.unlock();
+}
+
+void World::remove(WorldItem* i){
+    m_worldMutex.lock();
+    m_worlditems.remove(i->objectName());
+    for (Renderable* r: i->m_renderables) {
+        Shader* s = r->getShader();
+        if (!s) {
+            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << i->objectName();
+        } else {
+            m_byShader[s].remove(i);
+        }
     }
     m_worldMutex.unlock();
 }
@@ -199,6 +233,12 @@ void World::add(WorldItem* i){
 void World::add(Physics* p){
     m_worldMutex.lock();
     dynamicsWorld->addRigidBody(p->getRigidBody());
+    m_worldMutex.unlock();
+}
+
+void World::remove(Physics* p){
+    m_worldMutex.lock();
+    dynamicsWorld->removeRigidBody(p->getRigidBody());
     m_worldMutex.unlock();
 }
 
