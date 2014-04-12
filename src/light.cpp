@@ -13,6 +13,8 @@ Light::Light(QObject *parent) :
 
 }
 void Light::setUniforms(GLProgram *p, int i) {
+    Q_UNUSED(p)
+    Q_UNUSED(i)
 }
 
 PointLight::PointLight(QObject *parent) :

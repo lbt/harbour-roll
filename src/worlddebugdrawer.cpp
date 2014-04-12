@@ -16,7 +16,7 @@ WorldDebugDrawer::WorldDebugDrawer(World *parent) :
 }
 
 // This sets up the GL objects/meshes that *can* be used in bullet
-void WorldDebugDrawer::setupGL(GLProgram* p)
+void WorldDebugDrawer::setupGL()
 {
     m_program_debug = new GLProgram(SailfishApp::pathTo("debug_vert.glsl"), SailfishApp::pathTo("debug_frag.glsl"));
 }
@@ -28,7 +28,7 @@ void WorldDebugDrawer::newFrame()
     m_worldLines = new QHash<Color, QList<Line> >;
 }
 
-void WorldDebugDrawer::render(GLProgram *p, QMatrix4x4 projViewMatrix)
+void WorldDebugDrawer::render(QMatrix4x4 projViewMatrix)
 {
     if (m_debug_mode == DBG_NoDebug ) return;
 
@@ -85,9 +85,14 @@ void WorldDebugDrawer::reportErrorWarning(const char* warningString) {
 }
 
 void WorldDebugDrawer::draw3dText(const btVector3& location,const char* textString) {
+    Q_UNUSED(location);
     qDebug()<< "draw3dText " << textString;
 }
 
 void WorldDebugDrawer::drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color){
+    Q_UNUSED(PointOnB); Q_UNUSED(normalOnB); Q_UNUSED(distance); Q_UNUSED(lifeTime); Q_UNUSED(color);
     qDebug()<< "drawContactPoint()";
 }
+
+
+uint qHash(WorldDebugDrawer::Color c) { return c.m_c.x()*10000 + c.m_c.y()*100 + c.m_c.z(); }

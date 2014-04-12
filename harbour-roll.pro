@@ -82,7 +82,6 @@ HEADERS += \
     src/lightmanager.h \
     src/light.h \
     src/renderable.h \
-    src/renderable.h \
     src/physics.h \
     src/assetstore.h \
     src/vao.h \

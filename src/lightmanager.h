@@ -7,7 +7,7 @@ class LightManager
 {
 public:
     explicit LightManager();
-    LightManager(qreal radius, qreal theta, qreal phi, qreal vr, qreal vth, qreal vph, qreal rx, qreal ry, qreal rz, qreal rxv, qreal ryv, qreal rzv, qreal scale);
+    LightManager(qreal radius, qreal theta, qreal phi, qreal vr, qreal vth, qreal vph, qreal rx, qreal ry, qreal rz, qreal rxv, qreal ryv, qreal rzv, QVector3D scale);
 
     void update(int ms);
     void active(bool state) { m_active = state; }

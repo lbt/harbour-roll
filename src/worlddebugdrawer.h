@@ -33,9 +33,9 @@ public:
 public:
     explicit WorldDebugDrawer(World* parent);
 
-    void setupGL(GLProgram *p); // setup GL stuff
+    void setupGL(); // setup GL stuff
     void newFrame(); // Prepare to draw a new frame
-    void render(GLProgram *p, QMatrix4x4 projViewMatrix);
+    void render(QMatrix4x4 projViewMatrix);
 
     // Implement the interface
     void drawLine(const btVector3 &  	from,
@@ -60,7 +60,7 @@ private:
     QMutex m_worldLineMutex;
 
 };
-static uint qHash(WorldDebugDrawer::Color c) { return c.m_c.x()*10000 + c.m_c.y()*100 + c.m_c.z(); }
+uint qHash(WorldDebugDrawer::Color c);
 inline bool operator==(const WorldDebugDrawer::Color &c1, const WorldDebugDrawer::Color &c2) { return c1.m_c == c2.m_c; }
 
 #endif // WORLDDEBUGDRAWER_H

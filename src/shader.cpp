@@ -4,10 +4,10 @@ uint qHash(const Shader &s) { return qHash(s.m_p); }
 
 Shader::Shader(QUrl v_glsl_path, QUrl f_glsl_path, World *parent) :
     QObject((QObject*)parent)
-  , m_world(parent)
-  , m_p(NULL)
-  , m_fpath(f_glsl_path)
   , m_vpath(v_glsl_path)
+  , m_fpath(f_glsl_path)
+  , m_p(NULL)
+  , m_world(parent)
 {
     qDebug() << "Setup pre-GL using '" << m_vpath << "' and '" << m_fpath <<"'";
 }

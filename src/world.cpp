@@ -2,8 +2,8 @@
 
 World::World(QObject *parent) :
     QObject(parent)
-  , m_worldMutex(QMutex::Recursive)
   , m_debugDrawer(this)
+  , m_worldMutex(QMutex::Recursive)
   , m_runner(NULL)
 {
 }
@@ -193,12 +193,12 @@ QList<Light *> World::getLights()
 
 QMatrix4x4 World::getActiveCameraPVM()
 {
-
+    return QMatrix4x4();
 }
 
 QVector3D World::getActiveCameraAt()
 {
-
+    return QVector3D(0,0,0);
 }
 // Called by the item
 // Store by item Name and by all item->Renderable[]->shader

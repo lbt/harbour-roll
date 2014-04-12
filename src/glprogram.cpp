@@ -21,7 +21,7 @@ GLuint GLProgram::getA(QString a) {
         return m_attributes[a];
     GLuint p = this->attributeLocation(a);
 //    Q_ASSERT( p != -1 );
-    if (p == -1) {
+    if (p == -1u) {
         return p;
     }
     m_attributes[a]=p;
@@ -32,7 +32,7 @@ GLuint GLProgram::getU(QString u) {
     if (m_uniforms.contains(u))
         return m_uniforms[u];
     GLuint p = this->uniformLocation(u);
-    if (p == -1) {
+    if (p == -1u) {
 //        qDebug() << "Uniform bad : " << u;
 //        Q_ASSERT( p != -1);
         return p;

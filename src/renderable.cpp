@@ -14,9 +14,9 @@
 ///
 Renderable::Renderable(QString name, VAO *v, Texture *t, QObject *parent) :
     QObject(parent)
-  , m_texture(t)
-  , m_vao(v)
   , m_shader(NULL)
+  , m_vao(v)
+  , m_texture(t)
 {
     setObjectName(name);
     if (!m_texture) {

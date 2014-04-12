@@ -2,8 +2,8 @@
 
 WorldRunner::WorldRunner(World *w):
     QObject(0)
-  , m_running(false)
   , m_world (w)
+  , m_running(false)
 {
 }
 

@@ -20,8 +20,10 @@ class RollWorld : public World
                                  const btCollisionObjectWrapper *colObj1Wrap,
                                  int partId1,
                                  int index1
-                                 ) { m_contacts << colObj0Wrap->getCollisionObject()
-                                                << colObj1Wrap->getCollisionObject(); }
+                                 ) { Q_UNUSED(cp) Q_UNUSED(partId0) Q_UNUSED(index0) Q_UNUSED(partId1) Q_UNUSED(index1)
+                    m_contacts << colObj0Wrap->getCollisionObject()
+                               << colObj1Wrap->getCollisionObject();
+                                     return 0; } // return value is unused
         QList< const btCollisionObject *> getContacts() { return m_contacts; }
     private:
         QList< const btCollisionObject *> m_contacts;

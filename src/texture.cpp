@@ -3,8 +3,8 @@
 
 Texture::Texture(QString name, QImage img, QObject *parent) :
     QObject(parent)
-  , m_img(img)
   , m_texture(NULL)
+  , m_img(img)
 {
     setObjectName(name);
     if (m_img.isNull()) {

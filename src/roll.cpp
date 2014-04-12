@@ -33,6 +33,9 @@
 
 Roll::Roll(QObject *parent) :
     GLItem()
+  , m_settings(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
+               .filePath(QCoreApplication::applicationName())+"/roll.ini",
+               QSettings::IniFormat)
   , p_x(0)
   , p_y(0)
   , p_pressed(false)
@@ -40,9 +43,6 @@ Roll::Roll(QObject *parent) :
   , m_pickMode(true)
   , m_gravity(true)
   , m_mainLightOn(true)
-  , m_settings(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
-               .filePath(QCoreApplication::applicationName())+"/roll.ini",
-               QSettings::IniFormat)
 {
     Q_UNUSED(parent)
     qDebug() << "Making a RollWorld";
@@ -171,6 +171,7 @@ void Roll::setRunning(bool running) {
 
 void Roll::useTrack(QString track)
 {
+    Q_UNUSED(track)
 //    m_world->useTrack(track);
 }
 
@@ -207,8 +208,8 @@ void Roll::handlePressed(int x, int y) {
         m_cammanager.touch(p_x, p_y);
     } else {
         //    if (m_pickMode) { // Bullet knows nothing about the screen. It needs world info:
-        float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
-        float fy = (0.5f - (float)y/(float)m_cammanager.screenHeight()) * 2.0f; // [yyy,0] -> [-1,1] (screen is inverted compared to GL)
+//        float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
+//        float fy = (0.5f - (float)y/(float)m_cammanager.screenHeight()) * 2.0f; // [yyy,0] -> [-1,1] (screen is inverted compared to GL)
         qDebug()<< "Camera at " << m_cammanager.at();
         //m_world->touch(fx, fy, m_cammanager.projViewMatrix(), m_cammanager.forward());
     }

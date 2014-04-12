@@ -11,7 +11,7 @@ LightManager::LightManager(qreal radius, qreal theta, qreal phi,
                            qreal vr, qreal vth, qreal vph,
                            qreal rx, qreal ry, qreal rz,
                            qreal rxv, qreal ryv, qreal rzv,
-                           qreal scale) :
+                           QVector3D scale) :
     m_r(radius)     // location
   , m_theta(theta)  // location
   , m_phi(phi)      // location
@@ -24,7 +24,7 @@ LightManager::LightManager(qreal radius, qreal theta, qreal phi,
   , m_rxv(rxv)      // orientation x velocity
   , m_ryv(ryv)      // orientation y velocity
   , m_rzv(rzv)      // orientation z velocity
-  , m_scale()  // scale (xyz)
+  , m_scale(scale)  // scale (xyz)
 {
     update(0);
 }
