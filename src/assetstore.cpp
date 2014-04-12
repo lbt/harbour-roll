@@ -36,14 +36,12 @@ Renderable *AssetStore::makeRenderable(QString name, VAO *v, Texture *t)
     return r;
 }
 
-Shader* AssetStore::makeShader(QString name, QString v_glsl_path, QString s_glsl_path) {
+Shader* AssetStore::makeShader(QString name, QUrl v_glsl_path, QUrl f_glsl_path) {
     qDebug() <<"Make shader " << name;
     if (m_shaders.contains(name)) {
         qDebug() <<"Existing shader " << name;
     }
-    Shader *s = new Shader(SailfishApp::pathTo("roll_vert.glsl.out").toLocalFile(),
-                           SailfishApp::pathTo("roll_frag.glsl.out").toLocalFile(),
-                           m_world);
+    Shader *s = new Shader(v_glsl_path, f_glsl_path, m_world);
     m_shaders[name] = s;
     return s;
 }

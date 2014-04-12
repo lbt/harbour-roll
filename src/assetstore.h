@@ -70,8 +70,8 @@ public:
     VAO*              getVAO(QString name) { return m_vaos[name]; }
 
     Renderable*       makeRenderable(QString name, VAO *v, Texture *t);
-    Shader*           makeShader(QString name, QString v_glsl_path,
-                                 QString s_glsl_path);
+    Shader*           makeShader(QString name, QUrl v_glsl_path,
+                                 QUrl f_glsl_path);
     btCollisionShape* makeShape(QString name, QString modelType, btScalar r);
     btCollisionShape *makeShape(QString name, QString modelType, btScalar r, btScalar h);
     btCollisionShape *makeShape(QString name, QString modelType, btVector3 sides);
