@@ -31,6 +31,7 @@ class RollWorld : public World
 
 
     friend class RollRunner;
+    friend class RollBuilder;
 public:
     explicit RollWorld(QObject *parent = 0);
     void createRunner();

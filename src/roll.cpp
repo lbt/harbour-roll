@@ -49,7 +49,7 @@ Roll::Roll(QObject *parent) :
     m_world = new RollWorld();
     m_world->setup(); // Post constructor constructor
     qDebug() << "Making a Builder";
-    m_builder = new WorldBuilder(m_world);
+    m_builder = new RollBuilder(m_world);
     m_builder->setup();
 
 }

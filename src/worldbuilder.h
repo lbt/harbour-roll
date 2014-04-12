@@ -17,17 +17,17 @@ class WorldBuilder : public QObject
 public:
     explicit WorldBuilder(World *w, QObject *parent = 0);
 
-    AssetStore* getAssetStore() const {return m_assetStore; }
-    World* getWorld() const {return m_world; }
+    virtual AssetStore* getAssetStore() const {return m_assetStore; }
+    virtual World* getWorld() const {return m_world; }
 
-    void setup();
-    void setupGL() { m_assetStore->setupGL(); }
+    virtual void setup() = 0;
+    virtual void setupGL() { m_assetStore->setupGL(); }
 
 signals:
 
 public slots:
 
-private:
+protected:
     AssetStore *m_assetStore;
     World *m_world;
 

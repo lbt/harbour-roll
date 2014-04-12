@@ -28,30 +28,30 @@ class World : public QObject
 public:
     explicit World(QObject *parent = 0);
     ~World();
-    void setup();
-    void start();
+    virtual void setup();
+    virtual void start();
     QString serialise();
-    void restore(QString state);
+    virtual void restore(QString state);
 
-    void runStep(int ms);
+    virtual void runStep(int ms);
 
-    void lock() { m_worldMutex.lock(); }
-    void unlock() { m_worldMutex.unlock(); }
+    virtual void lock() { m_worldMutex.lock(); }
+    virtual void unlock() { m_worldMutex.unlock(); }
 
     // Supporting various shader/render world info
-    void setupGL();
-    void render();
+    virtual void setupGL();
+    virtual void render();
     QList<Light*> getLights();
     QMatrix4x4 getActiveCameraPVM();
     QVector3D getActiveCameraAt();
 
 
 protected:
-    void add(WorldItem *i);
-    void add(Physics *p);
-    void remove(WorldItem *i);
-    void remove(Physics *p);
-    void add(QString name, Light *l);
+    virtual void add(WorldItem *i);
+    virtual void add(Physics *p);
+    virtual void remove(WorldItem *i);
+    virtual void remove(Physics *p);
+    virtual void add(QString name, Light *l);
 
     // Support subclassing
     virtual void setupPhysicsWorld();

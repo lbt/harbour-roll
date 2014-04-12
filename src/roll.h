@@ -8,7 +8,7 @@
 #include "lightmanager.h"
 
 #include "rollworld.h"
-#include "worldbuilder.h"
+#include "rollbuilder.h"
 
 #include <QTimer>
 #include <QElapsedTimer>
@@ -105,7 +105,7 @@ private:
     bool m_fancyLights;
     bool m_gravity;
 
-    WorldBuilder* m_builder;
+    RollBuilder* m_builder;
     RollWorld* m_world;
     QElapsedTimer m_lightTime;
     bool m_mainLightOn;
