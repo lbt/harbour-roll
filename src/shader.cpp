@@ -1,6 +1,6 @@
 #include "shader.h"
 
-uint qHash(const Shader &s) { qHash(s.m_p); }
+uint qHash(const Shader &s) { return qHash(s.m_p); }
 
 Shader::Shader(QUrl v_glsl_path, QUrl f_glsl_path, World *parent) :
     QObject((QObject*)parent)
