@@ -17,6 +17,17 @@ void WorldBuilder::setup(){
     m_assetStore->load(SailfishApp::pathTo("curve1.obj").toLocalFile());
 
     // Simulate reading a json file:
+
+    qDebug() << "Setup shader";
+    Shader* defaultShader = m_assetStore->makeShader(
+                "default",
+                SailfishApp::pathTo("roll_vert.glsl.out"),
+                SailfishApp::pathTo("roll_frag.glsl.out"));
+
+    m_assetStore->getRenderable("gutter")->setShader(defaultShader);
+    m_assetStore->getRenderable("gutterBot")->setShader(defaultShader);
+    m_assetStore->getRenderable("Sphere")->setShader(defaultShader);
+
     WorldItem* wi;
 
     qDebug() << "Setup track";
@@ -27,18 +38,14 @@ void WorldBuilder::setup(){
     wi->add(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("gutter")),
                         0.0, wi));
+    wi->addToWorld();
 
     qDebug() << "Setup ball";
     wi = new WorldItem("ball", m_world);
-    wi->add(m_assetStore->getRenderable("Shere"));
+    wi->add(m_assetStore->getRenderable("Sphere"));
     wi->add(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                         0.1, wi));
-
-    qDebug() << "Setup shader";
-
-    m_assetStore->makeShader("default",
-                             SailfishApp::pathTo("roll_vert.glsl.out").toLocalFile(),
-                             SailfishApp::pathTo("roll_frag.glsl.out").toLocalFile());
+    wi->addToWorld();
 
     qDebug() << "Setup lights";
     _DirectionalLight dlight;
@@ -60,6 +67,7 @@ void WorldBuilder::setup(){
         PointLight *pl = new PointLight(m_world);
         pl->randomise();
         pl->lightManager.setScale(QVector3D(4.0, 5.0, 4.0));
+        qDebug() <<"Adding Light: " << pl->metaObject()->className();
         m_world->add(QString("p%1").arg(i), pl);
     }
 
