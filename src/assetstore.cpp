@@ -27,11 +27,11 @@ AssetStore::~AssetStore() {
 
 Renderable *AssetStore::makeRenderable(QString name, VAO *v, Texture *t)
 {
-    qDebug() <<"Make renderable " << name;
+    qDebug() <<"Make renderable " << name << " from T:" << t->objectName() << " and V:" << v;
     if (m_renderables.contains(name)) {
         qDebug() <<"Existing renderable " << name;
     }
-    Renderable *r = new Renderable(v, t);
+    Renderable *r = new Renderable(name, v, t);
     m_renderables[name] = r;
     return r;
 }
@@ -178,7 +178,7 @@ Texture *AssetStore::makeTexture(QString name, QImage img)
     if (m_textures.contains(name)) {
         qDebug() <<"Existing texture " << name;
     }
-    Texture* t = new Texture(img);
+    Texture* t = new Texture(name, img);
     m_textures[name] = t;
 }
 
