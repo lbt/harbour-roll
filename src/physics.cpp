@@ -5,6 +5,7 @@
 Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
     QObject(parent)
   , m_shape(shape)
+  , m_inWorld(false)
 {
     /// Create Dynamic Objects
     btMatrix3x3 rot;
@@ -37,11 +38,13 @@ Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
 
 void Physics::setPos(btVector3 pos, btVector3 velocity)
 {
-    btTransform transform;
-    btMotionState* motion = getRigidBody()->getMotionState();
-    motion->getWorldTransform(transform);
-    transform.setOrigin(pos);
-    motion->setWorldTransform(transform);
-    getRigidBody()->setMotionState(motion);
-    getRigidBody()->setLinearVelocity(velocity);
+    if (m_inWorld) {
+        btTransform transform;
+        btMotionState* motion = getRigidBody()->getMotionState();
+        motion->getWorldTransform(transform);
+        transform.setOrigin(pos);
+        motion->setWorldTransform(transform);
+        getRigidBody()->setMotionState(motion);
+        getRigidBody()->setLinearVelocity(velocity);
+    }
 }
