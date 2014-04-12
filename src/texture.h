@@ -9,7 +9,9 @@ class Texture : public QObject
 {
     Q_OBJECT
 public:
-    explicit Texture(QImage img, QObject *parent = 0);
+    explicit Texture(QString name, QImage img, QObject *parent = 0);
+
+    bool isNull(){ return m_img.isNull(); }
 
     void setupGL();
     void bind();
@@ -17,7 +19,7 @@ signals:
 
 public slots:
 
-    private:
+private:
     QSGTexture* m_texture;
     QImage m_img;
 };
