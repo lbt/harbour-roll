@@ -32,7 +32,6 @@ void WorldRunner::setDebugDraw(int dbg)
 }
 
 void WorldRunner::runStep() {
-    qDebug() << "tick";
     int timeDelta_ms = m_worldTime.restart();
     m_world->runStep(timeDelta_ms );
     emit stepReady();

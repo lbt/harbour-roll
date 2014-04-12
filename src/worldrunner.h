@@ -21,10 +21,10 @@ signals:
 public slots:
 
     virtual void runStep();
-    void setDebugDraw(int dbg);
+    virtual void setDebugDraw(int dbg);
 
-    void setRunning(bool running);
-    void setup();
+    virtual void setRunning(bool running);
+    virtual void setup();
 
 protected:
     World* m_world;
