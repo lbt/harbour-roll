@@ -26,9 +26,9 @@ class Renderable : public QObject
 {
     Q_OBJECT
 public:
-    explicit Renderable(VAO* v, Texture *t = 0, QObject *parent = 0);
+    explicit Renderable(QString name, VAO* v, Texture *t = 0, QObject *parent = 0);
     void setTexture(Texture *t) { m_texture = t; }
-    void setShader(Shader* p);
+    void setShader(Shader* p) { m_shader = p; }
     Shader* getShader() const { return m_shader; }
     void setupGL();
     void render(const Shader *activeShader);
@@ -39,13 +39,9 @@ public slots:
 
 private:
     Shader* m_shader;
-    QString m_name;
     VAO *m_vao;
     Texture *m_texture;
-    GLuint m_vboIds[3];
-    GLuint m_texIds[1];
-    void * m_texCoords;
-    void * m_meshVertices;
+    GLuint m_vboIds[2];
 };
 
 #endif // RENDERABLE_H

@@ -12,14 +12,27 @@
 /// \param node
 /// \param parent
 ///
-Renderable::Renderable(VAO *v, Texture *t, QObject *parent) :
+Renderable::Renderable(QString name, VAO *v, Texture *t, QObject *parent) :
     QObject(parent)
   , m_texture(t)
   , m_vao(v)
-{ }
+  , m_shader(NULL)
+{
+    setObjectName(name);
+    if (!m_texture) {
+        qDebug() << "no Texture";
+    }
+    if (!m_vao) {
+        qDebug() << "no VAO";
+    }
+}
 
 void Renderable::setupGL() {
     qDebug() << "Setup GL";
+    if (!m_shader) {
+        qDebug() << "No shader";
+        return;
+    }
     GLProgram* p = m_shader->getProgram();
 
     glGenBuffers(2, m_vboIds); // one for VAO, other for indices
@@ -78,9 +91,6 @@ void Renderable::setupGL() {
     //        }
     //    }
 
-
-    glEnable(GL_TEXTURE_2D);
-
 }
 
 
@@ -89,15 +99,11 @@ void Renderable::setupGL() {
 
 void Renderable::render(const Shader *activeShader)
 {
-    GLProgram* p = m_shader->getProgram();
-
     if (activeShader != m_shader) return; // This is not our program
 
-    if (!m_texture) {
-        qDebug() << "no texture, not rendering " << m_name;
-        return;
-    }
-    //    qDebug() << "rendering a " << m_name;
+    GLProgram* p = m_shader->getProgram();
+
+//    qDebug() << "rendering a " << objectName();
     // Switch to using our buffers
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
