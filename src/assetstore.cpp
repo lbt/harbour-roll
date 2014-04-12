@@ -288,7 +288,7 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
                 Texture* texture = makeTexture(matname.C_Str(), QImage(SailfishApp::pathTo(path.data).toLocalFile()).mirrored());
 
                 // This is a mesh with a texture - we can probably render that so link them as a Renderable
-                makeRenderable(name, v, texture);
+                if (! texture->isNull()) makeRenderable(name, v, texture);
             } else {
                 qDebug() << "UV has no path";
             }
