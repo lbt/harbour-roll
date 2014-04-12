@@ -45,8 +45,10 @@ Roll::Roll(QObject *parent) :
                QSettings::IniFormat)
 {
     Q_UNUSED(parent)
-
+    qDebug() << "Making a RollWorld";
     m_world = new RollWorld();
+    m_world->setup(); // Post constructor constructor
+    qDebug() << "Making a Builder";
     m_builder = new WorldBuilder(m_world);
     m_builder->setup();
 
@@ -243,7 +245,9 @@ void Roll::prep()
     // and then prepare any one-time data like VBOs
     connect(m_world, SIGNAL(stepReady()), this->window(), SLOT(update()) );
     m_builder->setupGL();
+    qDebug() << "done builder setupGL";
     m_world->setupGL();
+    qDebug() << "done world setupGL";
     m_world->start();
 }
 
