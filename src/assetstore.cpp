@@ -311,9 +311,11 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
 ///
 /// called from the render thread
 void AssetStore::setupGL(){
-    for (auto k : m_shaders.keys()) {
-        Shader *s = m_shaders[k];
-        s->setupGL();
+    qDebug() << "Setup GL";
+    for (auto k : m_textures.keys()) {
+        qDebug() << "GL for texture " << k;
+        Texture *t = m_textures[k];
+        t->setupGL();
     }
     qDebug() << "Setup GL done";
 }
