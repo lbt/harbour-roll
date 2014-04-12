@@ -266,7 +266,7 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
 
     if( node->mNumMeshes > 0)
     {
-        qDebug() << "found a full node with " << node->mNumMeshes << " meshes";
+//        qDebug() << "found a full node with " << node->mNumMeshes << " meshes";
         // copy the mesh : FIXME assuming only 1 mesh
         aiMesh* m = scene->mMeshes[node->mMeshes[0]];
         qDebug() <<"Make Mesh " << name;
@@ -276,13 +276,13 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
         // Import any textures
         int nTex = m->GetNumUVChannels();
         if (nTex > 0) {// http://assimp.sourceforge.net/lib_html/materials.html
-            qDebug() << "Found " << nTex << " texture (UV) channels in material[" << m->mMaterialIndex << "]";
+//            qDebug() << "Found " << nTex << " texture (UV) channels in material[" << m->mMaterialIndex << "]";
             aiMaterial *mat = scene->mMaterials[m->mMaterialIndex];
             aiString matname, path;
             mat->Get(AI_MATKEY_NAME, matname);
             if(mat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
             {
-                qDebug() << "and lives at " << path.C_Str();
+//                qDebug() << "and lives at " << path.C_Str();
                 // FIXME at 5.2:
                 //            m_texture = new QOpenGLTexture(QImage(path.data).mirrored());
                 Texture* texture = makeTexture(matname.C_Str(), QImage(SailfishApp::pathTo(path.data).toLocalFile()).mirrored());
@@ -290,7 +290,7 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
                 // This is a mesh with a texture - we can probably render that so link them as a Renderable
                 makeRenderable(name, v, texture);
             } else {
-                qDebug() << "and has no path";
+                qDebug() << "UV has no path";
             }
         }
     } else  {
@@ -315,4 +315,5 @@ void AssetStore::setupGL(){
         Shader *s = m_shaders[k];
         s->setupGL();
     }
+    qDebug() << "Setup GL done";
 }
