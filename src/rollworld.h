@@ -5,7 +5,7 @@
 #include "worldrunner.h"
 #include <QJsonDocument>
 #include <QtSensors/QAccelerometer>
-#include <QStringList>;
+#include <QStringList>
 
 class RollWorld : public World
 {
@@ -61,7 +61,7 @@ public:
 public slots:
     void setup();
     void setDebugDraw(bool state);
-    virtual void runStep();
+    void runStep();
 
     void gravity(bool state);
     void fly(bool state) { m_fly = state; }

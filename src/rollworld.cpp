@@ -6,12 +6,12 @@
 ///
 RollWorld::RollWorld(QObject *parent) :
     World(parent)
-{
-}
+{}
 
 
 void RollWorld::createRunner() {
     // Setup a worker Thread to do the bullet calcs
+    qDebug() << "Making a RollRunner";
     m_runner = new RollRunner(this);
 }
 
@@ -84,7 +84,7 @@ void RollRunner::setDebugDraw(bool state)
 }
 
 void RollRunner::runStep() {
-    qDebug() << "runstep";
+//    qDebug() << "runstep";
     if (m_gravity) {
         //        if (!m_fly) {
         QAccelerometerReading *reading = m_sensor.reading();
