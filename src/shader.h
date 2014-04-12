@@ -13,7 +13,7 @@ class Shader : public QObject
     Q_OBJECT
     friend uint qHash(const Shader &s);
 public:
-    explicit Shader(QString v_glsl_path, QString s_glsl_path, World *parent = 0);
+    explicit Shader(QUrl v_glsl_path, QUrl f_glsl_path, World *parent = 0);
     void setupGL();
     GLProgram* getProgram() { return m_p; }
 
@@ -24,8 +24,8 @@ signals:
 public slots:
 
 private:
-    QString m_vpath;
-    QString m_spath;
+    QUrl m_vpath;
+    QUrl m_fpath;
     GLProgram* m_p;
     World* m_world;
 };
