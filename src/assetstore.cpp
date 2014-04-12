@@ -180,6 +180,7 @@ Texture *AssetStore::makeTexture(QString name, QImage img)
     }
     Texture* t = new Texture(name, img);
     m_textures[name] = t;
+    return t;
 }
 
 VAO* AssetStore::makeVAO(QString name, aiMesh* m) {
