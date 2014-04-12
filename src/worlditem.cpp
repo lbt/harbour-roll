@@ -7,6 +7,7 @@
 WorldItem::WorldItem(QString name, World *parent) :
     QObject(parent)
   , m_world(parent)
+  , m_physics(NULL)
 {
     setObjectName(name);
 }
@@ -16,7 +17,6 @@ void WorldItem::add(Physics *p)
     if (! m_physics) {
         if (p) {
             m_physics = p;
-            m_world->add(p);
         } else {
             qDebug() << "Refusing to add null";
         }
@@ -32,6 +32,23 @@ void WorldItem::add(Renderable *r)
         qDebug() << "Refusing to add null";
     }
 }
+
+void WorldItem::addToWorld()
+{
+    if (m_physics) {
+        m_world->add(m_physics);
+        m_physics->setInWorld(true);
+    }
+    m_world->add(this);
+}
+
+void WorldItem::leaveWorld()
+{
+    m_world->remove(m_physics);
+    m_physics->setInWorld(false);
+    m_world->remove(this);
+}
+
 
 void WorldItem::setupGL(){
     qDebug() << "Setup GL";

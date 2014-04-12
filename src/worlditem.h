@@ -27,6 +27,8 @@ public:
 
     void render(const Shader *activeProgram);
     void setupGL();
+    void addToWorld();
+    void leaveWorld();
 signals:
 
 public slots:
