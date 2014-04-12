@@ -210,9 +210,9 @@ bool AssetStore::load(QString filename)
     // Attaching myStream to the default logger
     Assimp::DefaultLogger::create("",Assimp::Logger::VERBOSE);
 
-    const unsigned int severity = Assimp::Logger::Debugging|Assimp::Logger::Info|Assimp::Logger::Err|Assimp::Logger::Warn;
-    // This next line enales/disables assimp logging
-    Assimp::DefaultLogger::get()->attachStream( new dbgStream(), severity );
+    // This next linew enables/disables assimp logging
+//    const unsigned int severity = Assimp::Logger::Debugging|Assimp::Logger::Info|Assimp::Logger::Err|Assimp::Logger::Warn;
+//    Assimp::DefaultLogger::get()->attachStream( new dbgStream(), severity );
     Assimp::DefaultLogger::get()->setLogSeverity( Assimp::Logger::VERBOSE );
     // And have it read the given file with some example postprocessing
     // Usually - if speed is not the most important aspect for you - you'll
