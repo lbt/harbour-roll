@@ -35,15 +35,15 @@ public:
 
     LightManager lightManager;
 
-    void update(int deltaT) { }
+    void update(int deltaT) { Q_UNUSED(deltaT) }
     virtual void randomise() = 0;
-    virtual void debugRender(QMatrix4x4 projViewMatrix) {}
+    virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix)}
     virtual void setUniforms(GLProgram *p, int i) = 0;
 };
 
 class PointLight : public Light
 {
-
+    Q_OBJECT
 public:
     explicit PointLight(QObject *parent=0);
 
@@ -61,7 +61,7 @@ private:
 
 class DirectionalLight : public Light
 {
-
+    Q_OBJECT
 public:
     explicit DirectionalLight(QObject *parent=0);
 
