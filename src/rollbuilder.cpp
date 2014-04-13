@@ -44,6 +44,15 @@ void RollBuilder::setup(){
                         0.1, wi));
     wi->addToWorld();
 
+    // Tell the rollworld that this is the ball
+    m_rollworld->m_ball = wi;
+
+    wi = new WorldItem("floor", m_world);
+    wi->add(new Physics(m_assetStore->makeShape("Floor", "btPlane", 0.4),
+                        0.1, wi));
+    m_rollworld->m_floor = wi;
+
+
     qDebug() << "Setup lights";
     _DirectionalLight dlight;
     // Ensure that the first throw has a visible dlight
