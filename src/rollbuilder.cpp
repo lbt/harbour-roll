@@ -9,6 +9,8 @@ RollBuilder::RollBuilder(RollWorld *parent) :
 
 void RollBuilder::setup(){
 
+    WorldBuilder::setup();
+
     qDebug() << "Setup";
 
     m_assetStore->load(SailfishApp::pathTo("curve1.obj").toLocalFile());

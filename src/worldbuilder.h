@@ -20,7 +20,7 @@ public:
     virtual AssetStore* getAssetStore() const {return m_assetStore; }
     virtual World* getWorld() const {return m_world; }
 
-    virtual void setup() = 0;
+    virtual void setup();
     virtual void setupGL() { m_assetStore->setupGL(); }
 
 signals:
