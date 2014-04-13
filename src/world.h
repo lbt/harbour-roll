@@ -30,7 +30,7 @@ public:
     ~World();
     virtual void setup();
     virtual void start();
-    QString serialise();
+    virtual QString serialise();
     virtual void restore(QString state);
 
     virtual void runStep(int ms);
@@ -41,9 +41,9 @@ public:
     // Supporting various shader/render world info
     virtual void setupGL();
     virtual void render();
-    QList<Light*> getLights();
-    QMatrix4x4 getActiveCameraPVM();
-    QVector3D getActiveCameraAt();
+    virtual QList<Light*> getLights();
+    virtual QMatrix4x4 getActiveCameraPVM();
+    virtual QVector3D getActiveCameraAt();
 
 
 protected:
