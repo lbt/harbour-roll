@@ -8,6 +8,7 @@ RollWorld::RollWorld(QObject *parent) :
     World(parent)
   , m_ball(NULL)
   , m_floor(NULL)
+  , m_camera(NULL)
 {}
 
 
@@ -15,6 +16,15 @@ void RollWorld::createRunner() {
     // Setup a worker Thread to do the bullet calcs
     qDebug() << "Making a RollRunner";
     m_runner = new RollRunner(this);
+}
+QMatrix4x4 RollWorld::getActiveCameraPVM()
+{
+    return m_camera->projViewMatrix();
+}
+
+QVector3D RollWorld::getActiveCameraAt()
+{
+    return m_camera->at();
 }
 
 QStringList RollWorld::getTrackNames()
@@ -29,6 +39,10 @@ void RollWorld::setGravity(float x,float y,float z)
 
 #define START    btVector3(2.0,-0.0,0)
 void RollWorld::runStep(int ms) {
+
+    Transform ballTransform = m_ball->getTransform();
+    m_camera->follow(ballTransform);
+
     World::runStep(ms);
 
     // Do our local collision detection until World has a mechanism

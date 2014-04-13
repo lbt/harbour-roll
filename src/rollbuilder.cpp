@@ -80,4 +80,7 @@ void RollBuilder::setup(){
     }
 
     m_assetStore->load_finished();
+
+    m_rollworld->m_camera = new CameraManager();
+
 }

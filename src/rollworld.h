@@ -3,6 +3,8 @@
 
 #include "world.h"
 #include "worldrunner.h"
+#include "cameramanager.h"
+
 #include <QJsonDocument>
 #include <QtSensors/QAccelerometer>
 #include <QStringList>
@@ -36,6 +38,8 @@ public:
     explicit RollWorld(QObject *parent = 0);
     void createRunner();
     void runStep(int ms);
+    QMatrix4x4 getActiveCameraPVM();
+    QVector3D getActiveCameraAt();
 
     QStringList getTrackNames();
 signals:
@@ -52,6 +56,7 @@ public slots:
 private:
     WorldItem* m_ball;
     WorldItem* m_floor;
+    CameraManager* m_camera;
 
 };
 
