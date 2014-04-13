@@ -41,4 +41,10 @@ QMatrix4x4 bt2QMatrix4x4(btTransform *transform) {
             ft[8],  ft[9],  ft[10], ft[11],
             ft[12], ft[13], ft[14], ft[15]).transposed();
 }
+btTransform Qt2btTransform(QMatrix4x4 *qmatrix) {
+    float ft[16];
+    btTransform  transform;
+    qmatrix->transposed().copyDataTo(ft);
+    transform.setFromOpenGLMatrix(ft);
+}
 
