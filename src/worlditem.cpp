@@ -58,7 +58,7 @@ void WorldItem::setupGL(){
 
 }
 
-QMatrix4x4 WorldItem::getTransform() {
+Transform WorldItem::getTransform() {
     if (m_physics && m_physics->getRigidBody() && m_physics->getRigidBody()->getMotionState())
     {
         btTransform trans;
