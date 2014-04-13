@@ -109,6 +109,24 @@ btCollisionShape* AssetStore::makeShape(QString name, QString modelType, btVecto
     return shape;
 }
 
+btCollisionShape *AssetStore::makeShape(QString name, QString modelType, btVector3 normal, btScalar offset)
+{
+    qDebug() <<"Make "<< modelType << " shape " << name;
+    btStaticPlaneShape* shape = NULL;
+    if (m_shapes.contains(name)) {
+        qDebug() <<"Existing shape " << name;
+    }
+    if (modelType == "btStaticPlane") {
+        qDebug() <<"btStaticPlane";
+        shape = new btStaticPlaneShape(normal, offset);
+    } else {
+        qDebug() <<"Unknown shape " << modelType;
+    }
+    if (shape) m_shapes[name] = shape;
+    return shape;
+
+}
+
 btCollisionShape* AssetStore::makeShape(QString name, QString modelType, aiMesh* m) {
     qDebug() <<"Make "<< modelType << " shape " << name;
     btCollisionShape* rshape= NULL;

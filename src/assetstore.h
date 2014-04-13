@@ -72,10 +72,13 @@ public:
     Renderable*       makeRenderable(QString name, VAO *v, Texture *t);
     Shader*           makeShader(QString name, QUrl v_glsl_path,
                                  QUrl f_glsl_path);
+
     btCollisionShape* makeShape(QString name, QString modelType, btScalar r);
     btCollisionShape *makeShape(QString name, QString modelType, btScalar r, btScalar h);
     btCollisionShape *makeShape(QString name, QString modelType, btVector3 sides);
+    btCollisionShape *makeShape(QString name, QString modelType, btVector3 normal, btScalar offset);
     btCollisionShape* makeShape(QString name, QString modelType, aiMesh *m);
+
     Texture*          makeTexture(QString name, QImage img);
     VAO*              makeVAO(QString name, aiMesh *m);
 
