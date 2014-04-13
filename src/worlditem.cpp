@@ -58,6 +58,43 @@ void WorldItem::setupGL(){
 
 }
 
+QMatrix4x4 WorldItem::getTransform() {
+    if (m_physics && m_physics->getRigidBody() && m_physics->getRigidBody()->getMotionState())
+    {
+        btTransform trans;
+        m_physics->getRigidBody()->getMotionState()->getWorldTransform(trans);
+        return bt2QMatrix4x4(&trans);
+    } else {
+        return m_transform;
+    }
+}
+void WorldItem::setTransform(QMatrix4x4 t) {
+    if (m_physics && m_physics->getRigidBody() && m_physics->getRigidBody()->getMotionState()) {
+        btTransform transform = Qt2btTransform(&t);
+        btMotionState* motion = m_physics->getRigidBody()->getMotionState();
+        motion->setWorldTransform(transform);
+        m_physics->getRigidBody()->setMotionState(motion);
+    } else {
+        m_transform = t;
+    }
+}
+
+void WorldItem::setVelocity(QVector3D v) {
+    if (m_physics && m_physics->getRigidBody()) {
+        btVector3 velocity = Qt2btVector3(v);
+        m_physics->getRigidBody()->setLinearVelocity(velocity);
+    } else {
+        m_velocity = v;
+    }
+}
+QVector3D WorldItem::getVelocity() {
+    if (m_physics && m_physics->getRigidBody()) {
+        return bt2QtVector3D(m_physics->getRigidBody()->getLinearVelocity());
+    } else {
+        return m_velocity;
+    }
+}
+
 ////
 /// \brief WorldItem::render
 /// \param p - This is used to select the correct VAO for the currently active GLProgram
@@ -70,7 +107,7 @@ void WorldItem::render(const Shader *activeProgram) {
     {
         btTransform trans;
         m_physics->getRigidBody()->getMotionState()->getWorldTransform(trans);
-        m_pos = bt2QMatrix4x4(&trans);
+        m_transform = bt2QMatrix4x4(&trans);
     }
 
     for (auto r: m_renderables) {

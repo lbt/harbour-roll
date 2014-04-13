@@ -156,6 +156,7 @@ void World::setupGL(){
         }
     }
     m_worldMutex.unlock();
+    m_debugShader->setupGL();
     qDebug() << "Setup GL done";
 }
 /////////////////////////////////////////////////
@@ -201,7 +202,7 @@ QMatrix4x4 World::getActiveCameraPVM()
 
 QVector3D World::getActiveCameraAt()
 {
-    return QVector3D(0,0,0);
+    return QVector3D(0,0,5);
 }
 // Called by the item
 // Store by item Name and by all item->Renderable[]->shader

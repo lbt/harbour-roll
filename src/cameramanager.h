@@ -2,7 +2,7 @@
 #define ROTATIONMANAGER_H
 
 #include <QObject>
-#include <QMatrix4x4>
+#include "transform.h"
 #include <QtSensors/QAccelerometer>
 
 class CameraManager : public QObject
@@ -14,10 +14,10 @@ public:
     bool isActive() const { return m_pressed; }
     void reset();
 
-    QVector3D right();
-    QVector3D up();
-    QVector3D forward();
-    QVector3D at();
+    QVector3D right() { return m_camera.right(); }
+    QVector3D up() { return m_camera.up(); }
+    QVector3D forward() { return m_camera.forward(); }
+    QVector3D at() { return m_camera.at(); }
     QMatrix4x4 projViewMatrix();
     int screenWidth() { return 540; }
     int screenHeight() { return 960; }
@@ -28,7 +28,7 @@ signals:
 public slots:
     void release(); // no longer in use
     void touch(qreal x, qreal y); // current position
-    void follow(QMatrix4x4 r);
+    void follow(Transform itemTransform);
 
 private:
     QVector4D position();
@@ -38,7 +38,7 @@ private:
     bool m_pressed;
     qreal m_touchX;
     qreal m_touchY;
-    QMatrix4x4 m_camera;
+    Transform m_camera;
 };
 
 #endif // ROTATIONMANAGER_H

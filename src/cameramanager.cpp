@@ -27,27 +27,23 @@ void CameraManager::touch(qreal x, qreal y) {
         r.rotate((m_touchX - x)/WIDTH * 2, up()); // rotate around up
         r.rotate((y - m_touchY)/HEIGHT * 2, right()); // rotate around right
 
-        QVector4D p = position(); // store position
-        m_camera = r * m_camera; // rotate
-        setPosition(p); // restore position
-
+        m_camera.rotateOnly(r);
     } else { // movement bottom half
         QMatrix4x4 t;
-        t.translate(forward()*0.5*(y - m_touchY)/HEIGHT); // movement
+        t.translate(m_camera.forward()*0.5*(y - m_touchY)/HEIGHT); // movement
+        QMatrix4x4 t2 = t * m_camera; // move
         m_camera = t * m_camera; // move
 
         QMatrix4x4 r;
         r.rotate((m_touchX - x)/WIDTH * 2,  up()) ; // rotation vector
-        QVector4D p = position(); // store position
-        m_camera = r* m_camera; // rotate
-        setPosition(p); // restore position
+        m_camera.rotateOnly(r);
     }
 
 }
 
-void CameraManager::follow(QMatrix4x4 r)
+void CameraManager::follow(Transform itemTransform)
 {
-    QVector3D p = r.column(0).toVector3D();
+    QVector3D p = itemTransform.column(0).toVector3D();
 // This follows the ball from 'behind' using the velocity to determine behind.
 // But that's not as good as it could be when it's rolling up and down slopes.
 //    QVector3D v = r.column(1).toVector3D() * -0.5;
@@ -56,13 +52,7 @@ void CameraManager::follow(QMatrix4x4 r)
 
     QVector3D v = QVector3D(0.2,0.2,15);
 
-    // Original
-    m_camera=QMatrix4x4();
-    m_camera.translate(p + v);
-
-//    qDebug() << "At " << at() <<" Looking towards " << forward() << " using " << m_camera;
-
-    m_camera=QMatrix4x4();
+    m_camera=Transform();
     m_camera.lookAt(p + v, p, QVector3D(0, 0, -1));
     m_camera = m_camera.inverted();
 
@@ -79,9 +69,7 @@ void CameraManager::updatePosition() {
         QMatrix4x4 r;
 //        r.rotate(reading->x()/5.0,  forward()) ; // rotation vector
 //        r.rotate(reading->y()/5.0,  right()) ; // rotation vector
-        QVector4D p = position(); // store position
-        m_camera = r* m_camera; // rotate
-        setPosition(p); // restore position
+        m_camera.rotateOnly(r);
     }
 }
 
@@ -104,31 +92,9 @@ QMatrix4x4 CameraManager::projViewMatrix() {
     //    return projMatrix * viewMatrix;
 }
 
-// Extract up, right, forward and position vectors
-QVector3D CameraManager::right() { // x
-    return m_camera.column(0).toVector3D();
-}
-QVector3D CameraManager::up() { // y
-    return m_camera.column(1).toVector3D();
-}
-QVector3D CameraManager::forward() { // z
-    return m_camera.column(2).toVector3D();
-}
-QVector3D CameraManager::at() { // position
-    return m_camera.column(3).toVector3D();
-}
-
-// private for store/restore position during non-translating rotation
-QVector4D CameraManager::position() {
-    return m_camera.column(3);
-}
-void CameraManager::setPosition(QVector4D pos) {
-    m_camera.setColumn(3, pos);
-}
-
 void CameraManager::reset()
 {
-    m_camera=QMatrix4x4();
+    m_camera=Transform();
     // Normally any messing with the orientation axis would require all 3 to be kept in sync.
     //    m_camera.setColumn(0, QVector4D(1,  0,  0,  0));
     //    m_camera.setColumn(1, QVector4D(0,  1,  0,  0));
@@ -139,5 +105,4 @@ void CameraManager::reset()
     m_touchY=0;
     m_touchX=0;
     m_pressed=false;
-
 }

@@ -23,12 +23,16 @@ public:
     void add(Renderable* r);
     void add(Physics* p);
     Physics* physics() const {return m_physics;}
-    QMatrix4x4 pos() const { return m_pos; }
+    QMatrix4x4 transform() const;
 
     void render(const Shader *activeProgram);
     void setupGL();
     void addToWorld();
     void leaveWorld();
+    void setVelocity(QVector3D v);
+    QVector3D getVelocity();
+    void setTransform(QMatrix4x4 t);
+    QMatrix4x4 getTransform();
 signals:
 
 public slots:
@@ -37,7 +41,8 @@ private:
     World* m_world;
     QList<Renderable*> m_renderables;
     Physics* m_physics;
-    QMatrix4x4 m_pos;
+    QMatrix4x4 m_transform;
+    QVector3D m_velocity;
 };
 
 #endif // WORLDITEM_H
