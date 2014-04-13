@@ -20,7 +20,6 @@ void Shader::setupGL()
 
 void Shader::renderPrep()
 {
-
     if (m_p && m_p->isLinked()){
         m_p->bind();
 //        qDebug() <<"Shader is linked and bound";

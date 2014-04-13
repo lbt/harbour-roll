@@ -146,6 +146,7 @@ void World::runStep(int ms)
 
 void World::setupGL(){
     qDebug() << "Setup GL";
+    m_worldMutex.lock();
     for (Shader* s : m_byShader.keys()) {
         qDebug() << "setupGL for shader " << s;
         s->setupGL(); // bind and setup Lights (maybe do that here?)
@@ -154,6 +155,7 @@ void World::setupGL(){
             wi->setupGL();
         }
     }
+    m_worldMutex.unlock();
     qDebug() << "Setup GL done";
 }
 /////////////////////////////////////////////////
@@ -176,7 +178,6 @@ void World::render()
             wi->render(s);
         }
     }
-    m_worldMutex.unlock();
 
     if (m_debugDrawer.getDebugMode() != 0) {
         m_debugShader->renderPrep();
@@ -185,6 +186,7 @@ void World::render()
         }
 
     }
+    m_worldMutex.unlock();
 }
 
 QList<Light *> World::getLights()
