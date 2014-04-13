@@ -3,6 +3,7 @@
 World::World(QObject *parent) :
     QObject(parent)
   , m_debugDrawer(this)
+  , m_debugShader(NULL)
   , m_worldMutex(QMutex::Recursive)
   , m_runner(NULL)
 {

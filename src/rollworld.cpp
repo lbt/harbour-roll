@@ -6,6 +6,8 @@
 ///
 RollWorld::RollWorld(QObject *parent) :
     World(parent)
+  , m_ball(NULL)
+  , m_floor(NULL)
 {}
 
 
