@@ -50,8 +50,8 @@ void RollBuilder::setup(){
     m_rollworld->m_ball = wi;
 
     wi = new WorldItem("floor", m_world);
-    wi->add(new Physics(m_assetStore->makeShape("Floor", "btPlane", 0.4),
-                        0.1, wi));
+    wi->add(new Physics(m_assetStore->makeShape("Floor", "btStaticPlane", btVector3( 0, 0, 1), -6),
+                        0.0, wi));
     m_rollworld->m_floor = wi;
 
 
