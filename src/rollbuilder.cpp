@@ -37,6 +37,9 @@ void RollBuilder::setup(){
     wi->add(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("gutter")),
                         0.0, wi));
+    Transform trackPos;
+    trackPos.translate(QVector3D(0,0,1));
+    wi->setTransform(trackPos);
     wi->addToWorld();
 
     qDebug() << "Setup ball";
