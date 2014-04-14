@@ -31,7 +31,7 @@ public:
     void setShader(Shader* p) { m_shader = p; }
     Shader* getShader() const { return m_shader; }
     void setupGL();
-    void render(const Shader *activeShader);
+    void render(const Shader *activeShader, QMatrix4x4 worldMatrix);
 
 signals:
 

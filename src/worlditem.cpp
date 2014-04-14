@@ -111,7 +111,7 @@ void WorldItem::render(const Shader *activeProgram) {
     }
 
     for (auto r: m_renderables) {
-        r->render(activeProgram);
+        r->render(activeProgram, m_transform);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

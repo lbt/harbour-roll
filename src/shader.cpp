@@ -31,8 +31,6 @@ void Shader::renderPrep()
     // Set standard camera values in the glsl
     m_p->setUniformValue(m_p->getU("projViewMatrixU"), m_world->getActiveCameraPVM());
     m_p->setUniformValue(m_p->getU("eyeWorldPosU"), m_world->getActiveCameraAt());
-    QMatrix4x4 worldMatrix; // null atm - not sure if we need this
-    m_p->setUniformValue(m_p->getU("worldMatrixU"), worldMatrix);
 
     int nDirLights = 0;
     int nPointLights = 0;

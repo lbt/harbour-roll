@@ -97,7 +97,7 @@ void Renderable::setupGL() {
 // The approach that's likely to work is to define the app's model format and which attribs
 // must be used. Then preset all the lighting in one area and then render each object
 
-void Renderable::render(const Shader *activeShader)
+void Renderable::render(const Shader *activeShader, QMatrix4x4 worldMatrix)
 {
     if (activeShader != m_shader) return; // This is not our program
 
@@ -120,6 +120,8 @@ void Renderable::render(const Shader *activeShader)
     glEnableVertexAttribArray(p->getA("posA"));
     glEnableVertexAttribArray(p->getA("texA"));
     glEnableVertexAttribArray(p->getA("normalA"));
+
+    p->setUniformValue(p->getU("worldMatrixU"), worldMatrix);
 
     p->setUniformValue(p->getU("matSpecularIntensityU"), 2.0f);
     p->setUniformValue(p->getU("specularPowerU"), 32.0f);
