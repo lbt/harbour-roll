@@ -32,19 +32,22 @@ uint qHash(const aiVector3t<float> &v) { //
 
 // Bullet
 
-QMatrix4x4 bt2QMatrix4x4(btTransform *transform) {
-    float ft[16];
-    transform->getOpenGLMatrix(ft);
+//check(QMatrix4x4 in) {
+//    btTransform b = Qt2btTransform(&in);
+//    QMatrix4x4 out = bt2QMatrix4x4(&b);
+//    if (out != in) {
+//        qDebug() << "in != out " << in << " != " << out;
+//    }
+//}
 
-    return QMatrix4x4(ft[0], ft[1], ft[2], ft[3],
-            ft[4],  ft[5],  ft[6],  ft[7],
-            ft[8],  ft[9],  ft[10], ft[11],
-            ft[12], ft[13], ft[14], ft[15]).transposed();
+QMatrix4x4 bt2QMatrix4x4(btTransform *transform) {
+    QMatrix4x4 m;
+    transform->getOpenGLMatrix(m.data());
+    return m;
 }
 btTransform Qt2btTransform(QMatrix4x4 *qmatrix) {
-    float ft[16];
     btTransform  transform;
-    qmatrix->transposed().copyDataTo(ft);
-    transform.setFromOpenGLMatrix(ft);
+    transform.setFromOpenGLMatrix(qmatrix->data());
+    return transform;
 }
 
