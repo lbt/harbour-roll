@@ -40,6 +40,9 @@ public:
     QMatrix4x4 getActiveCameraPVM();
     QVector3D getActiveCameraAt();
 
+    CameraManager* getCameraMangager() { return m_camera; }
+    void setCameraMangager(CameraManager* camera) { m_camera = camera; }
+
     QStringList getTrackNames();
 signals:
 
