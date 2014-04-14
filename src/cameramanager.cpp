@@ -20,7 +20,6 @@ void CameraManager::touch(qreal x, qreal y) {
         m_touchY = y;
         m_pressed = true;
     }
-
     if (m_touchY < HEIGHT/2) { // rotation top half
 
         QMatrix4x4 r;
@@ -31,7 +30,6 @@ void CameraManager::touch(qreal x, qreal y) {
     } else { // movement bottom half
         QMatrix4x4 t;
         t.translate(m_camera.forward()*0.5*(y - m_touchY)/HEIGHT); // movement
-        QMatrix4x4 t2 = t * m_camera; // move
         m_camera = t * m_camera; // move
 
         QMatrix4x4 r;
