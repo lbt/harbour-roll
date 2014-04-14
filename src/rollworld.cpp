@@ -42,6 +42,7 @@ void RollWorld::runStep(int ms) {
 
     Transform ballTransform = m_ball->getTransform();
     m_camera->follow(ballTransform);
+    // m_camera->update(ms);
 
     World::runStep(ms);
 

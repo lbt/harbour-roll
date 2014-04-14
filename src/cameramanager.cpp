@@ -43,10 +43,11 @@ void CameraManager::touch(qreal x, qreal y) {
 
 void CameraManager::follow(Transform itemTransform)
 {
-    QVector3D p = itemTransform.column(0).toVector3D();
+    QVector3D p = itemTransform.at();
 // This follows the ball from 'behind' using the velocity to determine behind.
 // But that's not as good as it could be when it's rolling up and down slopes.
 //    QVector3D v = r.column(1).toVector3D() * -0.5;
+    // Transform does not (yet?) have velocity component
 //    v.setZ(18);
 //    qDebug() << "v " << v;
 
@@ -56,7 +57,7 @@ void CameraManager::follow(Transform itemTransform)
     m_camera.lookAt(p + v, p, QVector3D(0, 0, -1));
     m_camera = m_camera.inverted();
 
-//    qDebug() << "At " << at() <<" Looking towards " << forward() << " using " << m_camera;
+//    qDebug() << "At " << m_camera.at() <<" Looking towards " << m_camera.forward();
 }
 
 void CameraManager::updatePosition() {
