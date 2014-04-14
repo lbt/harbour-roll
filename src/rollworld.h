@@ -2,7 +2,6 @@
 #define ROLLWORLD_H
 
 #include "world.h"
-#include "worldrunner.h"
 #include "cameramanager.h"
 
 #include <QJsonDocument>
@@ -36,7 +35,7 @@ class RollWorld : public World
     friend class RollBuilder;
 public:
     explicit RollWorld(QObject *parent = 0);
-    void createRunner();
+    void setup();
     void runStep(int ms);
     QMatrix4x4 getActiveCameraPVM();
     QVector3D getActiveCameraAt();
@@ -45,18 +44,19 @@ public:
 signals:
 
 public slots:
-    void fly(bool state) { QMetaObject::invokeMethod(
-                    m_runner,"fly", Qt::QueuedConnection, Q_ARG(bool, state));}
-    void gravity(bool state) { QMetaObject::invokeMethod(
-                    m_runner,"gravity", Qt::QueuedConnection, Q_ARG(bool, state));}
-    void setDebugDraw(bool state) { QMetaObject::invokeMethod(
-                    m_runner,"setDebugDraw", Qt::QueuedConnection, Q_ARG(bool, state));}
+    void setDebugDraw(bool state) ;
     void setGravity(float x, float y, float z);
+    void gravity(bool state) { m_gravity = state; }
+    void fly(bool state) { m_fly = state; }
 
 private:
     WorldItem* m_ball;
     WorldItem* m_floor;
     CameraManager* m_camera;
+
+    QAccelerometer m_sensor;
+    bool m_gravity;
+    bool m_fly;
 };
 
 

@@ -9,14 +9,15 @@ RollWorld::RollWorld(QObject *parent) :
   , m_ball(NULL)
   , m_floor(NULL)
   , m_camera(NULL)
+  , m_gravity(false)
+  , m_fly(true)
 {}
 
-
-void RollWorld::createRunner() {
-    // Setup a worker Thread to do the bullet calcs
-    qDebug() << "Making a RollRunner";
-    m_runner = new RollRunner(this);
+void RollWorld::setup() {
+    World::setup();
+    m_sensor.start();
 }
+
 QMatrix4x4 RollWorld::getActiveCameraPVM()
 {
     return m_camera->projViewMatrix();
@@ -37,12 +38,38 @@ void RollWorld::setGravity(float x,float y,float z)
     dynamicsWorld->setGravity(btVector3(-x*10, -y*10, -z*10));
 }
 
+void RollWorld::setDebugDraw(bool state)
+{
+    if (state)
+        m_debugDrawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+    else
+        m_debugDrawer.setDebugMode(0);
+}
+
+
 #define START    btVector3(2.0,-0.0,0)
 void RollWorld::runStep(int ms) {
 
-    Transform ballTransform = m_ball->getTransform();
-    m_camera->follow(ballTransform);
+    if (m_gravity) {
+        //        if (!m_fly) {
+        QAccelerometerReading *reading = m_sensor.reading();
+        setGravity(reading->x(), reading->y(), reading->z());
+        //        }
+    } else {
+        setGravity(0, 0, 0);
+    }
+
+    if (!m_fly) {
+        //    Transform ballTransform = m_ball->getTransform();
+        Transform ballTransform = Transform();
+        ballTransform.translate(QVector3D(0,  0,  10));
+
+        m_camera->follow(ballTransform);
+    }
+
+    // For dynamic camera following a curve
     // m_camera->update(ms);
+    // m_cammanager.updatePosition();
 
     World::runStep(ms);
 
@@ -54,7 +81,7 @@ void RollWorld::runStep(int ms) {
         if (obj == m_ball->physics()->getRigidBody()) continue;
         if (obj == m_floor->physics()->getRigidBody()) {
             qDebug() << "Hit the floor";
-//            m_ball->collision(m_floor);
+            //            m_ball->collision(m_floor);
             btMotionState *motion;
             motion = m_ball->physics()->getRigidBody()->getMotionState();
             btTransform pos;
@@ -66,3 +93,4 @@ void RollWorld::runStep(int ms) {
         }
     }
 }
+
