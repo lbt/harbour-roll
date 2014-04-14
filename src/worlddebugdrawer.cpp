@@ -11,6 +11,8 @@
 
 WorldDebugDrawer::WorldDebugDrawer(World *parent) :
     QObject((QObject*)parent)
+  , m_program_debug(NULL)
+  , m_debug_mode(0)
   , m_worldLines(NULL)
   , m_qlinepoints(500)
 {

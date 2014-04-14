@@ -157,6 +157,7 @@ void World::setupGL(){
     }
     m_worldMutex.unlock();
     m_debugShader->setupGL();
+    m_debugDrawer.setupGL();
     qDebug() << "Setup GL done";
 }
 /////////////////////////////////////////////////
@@ -185,7 +186,7 @@ void World::render()
         for (Light* l : getLights()) {
             l->debugRender(getActiveCameraPVM());
         }
-
+        m_debugDrawer.render(getActiveCameraPVM());
     }
     m_worldMutex.unlock();
 }
