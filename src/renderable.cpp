@@ -28,7 +28,7 @@ Renderable::Renderable(QString name, VAO *v, Texture *t, QObject *parent) :
 }
 
 void Renderable::setupGL() {
-    qDebug() << "Setup GL";
+    qDebug() << "Setup GL for " << objectName();
     if (!m_shader) {
         qDebug() << "No shader";
         return;
