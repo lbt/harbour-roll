@@ -3,6 +3,7 @@
 #include "sailfishapp.h"
 
 #include "rendermeshtextured.h"
+#include "rendermeshshaded.h"
 
 AssetStore::AssetStore(World *w, QObject *parent) :
     QObject(parent)
@@ -25,6 +26,17 @@ AssetStore::~AssetStore() {
         m_renderables[key] = 0;
         delete r;
     }
+}
+
+Renderable *AssetStore::makeRenderable(QString name, VAO *v)
+{
+    qDebug() <<"Make renderable " << name << " from V:" << v;
+    if (m_renderables.contains(name)) {
+        qDebug() <<"Existing renderable " << name;
+    }
+    Renderable *r = new RenderMeshShaded(name, v);
+    m_renderables[name] = r;
+    return r;
 }
 
 Renderable *AssetStore::makeRenderable(QString name, VAO *v, Texture *t)
@@ -311,8 +323,12 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
                 // This is a mesh with a texture - we can probably render that so link them as a Renderable
                 if (! texture->isNull()) makeRenderable(name, v, texture);
             } else {
-                qDebug() << "UV has no path";
+                qDebug() << "UV has no path making a RenderMeshShaded";
+                makeRenderable(name, v);
             }
+        } else {
+            qDebug() << "No textures: making a RenderMeshShaded";
+            makeRenderable(name, v);
         }
     } else  {
         qDebug() << "found an empty node with no meshes";

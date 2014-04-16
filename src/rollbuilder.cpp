@@ -42,6 +42,19 @@ void RollBuilder::setup(){
     wi->setTransform(trackPos);
     wi->addToWorld();
 
+    qDebug() << "Setup track2";
+    wi = new WorldItem("track2", m_world);
+    wi->add(m_assetStore->getRenderable("track2Curve"));
+    // Create a Shape and a Physics and add to wi
+    wi->add(new Physics(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
+                                                m_assetStore->getMesh("track2Curve")),
+                        0.0, wi));
+
+    trackPos.setToIdentity();
+    trackPos.translate(QVector3D(0,0,3));
+    wi->setTransform(trackPos);
+    wi->addToWorld();
+
     qDebug() << "Setup ball";
     wi = new WorldItem("ball", m_world);
     wi->add(m_assetStore->getRenderable("Sphere"));

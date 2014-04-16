@@ -69,6 +69,7 @@ public:
     aiMesh*           getMesh(QString name) { return m_meshes[name]; }
     VAO*              getVAO(QString name) { return m_vaos[name]; }
 
+    Renderable*       makeRenderable(QString name, VAO *v);
     Renderable*       makeRenderable(QString name, VAO *v, Texture *t);
     Shader*           makeShader(QString name, QUrl v_glsl_path,
                                  QUrl f_glsl_path);
@@ -84,7 +85,6 @@ public:
 
 
     void setupGL();
-
 
 signals:
 
