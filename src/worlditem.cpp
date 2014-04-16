@@ -55,7 +55,6 @@ void WorldItem::setupGL(){
     for (auto r : m_renderables){
         r->setupGL();
     }
-
 }
 
 Transform WorldItem::getTransform() {
