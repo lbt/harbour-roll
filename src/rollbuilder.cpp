@@ -47,6 +47,11 @@ void RollBuilder::setup(){
     wi->add(m_assetStore->getRenderable("Sphere"));
     wi->add(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                         0.1, wi));
+
+    // #define START    btVector3(2.0,-0.0,0)
+    trackPos.setToIdentity();
+    trackPos.translate(QVector3D(5.0, 0, 0));
+    wi->setTransform(trackPos);
     wi->addToWorld();
 
     // Tell the rollworld that this is the ball
