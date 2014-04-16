@@ -9,6 +9,7 @@ RollWorld::RollWorld(QObject *parent) :
   , m_ball(NULL)
   , m_floor(NULL)
   , m_camera(NULL)
+  , m_ballStartPos(5.5, -5.5, 1)
   , m_gravity(false)
   , m_fly(true)
 {}
@@ -47,7 +48,6 @@ void RollWorld::setDebugDraw(bool state)
 }
 
 
-#define START    btVector3(2.0,-0.0,0)
 void RollWorld::runStep(int ms) {
 
     if (m_gravity) {
@@ -62,7 +62,7 @@ void RollWorld::runStep(int ms) {
     if (!m_fly) {
         //    Transform ballTransform = m_ball->getTransform();
         Transform ballTransform = Transform();
-        ballTransform.translate(QVector3D(0,  0,  10));
+        ballTransform.translate(QVector3D(0,  0,  0));
 
         m_camera->follow(ballTransform);
     }
@@ -82,14 +82,10 @@ void RollWorld::runStep(int ms) {
         if (obj == m_floor->physics()->getRigidBody()) {
             qDebug() << "Hit the floor";
             //            m_ball->collision(m_floor);
-            btMotionState *motion;
-            motion = m_ball->physics()->getRigidBody()->getMotionState();
-            btTransform pos;
-            motion->getWorldTransform(pos);
-            pos.setOrigin(START);
-            motion->setWorldTransform(pos);
-            m_ball->physics()->getRigidBody()->setMotionState(motion);
-            m_ball->physics()->getRigidBody()->setLinearVelocity(btVector3(0,0,0));
+            Transform pos;
+            pos.translate(m_ballStartPos);
+            m_ball->setTransform(pos);
+            m_ball->setVelocity(QVector3D());
         }
     }
 }

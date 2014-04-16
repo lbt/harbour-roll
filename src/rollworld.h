@@ -56,6 +56,7 @@ private:
     WorldItem* m_ball;
     WorldItem* m_floor;
     CameraManager* m_camera;
+    QVector3D m_ballStartPos;
 
     QAccelerometer m_sensor;
     bool m_gravity;

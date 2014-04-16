@@ -49,8 +49,9 @@ void RollBuilder::setup(){
                         0.1, wi));
 
     // #define START    btVector3(2.0,-0.0,0)
+
     trackPos.setToIdentity();
-    trackPos.translate(QVector3D(5.0, 0, 0));
+    trackPos.translate(m_rollworld->m_ballStartPos);
     wi->setTransform(trackPos);
     wi->addToWorld();
 
@@ -58,7 +59,6 @@ void RollBuilder::setup(){
     m_rollworld->m_ball = wi;
 
     wi = new WorldItem("floor", m_world);
-    m_rollworld->m_floor = wi;
     wi->add(new Physics(m_assetStore->makeShape(
                             "Floor", "btStaticPlane",
                             btVector3( 0, 0,-1 ), -20), 0.0, wi));
@@ -69,6 +69,7 @@ void RollBuilder::setup(){
                             btVector3( 0, 0, 1 ), -20), 0.0, wi));
     wi->addToWorld();
     wi = new WorldItem("floor3", m_world);
+    m_rollworld->m_floor = wi;
     wi->add(new Physics(m_assetStore->makeShape(
                             "Floor3", "btStaticPlane",
                             btVector3( 0, 1, 0 ), -20), 0.0, wi));
