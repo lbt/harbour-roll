@@ -19,6 +19,8 @@ void Texture::bind() {
     }
     if (m_texture) {
         m_texture->bind();
+    } else {
+        qDebug() << "m_texture is null "  << objectName();
     }
 }
 
