@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "sailfishapp.h"
 
+#include "rendermeshtextured.h"
+
 AssetStore::AssetStore(World *w, QObject *parent) :
     QObject(parent)
   , m_world(w)
@@ -31,7 +33,7 @@ Renderable *AssetStore::makeRenderable(QString name, VAO *v, Texture *t)
     if (m_renderables.contains(name)) {
         qDebug() <<"Existing renderable " << name;
     }
-    Renderable *r = new Renderable(name, v, t);
+    Renderable *r = new RenderMeshTextured(name, v, t);
     m_renderables[name] = r;
     return r;
 }
