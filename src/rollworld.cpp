@@ -10,7 +10,7 @@ RollWorld::RollWorld(QObject *parent) :
   , m_floor(NULL)
   , m_camera(NULL)
   , m_ballStartPos(5.5, -5.5, 1)
-  , m_gravity(false)
+  , m_gravity(true)
   , m_fly(true)
 {}
 
