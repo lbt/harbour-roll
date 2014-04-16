@@ -86,9 +86,6 @@ QMatrix4x4 CameraManager::projViewMatrix() {
     projMatrix.perspective(FOVY, ASPECT, 0.1, 100.0); // The gl port is not rotated so ASPECT is fixed
 
     return projMatrix * m_camera.inverted(); // The view matrix is the inverse of the camera position.
-    //    QMatrix4x4 viewMatrix;
-    //    viewMatrix.lookAt(at(), at() - forward(),  up());
-    //    return projMatrix * viewMatrix;
 }
 
 void CameraManager::reset()
