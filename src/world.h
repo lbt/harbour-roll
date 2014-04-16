@@ -46,6 +46,7 @@ public:
     virtual QVector3D getActiveCameraAt();
 
 
+    Light *getLight(QString name);
 protected:
     virtual void add(WorldItem *i);
     virtual void add(Physics *p);

@@ -256,3 +256,8 @@ void World::add(QString name, Light* l){
     m_worldMutex.unlock();
 }
 
+Light*  World::getLight(QString name){
+    if (m_lights.contains(name)) return m_lights[name];
+    return NULL;
+}
+

@@ -52,6 +52,10 @@ Roll::Roll(QObject *parent) :
     m_builder = new RollBuilder(m_world);
     m_builder->setup();
     m_world->setCameraMangager(&m_cammanager);
+    m_mainLight = dynamic_cast<DirectionalLight*>(m_world->getLight("main"));
+
+//    QVariant state(m_settings.value("rollState"));
+//    m_world->restore(state.toString());
 }
 
 Roll::~Roll()
@@ -133,9 +137,9 @@ void Roll::setMainLight(bool arg)
         light.Base.AmbientIntensity=0.4;
         light.Base.DiffuseIntensity=0.8;
         light.Direction = QVector3D(-1, 1, 4).normalized();
-        m_mainLight->set(light);
+        if (m_mainLight) m_mainLight->set(light);
     } else {
-        m_mainLight->randomise();
+        if (m_mainLight) m_mainLight->randomise();
     }
 }
 
@@ -151,7 +155,7 @@ void Roll::randomiseLights()
         light.Base.AmbientIntensity=0.4;
         light.Base.DiffuseIntensity=0.8;
         light.Direction = QVector3D(-1, 1, 4).normalized();
-        m_mainLight->set(light);
+        if (m_mainLight) m_mainLight->set(light);
     }
 }
 
@@ -239,9 +243,6 @@ void Roll::prep()
 {
     global_hack_window = window(); // This is until we get 5.2 and QOpenGLTextures
     qDebug() << "roll Prep";
-
-    QVariant state(m_settings.value("rollState"));
-    m_world->restore(state.toString());
 
     // and then prepare any one-time data like VBOs
     connect(m_world, SIGNAL(stepReady()), this->window(), SLOT(update()) );
