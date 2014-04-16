@@ -49,7 +49,7 @@ void CameraManager::follow(Transform itemTransform)
 //    v.setZ(18);
 //    qDebug() << "v " << v;
 
-    QVector3D v = QVector3D(0.2,0.2,15);
+    QVector3D v = QVector3D(0.2,0.2,32);
 
     m_camera=Transform();
     m_camera.lookAt(p + v, p, QVector3D(0, 0, -1));
@@ -96,7 +96,7 @@ void CameraManager::reset()
     //    m_camera.setColumn(1, QVector4D(0,  1,  0,  0));
     //    m_camera.setColumn(2, QVector4D(0,  0,  1,  0));
     //    m_camera.setColumn(3, QVector4D(0,  0,  10, 1));
-    m_camera.translate(QVector3D(0,  0,  10));
+    m_camera.translate(QVector3D(0,  0,  32));
     qDebug() << "camera set to " << m_camera;
     m_touchY=0;
     m_touchX=0;
