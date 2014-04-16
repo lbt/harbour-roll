@@ -23,9 +23,16 @@ void RollBuilder::setup(){
                 SailfishApp::pathTo("roll_vert.glsl.out"),
                 SailfishApp::pathTo("roll_frag.glsl.out"));
 
+    Shader* trackShader = m_assetStore->makeShader(
+                "track",
+                SailfishApp::pathTo("track_vert.glsl.out"),
+                SailfishApp::pathTo("track_frag.glsl.out"));
+
     m_assetStore->getRenderable("gutter")->setShader(defaultShader);
     m_assetStore->getRenderable("gutterBot")->setShader(defaultShader);
     m_assetStore->getRenderable("Sphere")->setShader(defaultShader);
+
+    m_assetStore->getRenderable("track2Curve")->setShader(trackShader);
 
     WorldItem* wi;
 
