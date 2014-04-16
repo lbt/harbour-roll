@@ -8,13 +8,14 @@ Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
   , m_inWorld(false)
 {
     /// Create Dynamic Objects
-    btMatrix3x3 rot;
+    //    btMatrix3x3 rot;
+    //    rot.setIdentity();
     //    rot.setEulerZYX(90,0,0);  // Match the GL orientation
 
+    btTransform startTransform;
+    startTransform.setIdentity();
     //    btTransform startTransform(rot, pos);
-    btTransform startTransform(rot);
-    //    startTransform.setIdentity();
-    //    startTransform.rotate();
+    //    startTransform.rotate(rot);
     //    startTransform.setOrigin(pos);
 
     //rigidbody is dynamic if and only if mass is non zero, otherwise static
