@@ -5,6 +5,7 @@
 #include <QVector3D>
 #include "lightmanager.h"
 #include "glprogram.h"
+#include <QDebug>
 
 struct _BaseLight
 {
@@ -29,6 +30,7 @@ struct _PointLight
 
 class Light : public QObject
 {
+    friend QDebug operator<<(QDebug d, Light const &l);
     Q_OBJECT
 public:
     explicit Light(QObject *parent=0);
@@ -40,10 +42,15 @@ public:
     virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix)}
     virtual void setUniforms(GLProgram *p, int i) = 0;
 };
+QDebug inline operator<<(QDebug d, Light const &l) {
+    d.nospace() << "Light: " << l.objectName() << "\n";
+    return d;
+}
 
 class PointLight : public Light
 {
     Q_OBJECT
+    friend QDebug inline operator<<(QDebug d, PointLight const &l);
 public:
     explicit PointLight(QObject *parent=0);
 
@@ -58,10 +65,22 @@ private:
 
     static GLProgram* c_program_debug;
 };
+QDebug inline operator<<(QDebug d, PointLight const &l){
+    d.nospace() << "Point Light: " << l.objectName() << "\n"
+                << "\nColor : " << l.m_light.Base.Color
+                << "\nAmbientIntensity : " << l.m_light.Base.AmbientIntensity
+                << "\nDiffuse : " << l.m_light.Base.DiffuseIntensity
+                << "\nPosition : " << l.m_light.Position
+                << "\nAconstant : " << l.m_light.AConstant
+                << "\nALinear : " << l.m_light.ALinear
+                << "\nAExp : " << l.m_light.AExp;
+    return d;
+}
 
 class DirectionalLight : public Light
 {
     Q_OBJECT
+    friend QDebug inline operator<<(QDebug d, const  DirectionalLight &l);
 public:
     explicit DirectionalLight(QObject *parent=0);
 
@@ -73,5 +92,13 @@ public:
 private:
     _DirectionalLight m_light;
 };
+QDebug inline operator<<(QDebug d, const DirectionalLight &l){
+    d.nospace() << "Directional Light: " << l.objectName() << "\n"
+                << "\nColor : " << l.m_light.Base.Color
+                << "\nAmbientIntensity : " << l.m_light.Base.AmbientIntensity
+                << "\nDiffuse : " << l.m_light.Base.DiffuseIntensity
+                << "\nDirection : " << l.m_light.Direction;
+    return d;
+}
 
 #endif // LIGHT_H

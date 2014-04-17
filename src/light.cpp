@@ -14,8 +14,10 @@ Light::Light(QObject *parent) :
 }
 void Light::setUniforms(GLProgram *p, int i) {
     Q_UNUSED(p)
-    Q_UNUSED(i)
+    Q_UNUSED(i);
+    qDebug() << "Base Light has no Uniforms to set";
 }
+
 
 PointLight::PointLight(QObject *parent) :
     Light(parent)
@@ -33,7 +35,7 @@ void PointLight::set(_PointLight light)
 }
 
 void PointLight::randomise(){
-    m_light.Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
+    m_light.Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0)).normalized();
     m_light.Base.AmbientIntensity=rnd(0.5);
     m_light.Base.DiffuseIntensity=1.0;
     m_light.Position = QVector3D(rnd(MAXX)-MAXX/2,rnd(MAXY)-MAXY/2,rnd(3.0)+0.0);
@@ -52,10 +54,11 @@ void DirectionalLight::set(_DirectionalLight light)
 {
     m_light = light;
 }
+
 void DirectionalLight::randomise(){
-    m_light.Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0));
-    m_light.Base.AmbientIntensity=0.0;
-    m_light.Base.DiffuseIntensity=0.1;
+    m_light.Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0)).normalized();
+    m_light.Base.AmbientIntensity=rnd(0.1);
+    m_light.Base.DiffuseIntensity=rnd(0.5);
     m_light.Direction = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0).normalized();
 }
 void DirectionalLight::setUniforms(GLProgram *p, int i) {
@@ -64,6 +67,17 @@ void DirectionalLight::setUniforms(GLProgram *p, int i) {
     p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_light.Base.AmbientIntensity);
     p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_light.Base.DiffuseIntensity);
     p->setUniformValue(p->getU(pln.arg(i)+"Direction"), m_light.Direction);
+}
+
+void PointLight::setUniforms(GLProgram *p, int i) {
+    QString pln("pointLights[%1].");
+    p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_light.Base.Color);
+    p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_light.Base.AmbientIntensity);
+    p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_light.Base.DiffuseIntensity);
+    p->setUniformValue(p->getU(pln.arg(i)+"Position"), m_light.Position);
+    p->setUniformValue(p->getU(pln.arg(i)+"AConstant"), m_light.AConstant);
+    p->setUniformValue(p->getU(pln.arg(i)+"ALinear"), m_light.ALinear);
+    p->setUniformValue(p->getU(pln.arg(i)+"AExp"), m_light.AExp);
 }
 
 void PointLight::debugRender(QMatrix4x4 projViewMatrix){
@@ -84,15 +98,5 @@ void PointLight::debugRender(QMatrix4x4 projViewMatrix){
     glDrawArrays(GL_POINTS, 0, 1);
     glDrawArrays(GL_LINES, 0, 2);
     glDisableVertexAttribArray(c_program_debug->getA("posA"));
-//    qDebug() << "Rendering Light at " << m_light.Position;
-}
-void PointLight::setUniforms(GLProgram *p, int i) {
-    QString pln("pointLights[%1].");
-    p->setUniformValue(p->getU(pln.arg(i)+"Base.Color"), m_light.Base.Color);
-    p->setUniformValue(p->getU(pln.arg(i)+"Base.AmbientIntensity"), m_light.Base.AmbientIntensity);
-    p->setUniformValue(p->getU(pln.arg(i)+"Base.DiffuseIntensity"), m_light.Base.DiffuseIntensity);
-    p->setUniformValue(p->getU(pln.arg(i)+"Position"), m_light.Position);
-    p->setUniformValue(p->getU(pln.arg(i)+"AConstant"), m_light.AConstant);
-    p->setUniformValue(p->getU(pln.arg(i)+"ALinear"), m_light.ALinear);
-    p->setUniformValue(p->getU(pln.arg(i)+"AExp"), m_light.AExp);
+    //    qDebug() << "Rendering Light at " << m_light.Position;
 }
