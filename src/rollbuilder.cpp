@@ -45,7 +45,7 @@ void RollBuilder::setup(){
                                                 m_assetStore->getMesh("gutter")),
                         0.0, wi));
     Transform trackPos;
-    trackPos.translate(QVector3D(0,0,1));
+    trackPos.translate(QVector3D(0,0,-2));
     wi->setTransform(trackPos);
     wi->addToWorld();
 
@@ -58,7 +58,7 @@ void RollBuilder::setup(){
                         0.0, wi));
 
     trackPos.setToIdentity();
-    trackPos.translate(QVector3D(0,0,3));
+    trackPos.translate(QVector3D(0,0,0));
     wi->setTransform(trackPos);
     wi->addToWorld();
 
