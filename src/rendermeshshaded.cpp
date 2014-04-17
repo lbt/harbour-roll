@@ -101,7 +101,9 @@ void RenderMeshShaded::render(const Shader *activeShader, QMatrix4x4 worldMatrix
     p->setUniformValue(p->getU("matSpecularIntensityU"), 2.0f);
     p->setUniformValue(p->getU("specularPowerU"), 32.0f);
 
+    glDisable(GL_CULL_FACE);
     glDrawElements(GL_TRIANGLES, m_vao->numIndices(), GL_UNSIGNED_SHORT, 0);
+    glEnable(GL_CULL_FACE);
 
     glDisableVertexAttribArray(p->getA("posA"));
     glDisableVertexAttribArray(p->getA("normalA"));
