@@ -81,6 +81,7 @@ public slots:
     void setMainLight(bool arg);
 
     void saveSettings();
+    void setCameraPos(qreal x, qreal y, qreal z);
 private:
     void handleTouchAsRotation();
 

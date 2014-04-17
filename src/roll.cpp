@@ -114,6 +114,11 @@ void Roll::pickMode(bool state)
 //    if (!state)
 //        m_world->release();
 }
+void Roll::setCameraPos(qreal x, qreal y, qreal z)
+{
+    m_world->getCameraMangager()->lookAt(QVector3D(x,y,z), QVector3D(),
+                                         QVector3D(0, 0, 1));
+}
 
 void Roll::fancyLights(bool state)
 {

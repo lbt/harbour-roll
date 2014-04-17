@@ -29,6 +29,7 @@ public slots:
     void release(); // no longer in use
     void touch(qreal x, qreal y); // current position
     void follow(Transform itemTransform);
+    void lookAt(QVector3D go, QVector3D target, QVector3D up);
 
 private:
     QVector4D position();

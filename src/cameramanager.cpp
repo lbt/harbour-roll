@@ -39,35 +39,42 @@ void CameraManager::touch(qreal x, qreal y) {
 
 }
 
+void CameraManager::lookAt(QVector3D go, QVector3D target, QVector3D up)
+{
+    m_camera=Transform();
+    m_camera.lookAt(go, target, up);
+    m_camera = m_camera.inverted();
+}
+
 void CameraManager::follow(Transform itemTransform)
 {
     QVector3D p = itemTransform.at();
-// This follows the ball from 'behind' using the velocity to determine behind.
-// But that's not as good as it could be when it's rolling up and down slopes.
-//    QVector3D v = r.column(1).toVector3D() * -0.5;
+    // This follows the ball from 'behind' using the velocity to determine behind.
+    // But that's not as good as it could be when it's rolling up and down slopes.
+    //    QVector3D v = r.column(1).toVector3D() * -0.5;
     // Transform does not (yet?) have velocity component
-//    v.setZ(18);
-//    qDebug() << "v " << v;
+    //    v.setZ(18);
+    //    qDebug() << "v " << v;
 
     QVector3D v = QVector3D(0.2,0.2,32);
-
     m_camera=Transform();
     m_camera.lookAt(p + v, p, QVector3D(0, 0, -1));
     m_camera = m_camera.inverted();
+    //    lookAt(p + v, p, QVector3D(0, 0, -1));
 
-//    qDebug() << "At " << m_camera.at() <<" Looking towards " << m_camera.forward();
+    //    qDebug() << "At " << m_camera.at() <<" Looking towards " << m_camera.forward();
 }
 
 void CameraManager::updatePosition() {
     QAccelerometerReading *reading = m_sensor.reading();
     if (reading) {
-//        QMatrix4x4 t;
-//        t.translate(forward()*(reading->y()/10.0)); // movement
-//        m_camera = t * m_camera; // move
+        //        QMatrix4x4 t;
+        //        t.translate(forward()*(reading->y()/10.0)); // movement
+        //        m_camera = t * m_camera; // move
 
         QMatrix4x4 r;
-//        r.rotate(reading->x()/5.0,  forward()) ; // rotation vector
-//        r.rotate(reading->y()/5.0,  right()) ; // rotation vector
+        //        r.rotate(reading->x()/5.0,  forward()) ; // rotation vector
+        //        r.rotate(reading->y()/5.0,  right()) ; // rotation vector
         m_camera.rotateOnly(r);
     }
 }

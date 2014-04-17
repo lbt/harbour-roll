@@ -145,6 +145,20 @@ Page {                                          id: page
                         onClicked: track.gravity(checked);
                     }
                 }
+                Row { width: parent.width; height: childrenRect.height
+                    Button {text: "Top"
+                        onClicked: track.setCameraPos(0,-0.1,32);
+                        width: parent.width/3
+                    }
+                    Button {text: "Front"
+                        onClicked: track.setCameraPos(0,-32,0);
+                        width: parent.width/3
+                    }
+                    Button {text: "Side"
+                        onClicked: track.setCameraPos(32,0,0);
+                        width: parent.width/3
+                    }
+                }
                 TextSwitch {                    id: coverS
                     text: "Active when minimised"
                     width: parent.width
