@@ -35,12 +35,14 @@ void Shader::renderPrep()
     int nDirLights = 0;
     int nPointLights = 0;
     for (Light* l : m_world->getLights()) {
-
         if (l->inherits("DirectionalLight")) {
+//            qDebug() <<"Prep light : " << *dynamic_cast<DirectionalLight*>(l);
             l->setUniforms(m_p, nDirLights++);
         } else if (l->inherits("PointLight")) {
+//            qDebug() <<"Prep light : " << *dynamic_cast<PointLight*>(l);
             l->setUniforms(m_p, nPointLights++);
         } else {
+            qDebug() <<"Prep light : " << *l;
             qDebug() <<"Unknown light type: " << l->metaObject()->className();
         }
     }
