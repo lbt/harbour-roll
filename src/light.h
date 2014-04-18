@@ -33,14 +33,19 @@ class Light : public QObject
     friend QDebug operator<<(QDebug d, Light const &l);
     Q_OBJECT
 public:
-    explicit Light(QObject *parent=0);
+    explicit Light(QString name, QObject *parent=0);
 
-    LightManager lightManager;
+    LightManager* getLightManager() const { return m_lightManager; }
+    void setLightManager(LightManager *manager) { m_lightManager = manager; }
 
     void update(int deltaT) { Q_UNUSED(deltaT) }
     virtual void randomise() = 0;
     virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix)}
     virtual void setUniforms(GLProgram *p, int i) = 0;
+
+protected:
+    LightManager* m_lightManager;
+
 };
 QDebug inline operator<<(QDebug d, Light const &l) {
     d.nospace() << "Light: " << l.objectName() << "\n";
@@ -52,7 +57,7 @@ class PointLight : public Light
     Q_OBJECT
     friend QDebug inline operator<<(QDebug d, PointLight const &l);
 public:
-    explicit PointLight(QObject *parent=0);
+    explicit PointLight(QString name, QObject *parent=0);
 
     _PointLight light() const { return m_light ; }
     void set(_PointLight light);
@@ -82,7 +87,7 @@ class DirectionalLight : public Light
     Q_OBJECT
     friend QDebug inline operator<<(QDebug d, const  DirectionalLight &l);
 public:
-    explicit DirectionalLight(QObject *parent=0);
+    explicit DirectionalLight(QString name, QObject *parent=0);
 
     void set(_DirectionalLight light);
     _DirectionalLight light() const { return m_light ; }

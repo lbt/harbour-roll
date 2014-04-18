@@ -7,10 +7,11 @@
 
 GLProgram* PointLight::c_program_debug = 0;
 
-Light::Light(QObject *parent) :
+Light::Light(QString name, QObject *parent) :
     QObject(parent)
+  , m_lightManager(NULL)
 {
-
+    setObjectName(name);
 }
 void Light::setUniforms(GLProgram *p, int i) {
     Q_UNUSED(p)
@@ -18,15 +19,16 @@ void Light::setUniforms(GLProgram *p, int i) {
     qDebug() << "Base Light has no Uniforms to set";
 }
 
-
-PointLight::PointLight(QObject *parent) :
-    Light(parent)
+PointLight::PointLight(QString name, QObject *parent) :
+    Light(name, parent)
 {}
 
 void PointLight::update(int deltaT)
 {
-    lightManager.update(deltaT);
-    m_light.Position= lightManager.pos();
+    if (m_lightManager) {
+        m_lightManager->update(deltaT);
+        m_light.Position= m_lightManager->getTransform().at();
+    }
 }
 
 void PointLight::set(_PointLight light)
@@ -38,16 +40,17 @@ void PointLight::randomise(){
     m_light.Base.Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0)).normalized();
     m_light.Base.AmbientIntensity=rnd(0.5);
     m_light.Base.DiffuseIntensity=1.0;
-    m_light.Position = QVector3D(rnd(MAXX)-MAXX/2,rnd(MAXY)-MAXY/2,rnd(3.0)+0.0);
+    m_light.Position = QVector3D(rnd(MAXX)-MAXX/2, rnd(MAXY)-MAXY/2, rnd(3.0)+0.0);
     m_light.AConstant = rnd(0.3);
     m_light.ALinear = rnd(0.5);
     m_light.AExp = rnd(0.15);
-    lightManager.randomise();
+    if (m_lightManager) m_lightManager->randomise();
     update(0);
+    qDebug() << "Randomise set to: " << *this;
 }
 
-DirectionalLight::DirectionalLight(QObject *parent) :
-    Light(parent)
+DirectionalLight::DirectionalLight(QString name, QObject *parent) :
+    Light(name, parent)
 {}
 
 void DirectionalLight::set(_DirectionalLight light)
