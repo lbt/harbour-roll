@@ -38,7 +38,7 @@ public:
     LightManager* getLightManager() const { return m_lightManager; }
     void setLightManager(LightManager *manager) { m_lightManager = manager; }
 
-    void update(int deltaT) { Q_UNUSED(deltaT) }
+    void update(int deltaT) { if (m_lightManager) m_lightManager->update(deltaT); }
     virtual void randomise() = 0;
     virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix)}
     virtual void setUniforms(GLProgram *p, int i) = 0;
