@@ -24,7 +24,6 @@ public:
     void add(Renderable* r);
     void add(Physics* p);
     Physics* physics() const {return m_physics;}
-    Transform transform() const;
 
     void render(const Shader *activeProgram);
     void setupGL();
