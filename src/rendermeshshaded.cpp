@@ -107,4 +107,7 @@ void RenderMeshShaded::render(const Shader *activeShader, QMatrix4x4 worldMatrix
 
     glDisableVertexAttribArray(p->getA("posA"));
     glDisableVertexAttribArray(p->getA("normalA"));
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

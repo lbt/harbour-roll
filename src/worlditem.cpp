@@ -116,16 +116,12 @@ QVector3D WorldItem::getVelocity() {
 /// \param p - This is used to select the correct VAO for the currently active GLProgram
 ///
 void WorldItem::render(const Shader *activeProgram) {
-
     // Get the transform from physics or as-stored.
     m_transform = getTransform();
 
     for (auto r: m_renderables) {
         r->render(activeProgram, m_transform);
     }
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 
