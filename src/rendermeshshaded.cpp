@@ -17,7 +17,6 @@ void RenderMeshShaded::setupGL() {
         qDebug() << "No shader";
         return;
     }
-    GLProgram* p = m_shader->getProgram();
 
     // bind buffers to GL_ARRAY_BUFFER and then upload mesh data
     // VA pointers are defined as they're used
