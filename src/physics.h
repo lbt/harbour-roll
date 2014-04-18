@@ -13,14 +13,23 @@
 #include "worlditem.h"
 class WorldItem; // Mutual link with WorldItem from worlditem.h
 
+#include "transform.h"
+
 class Physics : public QObject
 {
     Q_OBJECT
 public:
     explicit Physics(btCollisionShape* shape, btScalar mass, WorldItem* parent);
     btRigidBody* getRigidBody(){ return m_body; }
-    void setInWorld(bool state) { m_inWorld = state; }
-    void setPos(btVector3 pos, btVector3 velocity=btVector3(0,0,0));
+    void setTransformVelocity(Transform t, QVector3D v=QVector3D(0,0,0));
+    void setTransform(Transform t);
+    Transform getTransform();
+    void setVelocity(QVector3D v);
+    QVector3D getVelocity();
+
+    void addToPhysicsWorld(btDiscreteDynamicsWorld* world);
+    void removeFromPhysicsWorld(btDiscreteDynamicsWorld *world);
+    bool ownsMotion();
 
 signals:
 
@@ -30,7 +39,6 @@ private:
     btCollisionShape* m_shape;
     btRigidBody* m_body;
     WorldItem* m_worldItem;
-    bool m_inWorld;
 };
 
 #endif // PHYSICS_H

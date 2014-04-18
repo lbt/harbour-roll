@@ -257,15 +257,13 @@ void World::remove(WorldItem* item, QList<Shader*> shaderList){
 
 void World::add(Physics* physics){
     m_worldMutex.lock();
-    physics->setInWorld(true);
-    dynamicsWorld->addRigidBody(physics->getRigidBody());
+    physics->addToPhysicsWorld(dynamicsWorld);
     m_worldMutex.unlock();
 }
 
 void World::remove(Physics* physics){
     m_worldMutex.lock();
-    physics->setInWorld(false);
-    dynamicsWorld->removeRigidBody(physics->getRigidBody());
+    physics->removeFromPhysicsWorld(dynamicsWorld);
     m_worldMutex.unlock();
 }
 

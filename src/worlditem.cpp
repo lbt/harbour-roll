@@ -7,6 +7,8 @@
 WorldItem::WorldItem(QString name) :
     QObject(NULL)
   , m_physics(NULL)
+  , m_transform()
+  , m_velocity()
 {
     setObjectName(name);
 }
@@ -21,12 +23,8 @@ bool WorldItem::inWorld(){
 void WorldItem::add(Physics *p)
 {
     if (inWorld()) return;
-    if (! m_physics) {
-        if (p) {
-            m_physics = p;
-        } else {
-            qDebug() << "Refusing to add null";
-        }
+    if (! m_physics){
+        m_physics = p;
     } else {
         qDebug() << "Already have a physics. Not adding another";
     }
@@ -65,17 +63,6 @@ void WorldItem::setupGL(){
     }
 }
 
-Transform WorldItem::getTransform() {
-    if (m_physics && m_physics->getRigidBody() && m_physics->getRigidBody()->getMotionState())
-    {
-        btTransform trans;
-        m_physics->getRigidBody()->getMotionState()->getWorldTransform(trans);
-        return bt2QMatrix4x4(&trans);
-    } else {
-        return m_transform;
-    }
-}
-
 void WorldItem::addToWorld(World *world)
 {
     if (inWorld()) return;
@@ -98,27 +85,27 @@ void WorldItem::removeFromWorld()
 }
 
 void WorldItem::setTransform(QMatrix4x4 t) {
-    if (m_physics && m_physics->getRigidBody() && m_physics->getRigidBody()->getMotionState()) {
-        btTransform transform = Qt2btTransform(&t);
-        btMotionState* motion = m_physics->getRigidBody()->getMotionState();
-        motion->setWorldTransform(transform);
-        m_physics->getRigidBody()->setMotionState(motion);
+    if (m_physics && m_physics->ownsMotion()) m_physics->setTransform(t);
+    m_transform = t;
+}
+
+Transform WorldItem::getTransform() {
+    if (m_physics && m_physics->ownsMotion()) {
+        return m_physics->getTransform();
     } else {
-        m_transform = t;
+        return m_transform;
     }
 }
 
 void WorldItem::setVelocity(QVector3D v) {
-    if (m_physics && m_physics->getRigidBody()) {
-        btVector3 velocity = Qt2btVector3(v);
-        m_physics->getRigidBody()->setLinearVelocity(velocity);
-    } else {
-        m_velocity = v;
-    }
+    // try and set physics velocity and fall back to local
+    if (m_physics && m_physics->ownsMotion()) m_physics->setVelocity(v);
+    m_velocity = v;
 }
+
 QVector3D WorldItem::getVelocity() {
-    if (m_physics && m_physics->getRigidBody()) {
-        return bt2QtVector3D(m_physics->getRigidBody()->getLinearVelocity());
+    if (m_physics && m_physics->ownsMotion()) {
+        return m_physics->getVelocity();
     } else {
         return m_velocity;
     }
@@ -130,14 +117,8 @@ QVector3D WorldItem::getVelocity() {
 ///
 void WorldItem::render(const Shader *activeProgram) {
 
-    // If we're a physics body then we update using physics.
-    // Other moving classes will need to update pos some other way
-    if (m_physics && m_physics->getRigidBody() && m_physics->getRigidBody()->getMotionState())
-    {
-        btTransform trans;
-        m_physics->getRigidBody()->getMotionState()->getWorldTransform(trans);
-        m_transform = bt2QMatrix4x4(&trans);
-    }
+    // Get the transform from physics or as-stored.
+    m_transform = getTransform();
 
     for (auto r: m_renderables) {
         r->render(activeProgram, m_transform);
