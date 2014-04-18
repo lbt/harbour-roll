@@ -30,8 +30,13 @@ uniform PointLight pointLights[3];
 uniform vec4 Glow;
 
 uniform highp vec3 eyeWorldPosU;
-uniform highp float matSpecularIntensityU;
-uniform highp float specularPowerU;
+
+uniform highp vec4 matColorFU;
+uniform highp vec4 matColorBU;
+uniform highp float matSpecularIntensityFU;
+uniform highp float specularPowerFU;
+uniform highp float matSpecularIntensityBU;
+uniform highp float specularPowerBU;
 
 varying highp vec3 normalV;
 varying highp vec3 posV;
@@ -47,12 +52,16 @@ highp vec3 ColorFromBaseLight(BaseLight light, vec3 dir, vec3 norm) {
     highp vec3 vertexToEye = normalize(eyeWorldPosU - posV);
     highp vec3 lightReflect;
 
+    // Support front/back faces
+    highp float specularPower = (specularPowerFU * float(gl_FrontFacing)) + (specularPowerBU * float(!gl_FrontFacing));
+    highp float matSpecularIntensity = (matSpecularIntensityFU * float(gl_FrontFacing)) + (matSpecularIntensityBU * float(!gl_FrontFacing));
+
     lightReflect = normalize(reflect(dir, norm));
     specularFactor = dot(vertexToEye, lightReflect);
     specularFactor *= (0.5 + 0.5 * sign(specularFactor)) ; // 0 if < 0
     specularFactor *= haveDiffuse; // only use specular light if we have a diffuse component
-    specularFactor = pow(specularFactor, specularPowerU); // pow param *must* be > 0 so do it after the check
-    return col + light.Color * light.DiffuseIntensity * diffuseFactor + light.Color * matSpecularIntensityU * specularFactor;
+    specularFactor = pow(specularFactor, specularPower); // pow param *must* be > 0 so do it after the check
+    return col + light.Color * light.DiffuseIntensity * diffuseFactor + light.Color * matSpecularIntensity * specularFactor;
 }
 
 highp vec3 ColorFromDirectionalLight(DirectionalLight light, vec3 norm) {
@@ -70,6 +79,8 @@ highp vec3 ColorFromPointLight(PointLight light, highp vec3 norm) {
 }
 
 void main() {
+
+    highp vec4 matColor = (matColorFU * float(gl_FrontFacing)) + (matColorBU * float(!gl_FrontFacing));
 
     highp vec3 TotalColor;
     highp vec3 normal = normalize(normalV);
@@ -100,8 +111,7 @@ void main() {
     //    TotalColor = ColorFromPointLight(0, normal);
     //    TotalColor = clamp(TotalColor, vec3(0.0,0.0,0.0), vec3(1.0, 1.0, 1.0));
 
-    // Support an additional Glow which overrides the colour *and* alpha
-    highp vec4 col = vec4(TotalColor, 1.0) * (vec4(0.5, 0.5, 0.5, 1.0) + Glow);
+    highp vec4 col = vec4(TotalColor, 1.0) * (matColor + Glow);
     col = clamp(col, vec4(0.0,0.0,0.0,0.0), vec4(1.0, 1.0, 1.0, 1.0));
 
 

@@ -10,9 +10,20 @@ public:
     void setupGL();
     void render(const Shader *activeShader, QMatrix4x4 worldMatrix);
 
+    void setFaceColours(QVector4D front, QVector4D back){ m_colorF = front; m_colorB = back; }
+    void setSpecularIntensity(qreal front, qreal back) {m_specIntensityF=front;m_specIntensityB=back;}
+    void setSpecularPower(qreal front, qreal back){ m_specPowerF=front;m_specPowerB=back;}
 signals:
 
 public slots:
+
+protected:
+    QVector4D m_colorF;
+    QVector4D m_colorB;
+    qreal m_specPowerF;
+    qreal m_specPowerB;
+    qreal m_specIntensityF;
+    qreal m_specIntensityB;
 
 };
 

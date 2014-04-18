@@ -2,6 +2,12 @@
 
 RenderMeshShaded::RenderMeshShaded(QString name, VAO *v, QObject *parent) :
     Renderable(name, v, parent)
+  , m_colorF(0.5, 0.5, 0.5, 0.8)
+  , m_colorB(0.2, 0.2, 0.2, 1.0)
+  , m_specPowerF(2)
+  , m_specPowerB(32)
+  , m_specIntensityF(1)
+  , m_specIntensityB(8)
 {
 }
 
@@ -49,8 +55,12 @@ void RenderMeshShaded::render(const Shader *activeShader, QMatrix4x4 worldMatrix
 
     p->setUniformValue(p->getU("worldMatrixU"), worldMatrix);
 
-    p->setUniformValue(p->getU("matSpecularIntensityU"), 2.0f);
-    p->setUniformValue(p->getU("specularPowerU"), 32.0f);
+    p->setUniformValue(p->getU("matColorFU"), m_colorF);
+    p->setUniformValue(p->getU("matColorBU"), m_colorB);
+    p->setUniformValue(p->getU("matSpecularIntensityFU"), m_specIntensityF);
+    p->setUniformValue(p->getU("matSpecularIntensityBU"), m_specIntensityB);
+    p->setUniformValue(p->getU("specularPowerFU"), m_specPowerF);
+    p->setUniformValue(p->getU("specularPowerBU"), m_specPowerB);
 
     glDisable(GL_CULL_FACE);
     glDrawElements(GL_TRIANGLES, m_vao->numIndices(), GL_UNSIGNED_SHORT, 0);
