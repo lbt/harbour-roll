@@ -6,6 +6,7 @@ World::World(QObject *parent) :
   , m_debugShader(NULL)
   , m_worldMutex(QMutex::Recursive)
   , m_runner(NULL)
+  , m_activeCamera(NULL)
 {
 }
 
@@ -135,6 +136,10 @@ void World::runStep(int ms)
     for (auto l : getLights()) {
         l->update(ms);
     }
+    for (auto c : m_cameras.values()) {
+        c->update(ms);
+    }
+
     m_worldMutex.unlock();
 }
 
@@ -173,10 +178,10 @@ void World::render()
     m_worldMutex.lock();
 
     for (Shader* s : m_byShader.keys()) {
-//        qDebug() << "renderPrep for shader " << s;
+        //        qDebug() << "renderPrep for shader " << s;
         s->renderPrep(); // bind and setup Lights (maybe do that here?)
         for (WorldItem* wi : m_byShader[s]) {
-//            qDebug() << "render for WI " << wi->objectName();
+            //            qDebug() << "render for WI " << wi->objectName();
             wi->render(s);
         }
     }
@@ -198,61 +203,88 @@ QList<Light *> World::getLights()
 
 QMatrix4x4 World::getActiveCameraPVM()
 {
-    return QMatrix4x4();
+    if (m_activeCamera)
+        return m_activeCamera->projViewMatrix();
+    else
+        return QMatrix4x4();
 }
 
 QVector3D World::getActiveCameraAt()
 {
-    return QVector3D(0,0,5);
+    if (m_activeCamera)
+        return m_activeCamera->at();
+    else
+        return QVector3D(0,0,5);
 }
+
+void World::setActiveCamera(QString name)
+{
+    if (m_cameras.contains(name))
+        m_activeCamera = m_cameras[name];
+}
+
+void World::add(CameraManager* camera){
+    m_worldMutex.lock();
+    if (m_cameras.contains(camera->objectName())) {
+        qDebug() <<"Existing camera " << camera->objectName();
+    } else
+        m_cameras[camera->objectName()] = camera;
+    m_worldMutex.unlock();
+}
+
+CameraManager*  World::getCamera(QString name){
+    if (m_cameras.contains(name)) return m_cameras[name];
+    return NULL;
+}
+
 // Called by the item
 // Store by item Name and by all item->Renderable[]->shader
-void World::add(WorldItem* i){
+void World::add(WorldItem* item){
     m_worldMutex.lock();
-    m_worlditems[i->objectName()] = i;
-    for (Renderable* r: i->m_renderables) {
+    m_worlditems[item->objectName()] = item;
+    for (Renderable* r: item->m_renderables) {
         Shader* s = r->getShader();
         if (!s) {
-            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << i->objectName();
+            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << item->objectName();
         } else {
-            m_byShader[r->getShader()] << i;
+            m_byShader[r->getShader()] << item;
         }
     }
     m_worldMutex.unlock();
 }
 
-void World::remove(WorldItem* i){
+void World::remove(WorldItem* item){
     m_worldMutex.lock();
-    m_worlditems.remove(i->objectName());
-    for (Renderable* r: i->m_renderables) {
+    m_worlditems.remove(item->objectName());
+    for (Renderable* r: item->m_renderables) {
         Shader* s = r->getShader();
         if (!s) {
-            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << i->objectName();
+            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << item->objectName();
         } else {
-            m_byShader[s].remove(i);
+            m_byShader[s].remove(item);
         }
     }
     m_worldMutex.unlock();
 }
 
-void World::add(Physics* p){
+void World::add(Physics* physics){
     m_worldMutex.lock();
-    dynamicsWorld->addRigidBody(p->getRigidBody());
+    dynamicsWorld->addRigidBody(physics->getRigidBody());
     m_worldMutex.unlock();
 }
 
-void World::remove(Physics* p){
+void World::remove(Physics* physics){
     m_worldMutex.lock();
-    dynamicsWorld->removeRigidBody(p->getRigidBody());
+    dynamicsWorld->removeRigidBody(physics->getRigidBody());
     m_worldMutex.unlock();
 }
 
-void World::add(QString name, Light* l){
+void World::add(QString name, Light* light){
     m_worldMutex.lock();
     if (m_lights.contains(name)) {
         qDebug() <<"Existing light " << name;
-    }
-    m_lights[name] = l;
+    } else
+        m_lights[name] = light;
     m_worldMutex.unlock();
 }
 

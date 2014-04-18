@@ -18,6 +18,8 @@ class WorldItem;    // Mutual link with WorldItem from worlditem.h
 #include "worldrunner.h"
 class WorldRunner;  // Mutual link
 
+#include "cameramanager.h"
+
 class World : public QObject
 {
     Q_OBJECT
@@ -44,15 +46,20 @@ public:
     virtual QList<Light*> getLights();
     virtual QMatrix4x4 getActiveCameraPVM();
     virtual QVector3D getActiveCameraAt();
+    virtual CameraManager* getActiveCamera() { return m_activeCamera; }
+    void setActiveCamera(CameraManager* camera) { m_activeCamera = camera; }
+    void setActiveCamera(QString name);
 
+    virtual Light* getLight(QString name);
+    virtual CameraManager* getCamera(QString name);
 
-    Light *getLight(QString name);
 protected:
-    virtual void add(WorldItem *i);
-    virtual void add(Physics *p);
-    virtual void remove(WorldItem *i);
-    virtual void remove(Physics *p);
-    virtual void add(QString name, Light *l);
+    virtual void add(WorldItem *item);
+    virtual void add(Physics *physics);
+    virtual void remove(WorldItem *item);
+    virtual void remove(Physics *physics);
+    virtual void add(QString name, Light *light);
+    virtual void add(CameraManager *camera);
 
     // Support subclassing
     virtual void setupPhysicsWorld();
@@ -72,18 +79,20 @@ protected:
     btSequentialImpulseConstraintSolver* solver;
     btDiscreteDynamicsWorld* dynamicsWorld;
 
-    QMap<QString, WorldItem*> m_worlditems;
-    QMap<Shader*, QSet<WorldItem*>> m_byShader;
+    QHash<QString, WorldItem*> m_worlditems;
+    QHash<Shader*, QSet<WorldItem*>> m_byShader;
 
-    QMap<QString, Light*> m_lights;
+    QHash<QString, Light*> m_lights;
+    QHash<QString, CameraManager*> m_cameras;
 
     WorldDebugDrawer m_debugDrawer;
     Shader* m_debugShader;
     QMutex m_worldMutex;
 
-
     QThread m_runnerThread;
     WorldRunner* m_runner;
+
+    CameraManager* m_activeCamera;
 };
 
 #endif // WORLD_H
