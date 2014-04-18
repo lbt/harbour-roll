@@ -1,45 +1,23 @@
 #ifndef LIGHTMANAGER_H
 #define LIGHTMANAGER_H
 
-#include <QMatrix4x4>
+#include <QObject>
+#include "transform.h"
 
-class LightManager
+class LightManager: public QObject
 {
+    Q_OBJECT
 public:
-    explicit LightManager();
-    LightManager(qreal radius, qreal theta, qreal phi, qreal vr, qreal vth, qreal vph, qreal rx, qreal ry, qreal rz, qreal rxv, qreal ryv, qreal rzv, QVector3D scale);
-
-    void update(int ms);
-    void active(bool state) { m_active = state; }
-    QMatrix4x4 matrix(QMatrix4x4 input);
-    QVector3D pos();
-
-
-    QVector3D scale() const;
-    void setScale(const QVector3D &scale);
+    explicit LightManager(QObject* parent=0);
+    explicit LightManager(Transform t, QObject* parent=0);
+    void update(int ms) {Q_UNUSED(ms)}
+    void randomise() {}
+    Transform getTransform() const { return m_transform; }
 
 public slots:
-    void randomise();
-private:
-    qreal m_r;    // location
-    qreal m_theta;  // location
-    qreal m_phi;      // location
-    qreal m_vr;        // radial location velocity
-    qreal m_vth;      // theta location velocity
-    qreal m_vph;      // phi location velocity
-    qreal m_rx;        // orientation x
-    qreal m_ry;        // orientation y
-    qreal m_rz;        // orientation z
-    qreal m_rxv;      // orientation x velocity
-    qreal m_ryv;      // orientation y velocity
-    qreal m_rzv;      // orientation z velocity
-    QVector3D m_scale;  // scale (xyz)};
 
-    qreal m_x;  // calculated x
-    qreal m_y;  // calculated y
-    qreal m_z;  // calculated z
-
-    bool m_active;
+protected:
+    Transform m_transform;
 };
 
 #endif // LIGHTMANAGER_H
