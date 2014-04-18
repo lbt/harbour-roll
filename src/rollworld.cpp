@@ -8,25 +8,13 @@ RollWorld::RollWorld(QObject *parent) :
     World(parent)
   , m_ball(NULL)
   , m_floor(NULL)
-  , m_camera(NULL)
   , m_ballStartPos(3.5, -2.5, 1)
   , m_gravity(true)
-  , m_fly(false)
 {}
 
 void RollWorld::setup() {
     World::setup();
     m_sensor.start();
-}
-
-QMatrix4x4 RollWorld::getActiveCameraPVM()
-{
-    return m_camera->projViewMatrix();
-}
-
-QVector3D RollWorld::getActiveCameraAt()
-{
-    return m_camera->at();
 }
 
 QStringList RollWorld::getTrackNames()
@@ -59,15 +47,6 @@ void RollWorld::runStep(int ms) {
         setGravity(0, 0, 0);
     }
 
-    if (m_fly) {
-        //    Transform ballTransform = m_ball->getTransform();
-        Transform ballTransform = Transform();
-        ballTransform.translate(QVector3D(0,  0,  0));
-
-        m_camera->follow(ballTransform);
-    } else {
-        m_camera->follow(m_ball->getTransform(), 8);
-    }
     // For dynamic camera following a curve
     // m_camera->update(ms);
     // m_cammanager.updatePosition();

@@ -37,12 +37,7 @@ public:
     explicit RollWorld(QObject *parent = 0);
     void setup();
     void runStep(int ms);
-    QMatrix4x4 getActiveCameraPVM();
-    QVector3D getActiveCameraAt();
     Transform getFollowInfo() { return m_ball->getTransform(); }
-
-    CameraManager* getCameraMangager() { return m_camera; }
-    void setCameraMangager(CameraManager* camera) { m_camera = camera; }
 
     QStringList getTrackNames();
 signals:
@@ -51,17 +46,14 @@ public slots:
     void setDebugDraw(bool state) ;
     void setGravity(float x, float y, float z);
     void gravity(bool state) { m_gravity = state; }
-    void fly(bool state) { m_fly = state; }
 
 private:
     WorldItem* m_ball;
     WorldItem* m_floor;
-    CameraManager* m_camera;
     QVector3D m_ballStartPos;
 
     QAccelerometer m_sensor;
     bool m_gravity;
-    bool m_fly;
 };
 
 
