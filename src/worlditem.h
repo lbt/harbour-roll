@@ -32,13 +32,17 @@ public:
     QVector3D getVelocity();
     void setTransform(QMatrix4x4 t);
     Transform getTransform();
+
+    void addToWorld(World* world);
+    void removeFromWorld();
+
 signals:
 
 public slots:
 
 protected:
+    bool inWorld(); // If in a World
     QList<Shader *> shaderList();
-    bool locked(); // If in a World
 
 private:
     QList<Renderable*> m_renderables;

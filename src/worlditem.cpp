@@ -11,16 +11,16 @@ WorldItem::WorldItem(QString name) :
     setObjectName(name);
 }
 
-bool WorldItem::locked(){
+bool WorldItem::inWorld(){
     if (parent()) {
-        qDebug() << "In a World, can't add anything";
+        qDebug() << "In a World (can't add anything)";
         return true;
     } else return false;
 }
 
 void WorldItem::add(Physics *p)
 {
-    if (locked()) return;
+    if (inWorld()) return;
     if (! m_physics) {
         if (p) {
             m_physics = p;
@@ -33,7 +33,7 @@ void WorldItem::add(Physics *p)
 }
 void WorldItem::add(Renderable *r)
 {
-    if (locked()) return;
+    if (inWorld()) return;
     if (r) {
         m_renderables << r;
     } else {
@@ -75,6 +75,28 @@ Transform WorldItem::getTransform() {
         return m_transform;
     }
 }
+
+void WorldItem::addToWorld(World *world)
+{
+    if (inWorld()) return;
+    world->lock();
+    world->add(this, shaderList());
+    if (m_physics) world->add(m_physics);
+    setParent(world);
+    world->unlock();
+}
+
+void WorldItem::removeFromWorld()
+{
+    if (! inWorld()) return;
+    World* world = dynamic_cast<World*>(parent());
+    world->lock();
+    if (m_physics) world->remove(m_physics);
+    world->remove(this, shaderList());
+    setParent(NULL);
+    world->unlock();
+}
+
 void WorldItem::setTransform(QMatrix4x4 t) {
     if (m_physics && m_physics->getRigidBody() && m_physics->getRigidBody()->getMotionState()) {
         btTransform transform = Qt2btTransform(&t);
