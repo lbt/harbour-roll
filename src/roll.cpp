@@ -36,6 +36,8 @@ Roll::Roll(QObject *parent) :
   , m_settings(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
                .filePath(QCoreApplication::applicationName())+"/roll.ini",
                QSettings::IniFormat)
+  , m_flyCam(NULL)
+  , m_followCam(NULL)
   , p_x(0)
   , p_y(0)
   , p_pressed(false)
@@ -52,7 +54,10 @@ Roll::Roll(QObject *parent) :
     qDebug() << "Making a Builder";
     m_builder = new RollBuilder(m_world);
     m_builder->setup();
-    m_world->setCameraMangager(&m_cammanager);
+
+    // We need to interact with these items:
+    m_flyCam = dynamic_cast<CameraFlyer*>(m_world->getCamera("flycam"));
+    m_followCam = dynamic_cast<CameraFollower*>(m_world->getCamera("followcam"));
     m_mainLight = dynamic_cast<DirectionalLight*>(m_world->getLight("main"));
 
 //    QVariant state(m_settings.value("rollState"));
@@ -101,10 +106,11 @@ void Roll::zoomAndSpin(bool state)
 {
     m_zoomAndSpin = state;
     // Change of state should also handle press/release
-//    if (!state)
-//        m_cammanager.reset();
+    if (state)
+        m_world->setActiveCamera(m_flyCam);
+    else
+        m_world->setActiveCamera(m_followCam);
     pickMode(! state);
-    m_world->fly(state);
 }
 
 void Roll::pickMode(bool state)
@@ -116,8 +122,8 @@ void Roll::pickMode(bool state)
 }
 void Roll::setCameraPos(qreal x, qreal y, qreal z)
 {
-    m_world->getCameraMangager()->lookAt(QVector3D(x,y,z), QVector3D(),
-                                         QVector3D(0, 0, 1));
+    m_flyCam->lookAt(QVector3D(x,y,z), QVector3D(),
+                     QVector3D(0, 0, 1));
 }
 
 void Roll::fancyLights(bool state)
@@ -216,7 +222,7 @@ void Roll::handlePressed(int x, int y) {
 
     // Decide who gets events. Note that changing mode whilst p_pressed should stop one and start another
     if (m_zoomAndSpin) {
-        m_cammanager.touch(p_x, p_y);
+        m_flyCam->touch(p_x, p_y);
     } else {
         //    if (m_pickMode) { // Bullet knows nothing about the screen. It needs world info:
 //        float fx = ((float)x/(float)m_cammanager.screenWidth()  - 0.5f) * 2.0f; // [0,xxx] -> [-1,1]
@@ -233,8 +239,8 @@ void Roll::handleReleased(int x, int y) {
     m_XYdeltaTime = 0;
 
     if (m_zoomAndSpin)
-        m_cammanager.release();
-    qDebug()<< "Camera at " << m_cammanager.at() << " looking " << m_cammanager.forward();
+        m_flyCam->release();
+    qDebug()<< "Camera at " << m_flyCam->at() << " looking " << m_flyCam->forward();
     //    if (m_pickMode)
     //m_world->release();
 
@@ -271,7 +277,7 @@ void Roll::render()
 {
     if (m_zoomAndSpin) {
         if (p_pressed) {
-            m_cammanager.touch(p_x, p_y);
+            m_flyCam->touch(p_x, p_y);
         }
     } else {
     }

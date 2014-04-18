@@ -3,7 +3,8 @@
 
 #include "glitem.h"
 #include "glprogram.h"
-#include "cameramanager.h"
+#include "cameraflyer.h"
+#include "camerafollower.h"
 #include "light.h"
 #include "lightorbiter.h"
 
@@ -88,7 +89,8 @@ private:
 private:
     QSettings m_settings;
     
-    CameraManager m_cammanager;
+    CameraFlyer* m_flyCam;
+    CameraFollower* m_followCam;
 
     qreal p_x;
     qreal p_y;
