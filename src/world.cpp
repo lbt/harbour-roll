@@ -239,42 +239,36 @@ CameraManager*  World::getCamera(QString name){
 
 // Called by the item
 // Store by item Name and by all item->Renderable[]->shader
+// It would be nice to do this in the WorldItem but the m_byShader is more
+// local to world and the majority of this is about world containers
 void World::add(WorldItem* item){
     m_worldMutex.lock();
     m_worlditems[item->objectName()] = item;
-    for (Renderable* r: item->m_renderables) {
-        Shader* s = r->getShader();
-        if (!s) {
-            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << item->objectName();
-        } else {
-            m_byShader[r->getShader()] << item;
-        }
-    }
+    for (Shader* s : item->shaderList()) m_byShader[s] << item;
+    if (item->physics()) add(item->physics());
+    item->setParent(this);
     m_worldMutex.unlock();
 }
 
 void World::remove(WorldItem* item){
     m_worldMutex.lock();
     m_worlditems.remove(item->objectName());
-    for (Renderable* r: item->m_renderables) {
-        Shader* s = r->getShader();
-        if (!s) {
-            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << item->objectName();
-        } else {
-            m_byShader[s].remove(item);
-        }
-    }
+    for (Shader* s : item->shaderList()) m_byShader[s].remove(item);
+    if (item->physics()) remove(item->physics());
+    item->setParent(this);
     m_worldMutex.unlock();
 }
 
 void World::add(Physics* physics){
     m_worldMutex.lock();
+    physics->setInWorld(true);
     dynamicsWorld->addRigidBody(physics->getRigidBody());
     m_worldMutex.unlock();
 }
 
 void World::remove(Physics* physics){
     m_worldMutex.lock();
+    physics->setInWorld(false);
     dynamicsWorld->removeRigidBody(physics->getRigidBody());
     m_worldMutex.unlock();
 }

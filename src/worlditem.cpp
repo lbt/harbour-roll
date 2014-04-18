@@ -4,16 +4,23 @@
 
 #include "utils.h"
 
-WorldItem::WorldItem(QString name, World *parent) :
-    QObject(parent)
-  , m_world(parent)
+WorldItem::WorldItem(QString name) :
+    QObject(NULL)
   , m_physics(NULL)
 {
     setObjectName(name);
 }
 
+bool WorldItem::locked(){
+    if (parent()) {
+        qDebug() << "In a World, can't add anything";
+        return true;
+    } else return false;
+}
+
 void WorldItem::add(Physics *p)
 {
+    if (locked()) return;
     if (! m_physics) {
         if (p) {
             m_physics = p;
@@ -26,29 +33,30 @@ void WorldItem::add(Physics *p)
 }
 void WorldItem::add(Renderable *r)
 {
+    if (locked()) return;
     if (r) {
         m_renderables << r;
     } else {
         qDebug() << "Refusing to add null";
     }
 }
-
-void WorldItem::addToWorld()
-{
-    if (m_physics) {
-        m_world->add(m_physics);
-        m_physics->setInWorld(true);
+///////////////////
+/// \brief WorldItem::shaderList
+/// \return
+/// This is used by the World to group render calls by enabled Shader
+///
+QList<Shader*> WorldItem::shaderList() {
+    QList<Shader*> shaders;
+    for (Renderable* r: m_renderables) {
+        Shader* s = r->getShader();
+        if (!s) {
+            qDebug() <<"No shader for Renderable " << r->objectName() << " in " << objectName();
+        } else {
+            shaders << s;
+        }
     }
-    m_world->add(this);
+    return shaders;
 }
-
-void WorldItem::leaveWorld()
-{
-    m_world->remove(m_physics);
-    m_physics->setInWorld(false);
-    m_world->remove(this);
-}
-
 
 void WorldItem::setupGL(){
     qDebug() << "Setup GL";

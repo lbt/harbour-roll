@@ -19,16 +19,15 @@ class WorldItem : public QObject
     Q_OBJECT
     friend class World;
 public:
-    explicit WorldItem(QString name, World *parent);
+    explicit WorldItem(QString name);
 
     void add(Renderable* r);
     void add(Physics* p);
     Physics* physics() const {return m_physics;}
 
-    void render(const Shader *activeProgram);
     void setupGL();
-    void addToWorld();
-    void leaveWorld();
+    void render(const Shader *activeProgram);
+
     void setVelocity(QVector3D v);
     QVector3D getVelocity();
     void setTransform(QMatrix4x4 t);
@@ -37,8 +36,11 @@ signals:
 
 public slots:
 
+protected:
+    QList<Shader *> shaderList();
+    bool locked(); // If in a World
+
 private:
-    World* m_world;
     QList<Renderable*> m_renderables;
     Physics* m_physics;
     Transform m_transform;

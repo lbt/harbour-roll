@@ -41,7 +41,7 @@ void RollBuilder::setup(){
     WorldItem* wi;
 
     qDebug() << "Setup track";
-    wi = new WorldItem("track", m_world);
+    wi = new WorldItem("track");
     wi->add(m_assetStore->getRenderable("gutter"));
     wi->add(m_assetStore->getRenderable("gutterBot"));
     // Create a Shape and a Physics and add to wi
@@ -51,10 +51,10 @@ void RollBuilder::setup(){
     Transform trackPos;
     trackPos.translate(QVector3D(0,0,-2.8));
     wi->setTransform(trackPos);
-    wi->addToWorld();
+    m_rollworld->add(wi);
 
     qDebug() << "Setup track2";
-    wi = new WorldItem("track2", m_world);
+    wi = new WorldItem("track2");
     wi->add(m_assetStore->getRenderable("track2Curve"));
     // Create a Shape and a Physics and add to wi
     wi->add(new Physics(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
@@ -64,10 +64,10 @@ void RollBuilder::setup(){
     trackPos.setToIdentity();
     trackPos.translate(QVector3D(0,0,0));
     wi->setTransform(trackPos);
-    wi->addToWorld();
+    m_rollworld->add(wi);
 
     qDebug() << "Setup ball";
-    wi = new WorldItem("ball", m_world);
+    wi = new WorldItem("ball");
     wi->add(m_assetStore->getRenderable("Sphere"));
     wi->add(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                         0.1, wi));
@@ -77,43 +77,43 @@ void RollBuilder::setup(){
     trackPos.setToIdentity();
     trackPos.translate(m_rollworld->m_ballStartPos);
     wi->setTransform(trackPos);
-    wi->addToWorld();
+    m_rollworld->add(wi);
 
     // Tell the rollworld that this is the ball
     m_rollworld->m_ball = wi;
 
-    wi = new WorldItem("floor", m_world);
+    wi = new WorldItem("floor");
     // This is oriented to point up (z=1) and set at offset (z=) -10
     m_rollworld->m_floor = wi;
     wi->add(new Physics(m_assetStore->makeShape(
                             "Floor", "btStaticPlane",
                             btVector3( 0, 0, 1 ), -10), 0.0, wi));
-    wi->addToWorld();
-    wi = new WorldItem("floor2", m_world);
+    m_rollworld->add(wi);
+    wi = new WorldItem("floor2");
     wi->add(new Physics(m_assetStore->makeShape(
                             "Floor2", "btStaticPlane",
                             btVector3( 0, 0,-1 ), -10), 0.0, wi));
-    wi->addToWorld();
-    wi = new WorldItem("floor3", m_world);
+    m_rollworld->add(wi);
+    wi = new WorldItem("floor3");
     wi->add(new Physics(m_assetStore->makeShape(
                             "Floor3", "btStaticPlane",
                             btVector3( 0, 1, 0 ), -10), 0.0, wi));
-    wi->addToWorld();
-    wi = new WorldItem("floor4", m_world);
+    m_rollworld->add(wi);
+    wi = new WorldItem("floor4");
     wi->add(new Physics(m_assetStore->makeShape(
                             "Floor4", "btStaticPlane",
                             btVector3( 0,-1, 0 ), -10), 0.0, wi));
-    wi->addToWorld();
-    wi = new WorldItem("floor5", m_world);
+    m_rollworld->add(wi);
+    wi = new WorldItem("floor5");
     wi->add(new Physics(m_assetStore->makeShape(
                             "Floor5", "btStaticPlane",
                             btVector3( 1, 0, 0 ), -10), 0.0, wi));
-    wi->addToWorld();
-    wi = new WorldItem("floor6", m_world);
+    m_rollworld->add(wi);
+    wi = new WorldItem("floor6");
     wi->add(new Physics(m_assetStore->makeShape(
                             "Floor6", "btStaticPlane",
                             btVector3(-1, 0, 0 ), -10), 0.0, wi));
-    wi->addToWorld();
+    m_rollworld->add(wi);
 
     qDebug() << "Setup lights";
     _DirectionalLight dlight;
