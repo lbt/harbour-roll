@@ -11,7 +11,7 @@ RollWorld::RollWorld(QObject *parent) :
   , m_camera(NULL)
   , m_ballStartPos(3.5, -2.5, 1)
   , m_gravity(true)
-  , m_fly(true)
+  , m_fly(false)
 {}
 
 void RollWorld::setup() {
@@ -59,14 +59,15 @@ void RollWorld::runStep(int ms) {
         setGravity(0, 0, 0);
     }
 
-    if (!m_fly) {
+    if (m_fly) {
         //    Transform ballTransform = m_ball->getTransform();
         Transform ballTransform = Transform();
         ballTransform.translate(QVector3D(0,  0,  0));
 
         m_camera->follow(ballTransform);
+    } else {
+        m_camera->follow(m_ball->getTransform(), 8);
     }
-
     // For dynamic camera following a curve
     // m_camera->update(ms);
     // m_cammanager.updatePosition();

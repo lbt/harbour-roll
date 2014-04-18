@@ -39,6 +39,7 @@ public:
     void runStep(int ms);
     QMatrix4x4 getActiveCameraPVM();
     QVector3D getActiveCameraAt();
+    Transform getFollowInfo() { return m_ball->getTransform(); }
 
     CameraManager* getCameraMangager() { return m_camera; }
     void setCameraMangager(CameraManager* camera) { m_camera = camera; }
