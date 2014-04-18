@@ -1,4 +1,6 @@
 #include "rollbuilder.h"
+#include "lightorbiter.h"
+
 #include "sailfishapp.h"
 
 RollBuilder::RollBuilder(RollWorld *parent) :
@@ -45,7 +47,7 @@ void RollBuilder::setup(){
                                                 m_assetStore->getMesh("gutter")),
                         0.0, wi));
     Transform trackPos;
-    trackPos.translate(QVector3D(0,0,-2));
+    trackPos.translate(QVector3D(0,0,-2.8));
     wi->setTransform(trackPos);
     wi->addToWorld();
 
@@ -119,20 +121,26 @@ void RollBuilder::setup(){
     dlight.Base.DiffuseIntensity=0.8;
     dlight.Direction = QVector3D(-1, 1, 4).normalized();
 
-    DirectionalLight *dl = new DirectionalLight(m_world);
+    DirectionalLight *dl = new DirectionalLight("main", m_world);
     dl->set(dlight);
+    dl->setLightManager(new LightOrbiter());
     m_rollworld->add("main", dl);
 
-    dl = new DirectionalLight(m_world);
+    dl = new DirectionalLight("d2", m_world);
+    dl->setLightManager(new LightOrbiter());
     dl->randomise();
     m_rollworld->add("d2", dl);
 
     for (int i: {1, 2, 3}) {
-        PointLight *pl = new PointLight(m_world);
+        QString name = QString("p%1").arg(i);
+        PointLight *pl = new PointLight(name, m_world);
+        LightOrbiter* lm = new LightOrbiter();
+        lm->setScale(QVector3D(4.0, 5.0, 4.0));
+        lm->active(true);
+        pl->setLightManager(lm);
         pl->randomise();
-        pl->lightManager.setScale(QVector3D(4.0, 5.0, 4.0));
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
-        m_rollworld->add(QString("p%1").arg(i), pl);
+        m_rollworld->add(name, pl);
     }
 
     m_assetStore->load_finished();

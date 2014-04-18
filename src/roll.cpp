@@ -41,6 +41,7 @@ Roll::Roll(QObject *parent) :
   , p_pressed(false)
   , m_zoomAndSpin(false)
   , m_pickMode(true)
+  , m_fancyLights(true)
   , m_gravity(true)
   , m_mainLightOn(true)
 {
@@ -96,7 +97,6 @@ void Roll::setXYZ(QVector3D v) {
     setZ(v.z());
 }
 
-
 void Roll::zoomAndSpin(bool state)
 {
     m_zoomAndSpin = state;
@@ -125,7 +125,9 @@ void Roll::fancyLights(bool state)
     if (m_fancyLights == state) return;
     m_fancyLights = state;
     for (auto l : m_world->getLights()) {
-        l->lightManager.active(state);
+        // our light managers may be orbiters
+        LightOrbiter* lo = dynamic_cast<LightOrbiter*>(l->getLightManager());
+        if (lo) lo->active(state);
     }
 }
 
@@ -272,12 +274,7 @@ void Roll::render()
             m_cammanager.touch(p_x, p_y);
         }
     } else {
-//        m_cammanager.follow(m_world->getFollowInfo());
     }
-//    bool m_follow=true;
-//    if (m_follow) {
-//        m_cammanager.follow(bullet.getFollowInfo());
-//    }
 
     // Draw the world
     m_world->render();

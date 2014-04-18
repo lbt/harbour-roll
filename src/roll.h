@@ -5,7 +5,7 @@
 #include "glprogram.h"
 #include "cameramanager.h"
 #include "light.h"
-#include "lightmanager.h"
+#include "lightorbiter.h"
 
 #include "rollworld.h"
 #include "rollbuilder.h"
