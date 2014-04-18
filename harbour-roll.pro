@@ -43,7 +43,14 @@ SOURCES += src/harbour-roll.cpp \
     src/worldrunner.cpp \
     src/shader.cpp \
     src/texture.cpp \
-    src/rollbuilder.cpp
+    src/rollbuilder.cpp \
+    src/transform.cpp \
+    src/rendermeshtextured.cpp \
+    src/rendermeshshaded.cpp \
+    src/lightorbiter.cpp \
+    src/cameracurveflyer.cpp \
+    src/cameraflyer.cpp \
+    src/camerafollower.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -51,6 +58,7 @@ QMAKE_RPATHDIR += /opt/sdk/$$TARGET/$$DEPLOYMENT_PATH/lib/:$$DEPLOYMENT_PATH/lib
 
 glsl.files = \
     src/roll_vert.glsl.out src/roll_frag.glsl.out \
+    src/track_vert.glsl.out src/track_frag.glsl.out \
     src/debug_vert.glsl src/debug_frag.glsl \
     src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
@@ -95,7 +103,14 @@ HEADERS += \
     src/worldrunner.h \
     src/shader.h \
     src/texture.h \
-    src/rollbuilder.h
+    src/rollbuilder.h \
+    src/transform.h \
+    src/rendermeshtextured.h \
+    src/rendermeshshaded.h \
+    src/lightorbiter.h \
+    src/cameracurveflyer.h \
+    src/cameraflyer.h \
+    src/camerafollower.h
 
-# MerSDK david:~/src/glsl-optimizer > ./glslopt -f ../harbour-dice/src/dice_frag.glsl 
-# MerSDK david:~/src/glsl-optimizer > ./glslopt -v ../harbour-dice/src/dice_vert.glsl 
+# ~/src/glsl-optimizer/glslopt -f track_frag.glsl
+# ~/src/glsl-optimizer/glslopt -v track_vert.glsl
