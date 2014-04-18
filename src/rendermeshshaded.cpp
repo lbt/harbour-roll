@@ -13,62 +13,13 @@ void RenderMeshShaded::setupGL() {
     }
     GLProgram* p = m_shader->getProgram();
 
+    // bind buffers to GL_ARRAY_BUFFER and then upload mesh data
+    // VA pointers are defined as they're used
     glGenBuffers(2, m_vboIds); // one for VAO, other for indices
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBufferData(GL_ARRAY_BUFFER, m_vao->m_vaosize, m_vao->getVAO(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_vao->numIndices() * sizeof(GLushort), m_vao->VAO_Indices(), GL_STATIC_DRAW);
-
-    //    GLushort* p = m_vao->VAO_Indices();
-    //    for (int c; c<m_vao->numIndices();c+=3) {
-    //        qDebug() << "Found face (" << *p++ << "," << *p++ << "," << *p++ << ")";
-    //    }
-
-    //    glGenTextures(1, m_texIds);
-    //    glBindTexture(GL_TEXTURE_2D);
-
-    //    qDebug() << "VAO stride is :"<<  m_vao->stride();
-    //    qDebug() << "PosA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_pos_loc
-    //             << " = " << (void *)((const char *)m_vao->getVAO()+m_vao->m_pos_loc);
-    glVertexAttribPointer(p->getA("posA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
-                          m_vao->getVAO()+m_vao->m_pos_loc);
-
-    //    if (m_vao->m_pos_loc >= 0) {
-    //        char* p = (m_vao->VAO()+m_vao->m_pos_loc);
-    //        for (int c; c<m_vao->numVertices(); c++) {
-    //            float* f = (float*)p;
-    //            qDebug() << "PosA (" << *f << "," << f[1] << "," << f[2] << ")";
-    //            p += m_vao->stride();
-    //        }
-    //    }
-    //    qDebug() << "normalA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_normal_loc
-    //             << " = " << (void *)((const char *)m_vao->VAO()+m_vao->m_normal_loc);
-    glVertexAttribPointer(p->getA("normalA"), 3, GL_FLOAT, GL_FALSE, m_vao->stride(),
-                          m_vao->getVAO()+m_vao->m_normal_loc);
-
-    //    if (m_vao->m_normal_loc >= 0) {
-
-    //        char* p = ((char *)m_vao->VAO()+m_vao->m_normal_loc);
-    //        for (int c; c<m_vao->numVertices(); c++) {
-    //            float* f = (float*)p;
-    //            qDebug() << "normalA (" << *f << "," << f[1] << "," << f[2] << ")";
-    //            p += m_vao->stride();
-    //        }
-    //    }
-    //    qDebug() << "texA points to base:"<< (const void *)m_vao->VAO() << " offset " << m_vao->m_texture_loc
-    //             << " = " << (void *)((const char *)m_vao->VAO()+m_vao->m_texture_loc);
-    glVertexAttribPointer(p->getA("texA"), 2, GL_FLOAT, GL_FALSE, m_vao->stride(),
-                          m_vao->getVAO()+m_vao->m_texture_loc);
-
-    //    if (m_vao->m_texture_loc >= 0) {
-    //        char* p = ((char *)m_vao->VAO()+m_vao->m_texture_loc);
-    //        for (int c; c<m_vao->numVertices(); c++) {
-    //            float* f = (float*)p;
-    //            qDebug() << "texA (" << *f << "," << f[1] << "," << f[2] << ")";
-    //            p += m_vao->stride();
-    //        }
-    //    }
-
 }
 
 
