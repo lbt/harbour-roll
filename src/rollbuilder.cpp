@@ -1,5 +1,7 @@
 #include "rollbuilder.h"
 #include "lightorbiter.h"
+#include "cameraflyer.h"
+#include "camerafollower.h"
 
 #include "sailfishapp.h"
 
@@ -142,6 +144,17 @@ void RollBuilder::setup(){
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
         m_rollworld->add(name, pl);
     }
+
+    qDebug() << "Setup cameras";
+    CameraManager::Display display(540, 960, 50);
+    CameraFlyer* flyCam = new CameraFlyer("flycam", display);
+    CameraFollower* followCam = new CameraFollower("followcam", display);
+    flyCam->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
+    followCam->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
+
+    m_rollworld->add(flyCam);
+    m_rollworld->add(followCam);
+    m_rollworld->setActiveCamera(followCam);
 
     m_assetStore->load_finished();
 
