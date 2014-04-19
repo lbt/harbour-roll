@@ -30,6 +30,7 @@ void WorldItem::setMotionManager(MotionManager *m)
     if (inWorld()) return;
     if (! m_motion){
         m_motion = m;
+        m->setParent(this);
     } else {
         qDebug() << "Already have a MotionManager. Not adding another";
     }
