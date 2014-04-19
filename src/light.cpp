@@ -10,7 +10,6 @@ GLProgram* PointLight::c_program_debug = 0;
 
 Light::Light(QString name) :
     WorldItem(name)
-  , m_lightManager(NULL)
 {
     setObjectName(name);
 }
@@ -64,8 +63,7 @@ void BaseLight::randomise(){
     m_Color = QVector3D(rnd(1.0),rnd(1.0),rnd(1.0)).normalized();
     m_AmbientIntensity=rnd(0.5);
     m_DiffuseIntensity=1.0;
-    if (m_lightManager) m_lightManager->randomise();
-    update(0);
+    motion()->randomise();
     qDebug() << "Randomise set to: " << this;
 }
 
