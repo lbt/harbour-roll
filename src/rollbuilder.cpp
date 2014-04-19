@@ -42,10 +42,10 @@ void RollBuilder::setup(){
 
     qDebug() << "Setup track";
     wi = new WorldItem("track");
-    wi->add(m_assetStore->getRenderable("gutter"));
-    wi->add(m_assetStore->getRenderable("gutterBot"));
+    wi->addRenderable(m_assetStore->getRenderable("gutter"));
+    wi->addRenderable(m_assetStore->getRenderable("gutterBot"));
     // Create a Shape and a Physics and add to wi
-    wi->add(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
+    wi->setMotionManager(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("gutter")),
                         0.0, wi));
     Transform trackPos;
@@ -55,9 +55,9 @@ void RollBuilder::setup(){
 
     qDebug() << "Setup track2";
     wi = new WorldItem("track2");
-    wi->add(m_assetStore->getRenderable("track2Curve"));
+    wi->addRenderable(m_assetStore->getRenderable("track2Curve"));
     // Create a Shape and a Physics and add to wi
-    wi->add(new Physics(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
+    wi->setMotionManager(new Physics(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("track2Curve")),
                         0.0, wi));
 
@@ -68,8 +68,8 @@ void RollBuilder::setup(){
 
     qDebug() << "Setup ball";
     wi = new WorldItem("ball");
-    wi->add(m_assetStore->getRenderable("Sphere"));
-    wi->add(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
+    wi->addRenderable(m_assetStore->getRenderable("Sphere"));
+    wi->setMotionManager(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                         0.1, wi));
 
     // #define START    btVector3(2.0,-0.0,0)
@@ -85,32 +85,32 @@ void RollBuilder::setup(){
     wi = new WorldItem("floor");
     // This is oriented to point up (z=1) and set at offset (z=) -10
     m_rollworld->m_floor = wi;
-    wi->add(new Physics(m_assetStore->makeShape(
+    wi->setMotionManager(new Physics(m_assetStore->makeShape(
                             "Floor", "btStaticPlane",
                             btVector3( 0, 0, 1 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor2");
-    wi->add(new Physics(m_assetStore->makeShape(
+    wi->setMotionManager(new Physics(m_assetStore->makeShape(
                             "Floor2", "btStaticPlane",
                             btVector3( 0, 0,-1 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor3");
-    wi->add(new Physics(m_assetStore->makeShape(
+    wi->setMotionManager(new Physics(m_assetStore->makeShape(
                             "Floor3", "btStaticPlane",
                             btVector3( 0, 1, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor4");
-    wi->add(new Physics(m_assetStore->makeShape(
+    wi->setMotionManager(new Physics(m_assetStore->makeShape(
                             "Floor4", "btStaticPlane",
                             btVector3( 0,-1, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor5");
-    wi->add(new Physics(m_assetStore->makeShape(
+    wi->setMotionManager(new Physics(m_assetStore->makeShape(
                             "Floor5", "btStaticPlane",
                             btVector3( 1, 0, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor6");
-    wi->add(new Physics(m_assetStore->makeShape(
+    wi->setMotionManager(new Physics(m_assetStore->makeShape(
                             "Floor6", "btStaticPlane",
                             btVector3(-1, 0, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
@@ -120,21 +120,18 @@ void RollBuilder::setup(){
     DirectionalLight *dl = new DirectionalLight("main");
     dl->setBaseLight(QVector3D(1.0, 1.0, 1.0), 0.4, 0.8);
     dl->setDirectionalLight(QVector3D(-1, 1, 4).normalized());
-    dl->setLightManager(new LightOrbiter());
+    dl->setMotionManager(new MotionManager());
     dl->addToWorld(m_rollworld);
 
     dl = new DirectionalLight("d2");
-    dl->setLightManager(new LightOrbiter());
+    dl->setMotionManager(new MotionManager());
     dl->randomise();
     dl->addToWorld(m_rollworld);
 
     for (int i: {1, 2, 3}) {
         QString name = QString("p%1").arg(i);
         PointLight *pl = new PointLight(name);
-        LightOrbiter* lm = new LightOrbiter();
-        lm->setScale(QVector3D(4.0, 5.0, 4.0));
-        lm->active(true);
-        pl->setLightManager(lm);
+        pl->setMotionManager(new MotionManager());
         pl->randomise();
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
         pl->addToWorld(m_rollworld);
