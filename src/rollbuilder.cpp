@@ -82,6 +82,26 @@ void RollBuilder::setup(){
     // Tell the rollworld that this is the ball
     m_rollworld->m_ball = wi;
 
+    CameraFollower *f2;
+    f2 = new CameraFollower();
+    f2->follow(wi, -1);
+    wi = new WorldItem("ball2");
+    wi->addRenderable(m_assetStore->getRenderable("Sphere"));
+    wi->setMotionManager(f2);
+    wi->addToWorld(m_rollworld);
+    f2 = new CameraFollower();
+    f2->follow(wi, 2);
+    wi = new WorldItem("ball3");
+    wi->addRenderable(m_assetStore->getRenderable("Sphere"));
+    wi->setMotionManager(f2);
+    wi->addToWorld(m_rollworld);
+    f2 = new CameraFollower();
+    f2->follow(wi, 1);
+    wi = new WorldItem("ball4");
+    wi->addRenderable(m_assetStore->getRenderable("Sphere"));
+    wi->setMotionManager(f2);
+    wi->addToWorld(m_rollworld);
+
     wi = new WorldItem("floor");
     // This is oriented to point up (z=1) and set at offset (z=) -10
     m_rollworld->m_floor = wi;
