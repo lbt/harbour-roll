@@ -27,6 +27,7 @@ class World : public QObject
     friend class WorldBuilder;
     friend class WorldItem;
     friend class Light;
+    friend class Physics;
     friend class CameraManager;
     friend class WorldRunner;
 public:
@@ -63,8 +64,6 @@ protected:
     virtual void remove(Light *light);
     virtual void add(CameraManager *camera);
     virtual void remove(CameraManager *camera);
-    virtual void add(Physics *physics);
-    virtual void remove(Physics *physics);
 
     virtual void lock(){ m_worldMutex.lock(); }
     virtual void unlock() { m_worldMutex.unlock(); }

@@ -238,18 +238,6 @@ void World::remove(WorldItem* item, QList<Shader*> shaderList){
     m_worldMutex.unlock();
 }
 
-void World::add(Physics* physics){
-    m_worldMutex.lock();
-    physics->addToPhysicsWorld(dynamicsWorld);
-    m_worldMutex.unlock();
-}
-
-void World::remove(Physics* physics){
-    m_worldMutex.lock();
-    physics->removeFromPhysicsWorld(dynamicsWorld);
-    m_worldMutex.unlock();
-}
-
 void World::add(CameraManager* camera){
     m_worldMutex.lock();
     if (m_cameras.contains(camera->objectName())) {
