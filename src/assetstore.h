@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QList>
-#include <QMap>
+#include <QHash>
 
 // When the 5.2 Qt hits use this:
 // #include <QOpenGLTexture>
@@ -88,12 +88,12 @@ private:
     Assimp::Importer* m_importer;
 
     World* m_world;
-    QMap<QString, btCollisionShape*> m_shapes;
-    QMap<QString, VAO*> m_vaos;
-    QMap<QString, Shader*> m_shaders;
-    QMap<QString, Renderable*> m_renderables;
-    QMap<QString, Texture*> m_textures;
-    QMap<QString, aiMesh*> m_meshes;
+    QHash<QString, btCollisionShape*> m_shapes;
+    QHash<QString, VAO*> m_vaos;
+    QHash<QString, Shader*> m_shaders;
+    QHash<QString, Renderable*> m_renderables;
+    QHash<QString, Texture*> m_textures;
+    QHash<QString, aiMesh*> m_meshes;
 
 };
 #endif // ASSETSTORE_H
