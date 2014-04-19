@@ -134,9 +134,9 @@ void Roll::fancyLights(bool state)
     if (m_fancyLights == state) return;
     m_fancyLights = state;
     for (auto l : m_world->getLights()) {
-        // our light managers may be orbiters
-        LightOrbiter* lo = dynamic_cast<LightOrbiter*>(l->getLightManager());
-        if (lo) lo->active(state);
+        // our motion managers may be orbiters
+//        MotionOrbiter* mo = dynamic_cast<MotionOrbiter*>(l->motion());
+//        if (mo) mo->active(state);
     }
 }
 
