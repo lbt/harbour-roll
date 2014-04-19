@@ -26,6 +26,7 @@ class World : public QObject
 
     friend class WorldBuilder;
     friend class WorldItem;
+    friend class Light;
     friend class WorldRunner;
 public:
     explicit World(QObject *parent = 0);
@@ -55,7 +56,8 @@ protected:
     virtual void remove(WorldItem *item, QList<Shader *> shaderList);
     virtual void add(Physics *physics);
     virtual void remove(Physics *physics);
-    virtual void add(QString name, Light *light);
+    virtual void add(Light *light);
+    virtual void remove(Light *light);
     virtual void add(CameraManager *camera);
     virtual void lock(){ m_worldMutex.lock(); }
     virtual void unlock() { m_worldMutex.unlock(); }

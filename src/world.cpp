@@ -267,12 +267,18 @@ void World::remove(Physics* physics){
     m_worldMutex.unlock();
 }
 
-void World::add(QString name, Light* light){
+void World::add(Light* light){
     m_worldMutex.lock();
-    if (m_lights.contains(name)) {
-        qDebug() <<"Existing light " << name;
+    if (m_lights.contains(light->objectName())) {
+        qDebug() <<"Existing light " << light->objectName();
     } else
-        m_lights[name] = light;
+        m_lights[light->objectName()] = light;
+    m_worldMutex.unlock();
+}
+
+void World::remove(Light* light){
+    m_worldMutex.lock();
+    m_lights.remove(light->objectName());
     m_worldMutex.unlock();
 }
 

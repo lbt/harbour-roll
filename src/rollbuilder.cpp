@@ -123,26 +123,26 @@ void RollBuilder::setup(){
     dlight.Base.DiffuseIntensity=0.8;
     dlight.Direction = QVector3D(-1, 1, 4).normalized();
 
-    DirectionalLight *dl = new DirectionalLight("main", m_world);
+    DirectionalLight *dl = new DirectionalLight("main");
     dl->set(dlight);
     dl->setLightManager(new LightOrbiter());
-    m_rollworld->add("main", dl);
+    dl->addToWorld(m_rollworld);
 
-    dl = new DirectionalLight("d2", m_world);
+    dl = new DirectionalLight("d2");
     dl->setLightManager(new LightOrbiter());
     dl->randomise();
-    m_rollworld->add("d2", dl);
+    dl->addToWorld(m_rollworld);
 
     for (int i: {1, 2, 3}) {
         QString name = QString("p%1").arg(i);
-        PointLight *pl = new PointLight(name, m_world);
+        PointLight *pl = new PointLight(name);
         LightOrbiter* lm = new LightOrbiter();
         lm->setScale(QVector3D(4.0, 5.0, 4.0));
         lm->active(true);
         pl->setLightManager(lm);
         pl->randomise();
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
-        m_rollworld->add(name, pl);
+        pl->addToWorld(m_rollworld);
     }
 
     qDebug() << "Setup cameras";

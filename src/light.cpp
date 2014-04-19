@@ -7,8 +7,8 @@
 
 GLProgram* PointLight::c_program_debug = 0;
 
-Light::Light(QString name, QObject *parent) :
-    QObject(parent)
+Light::Light(QString name) :
+    QObject(NULL)
   , m_lightManager(NULL)
 {
     setObjectName(name);
@@ -19,8 +19,34 @@ void Light::setUniforms(GLProgram *p, int i) {
     qDebug() << "Base Light has no Uniforms to set";
 }
 
-PointLight::PointLight(QString name, QObject *parent) :
-    Light(name, parent)
+bool Light::inWorld(){
+    if (parent()) {
+        qDebug() << "In a World (can't add anything)";
+        return true;
+    } else return false;
+}
+
+void Light::addToWorld(World *world)
+{
+    if (inWorld()) return;
+    world->lock();
+    world->add(this);
+    setParent(world);
+    world->unlock();
+}
+
+void Light::removeFromWorld()
+{
+    if (! inWorld()) return;
+    World* world = dynamic_cast<World*>(parent());
+    world->lock();
+    world->remove(this);
+    setParent(NULL);
+    world->unlock();
+}
+
+PointLight::PointLight(QString name) :
+    Light(name)
 {}
 
 void PointLight::update(int deltaT)
@@ -49,8 +75,8 @@ void PointLight::randomise(){
     qDebug() << "Randomise set to: " << *this;
 }
 
-DirectionalLight::DirectionalLight(QString name, QObject *parent) :
-    Light(name, parent)
+DirectionalLight::DirectionalLight(QString name) :
+    Light(name)
 {}
 
 void DirectionalLight::set(_DirectionalLight light)

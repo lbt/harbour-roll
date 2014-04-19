@@ -7,6 +7,9 @@
 #include "glprogram.h"
 #include <QDebug>
 
+#include "world.h"
+class World;      // Mutual link
+
 struct _BaseLight
 {
     QVector3D Color;
@@ -33,7 +36,7 @@ class Light : public QObject
     friend QDebug operator<<(QDebug d, Light const &l);
     Q_OBJECT
 public:
-    explicit Light(QString name, QObject *parent=0);
+    explicit Light(QString name);
 
     LightManager* getLightManager() const { return m_lightManager; }
     void setLightManager(LightManager *manager) { m_lightManager = manager; }
@@ -43,9 +46,13 @@ public:
     virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix)}
     virtual void setUniforms(GLProgram *p, int i) = 0;
 
+    void addToWorld(World* world);
+    void removeFromWorld();
+
 protected:
     LightManager* m_lightManager;
 
+    bool inWorld();
 };
 QDebug inline operator<<(QDebug d, Light const &l) {
     d.nospace() << "Light: " << l.objectName() << "\n";
@@ -57,7 +64,7 @@ class PointLight : public Light
     Q_OBJECT
     friend QDebug inline operator<<(QDebug d, PointLight const &l);
 public:
-    explicit PointLight(QString name, QObject *parent=0);
+    explicit PointLight(QString name);
 
     _PointLight light() const { return m_light ; }
     void set(_PointLight light);
@@ -87,7 +94,7 @@ class DirectionalLight : public Light
     Q_OBJECT
     friend QDebug inline operator<<(QDebug d, const  DirectionalLight &l);
 public:
-    explicit DirectionalLight(QString name, QObject *parent=0);
+    explicit DirectionalLight(QString name);
 
     void set(_DirectionalLight light);
     _DirectionalLight light() const { return m_light ; }
