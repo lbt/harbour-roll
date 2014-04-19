@@ -24,9 +24,9 @@ public:
     void setVelocity(QVector3D v);
     QVector3D getVelocity();
 
-    void addToPhysicsWorld(btDiscreteDynamicsWorld* world);
-    void removeFromPhysicsWorld(btDiscreteDynamicsWorld *world);
-    bool ownsMotion();
+    void addToWorld(World* world);
+    void removeFromWorld(World *world);
+    bool hasMotion();
 
 signals:
 

@@ -1,6 +1,7 @@
 #include "physics.h"
 #include "utils.h"
 
+#include "world.h"
 #include "worlditem.h"
 
 #include "bullet/BulletCollision/CollisionShapes/btConvexHullShape.h"
@@ -42,66 +43,70 @@ Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
     m_body->setUserPointer((void*)this);
 }
 
-bool Physics::ownsMotion(){
+bool Physics::hasMotion(){
     return (m_body && m_body->getMotionState());
 }
 
 void Physics::setTransformVelocity(Transform t, QVector3D v)
 {
-    if (ownsMotion()) {
+    if (hasMotion()) {
         btTransform transform = Qt2btTransform(&t);
         btVector3 velocity = Qt2btVector3(v);
         btMotionState* motion = m_body->getMotionState();
         motion->setWorldTransform(transform);
         getRigidBody()->setMotionState(motion);
         getRigidBody()->setLinearVelocity(velocity);
-    } else qDebug() << "Tried to set pos, velocity when motion not owned";
+    } else qDebug() << "Tried to set pos, velocity without a MotionState";
 }
 
 void Physics::setTransform(Transform t)
 {
-    if (ownsMotion()) {
+    if (hasMotion()) {
         btTransform transform = Qt2btTransform(&t);
         btMotionState* motion = m_body->getMotionState();
         motion->setWorldTransform(transform);
         m_body->setMotionState(motion);
-    } else qDebug() << "Tried to set Transform when motion not owned";
+    } else qDebug() << "Tried to set Transform without a MotionState";
 }
 
 Transform Physics::getTransform() {
-    if (ownsMotion()) {
+    if (hasMotion()) {
         btTransform trans;
         m_body->getMotionState()->getWorldTransform(trans);
         return Transform(bt2QMatrix4x4(&trans));
     } else {
-        qDebug() << "Tried to get Transform when motion not owned";
+        qDebug() << "Tried to get Transform without a MotionState";
         return Transform();
     }
 }
 void Physics::setVelocity(QVector3D v)
 {
-    if (ownsMotion()) {
+    if (hasMotion()) {
         btVector3 velocity = Qt2btVector3(v);
         m_body->setLinearVelocity(velocity);
-    } else qDebug() << "Tried to set velocity when motion not owned";
+    } else qDebug() << "Tried to set velocity without a MotionState";
 }
 
 QVector3D Physics::getVelocity()
 {
-    if (ownsMotion()) {
+    if (hasMotion()) {
         return bt2QtVector3D(m_body->getLinearVelocity());
     } else {
-        qDebug() << "Tried to get velocity when motion not owned";
+        qDebug() << "Tried to get velocity without a MotionState";
         return QVector3D();
     }
 }
 
-void Physics::addToPhysicsWorld(btDiscreteDynamicsWorld *world)
+void Physics::addToWorld(World *world)
 {
-    world->addRigidBody(m_body);
+    world->lock();
+    world->dynamicsWorld->addRigidBody(m_body);
+    world->unlock();
 }
 
-void Physics::removeFromPhysicsWorld(btDiscreteDynamicsWorld *world)
+void Physics::removeFromWorld(World *world)
 {
-    world->removeRigidBody(m_body);
+    world->lock();
+    world->dynamicsWorld->removeRigidBody(m_body);
+    world->unlock();
 }
