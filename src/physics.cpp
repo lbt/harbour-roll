@@ -1,5 +1,9 @@
 #include "physics.h"
 #include "utils.h"
+
+#include "bullet/BulletCollision/CollisionShapes/btConvexHullShape.h"
+#include "bullet/BulletCollision/Gimpact/btGImpactShape.h"
+
 #include <QDebug>
 
 Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):

@@ -2,6 +2,7 @@
 #define CAMERAFLYER_H
 
 #include "cameramanager.h"
+#include <QtSensors/QAccelerometer>
 
 class CameraFlyer : public CameraManager
 {

@@ -5,10 +5,6 @@
 
 #include "bullet/btBulletDynamicsCommon.h"
 #include "bullet/BulletCollision/CollisionShapes/btCollisionShape.h"
-#include "bullet/BulletCollision/CollisionShapes/btConvexHullShape.h"
-#include "bullet/BulletCollision/Gimpact/btGImpactShape.h"
-
-#include <assimp/scene.h>
 
 #include "worlditem.h"
 class WorldItem; // Mutual link with WorldItem from worlditem.h

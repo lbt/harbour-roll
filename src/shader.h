@@ -4,8 +4,6 @@
 #include <QObject>
 
 #include "glprogram.h"
-#include "world.h"
-
 class World;
 
 class Shader : public QObject

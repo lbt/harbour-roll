@@ -1,5 +1,9 @@
 #include "worlditem.h"
+#include "renderable.h"
 #include "shader.h"
+#include "world.h"
+#include "physics.h"
+
 #include <QDebug>
 
 #include "utils.h"

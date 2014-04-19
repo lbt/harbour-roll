@@ -1,4 +1,5 @@
 #include "camerafollower.h"
+#include "worlditem.h"
 
 CameraFollower::CameraFollower(QString name, Display display, QObject *parent) :
     CameraManager(name, display, parent)

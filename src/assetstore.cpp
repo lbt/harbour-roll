@@ -1,9 +1,24 @@
 #include "assetstore.h"
-#include "utils.h"
-#include "sailfishapp.h"
+#include "world.h"
 
 #include "rendermeshtextured.h"
 #include "rendermeshshaded.h"
+#include "physics.h"
+
+#include "utils.h"
+#include "sailfishapp.h"
+
+#include "bullet/BulletCollision/CollisionShapes/btConvexHullShape.h"
+#include "bullet/BulletCollision/Gimpact/btGImpactShape.h"
+
+#include <assimp/postprocess.h>
+#include <assimp/Logger.hpp>
+#include <assimp/DefaultLogger.hpp>
+
+
+#include <QFile>
+#include <QMatrix4x4>
+#include <QOpenGLFunctions>
 
 AssetStore::AssetStore(World *w, QObject *parent) :
     QObject(parent)

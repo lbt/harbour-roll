@@ -3,7 +3,6 @@
 
 #include <QObject>
 
-#include "shader.h"
 class Shader;      // Mutual link
 #include "glprogram.h"
 #include "vao.h"

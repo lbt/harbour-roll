@@ -5,13 +5,9 @@
 #include <QList>
 #include "transform.h"
 
-#include "physics.h"
 class Physics;    // Mutual link with Physics from physics.h
-#include "renderable.h"
 class Renderable; // Mutual link
-#include "shader.h"
 class Shader;     // Mutual link
-#include "world.h"
 class World;      // Mutual link
 
 class WorldItem : public QObject

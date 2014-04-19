@@ -1,4 +1,5 @@
 #include "shader.h"
+#include "world.h"
 
 uint qHash(const Shader &s) { return qHash(s.m_p); }
 

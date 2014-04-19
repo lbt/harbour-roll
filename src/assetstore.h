@@ -2,11 +2,8 @@
 #define ASSETSTORE_H
 
 #include <QObject>
-#include <QFile>
 #include <QList>
 #include <QMap>
-#include <QMatrix4x4>
-#include <QOpenGLFunctions>
 
 // When the 5.2 Qt hits use this:
 // #include <QOpenGLTexture>
@@ -14,17 +11,13 @@
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <assimp/Logger.hpp>
-#include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 
 #include "bullet/btBulletDynamicsCommon.h"
-#include "bullet/BulletCollision/CollisionShapes/btConvexHullShape.h"
-#include "bullet/BulletCollision/Gimpact/btGImpactShape.h"
 
 #include "vao.h"
 #include "renderable.h"
+#include "shader.h"
 #include "texture.h"
 
 #include "glprogram.h"
@@ -41,6 +34,7 @@
 /// * curves
 ///
 
+class World;
 
 class AssetStore : public QObject
 {

@@ -2,7 +2,7 @@
 #define CAMERAFOLLOWER_H
 
 #include "cameramanager.h"
-#include "worlditem.h"
+class WorldItem;
 
 class CameraFollower : public CameraManager
 {

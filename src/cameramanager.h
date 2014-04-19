@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include "transform.h"
-#include <QtSensors/QAccelerometer>
 
 class CameraManager : public QObject
 {

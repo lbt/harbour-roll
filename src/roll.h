@@ -3,12 +3,13 @@
 
 #include "glitem.h"
 #include "glprogram.h"
+#include "rollworld.h"
 #include "cameraflyer.h"
 #include "camerafollower.h"
 #include "light.h"
 #include "lightorbiter.h"
+#include "worlditem.h"
 
-#include "rollworld.h"
 #include "rollbuilder.h"
 
 #include <QTimer>

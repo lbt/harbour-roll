@@ -6,8 +6,7 @@
 #include "glprogram.h"
 #include "bullet/LinearMath/btIDebugDraw.h"
 
-// #include "world.h" //
-class World; // Mutual link with World from world.h
+class World;
 
 class WorldDebugDrawer : public QObject, public btIDebugDraw
 {

@@ -1,4 +1,5 @@
 #include "rendermeshshaded.h"
+#include "shader.h"
 
 RenderMeshShaded::RenderMeshShaded(QString name, VAO *v, QObject *parent) :
     Renderable(name, v, parent)
