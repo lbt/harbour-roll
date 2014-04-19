@@ -1,5 +1,6 @@
 #include "motionmanager.h"
 #include "worlditem.h"
+#include "world.h"
 
 MotionManager::MotionManager(WorldItem *parent) :
     QObject(parent)
