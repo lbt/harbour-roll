@@ -1,7 +1,7 @@
 #include "rollbuilder.h"
 #include "lightorbiter.h"
 #include "cameraflyer.h"
-#include "camerafollower.h"
+#include "itemfollower.h"
 
 #include "sailfishapp.h"
 
@@ -143,7 +143,7 @@ void RollBuilder::setup(){
     CameraManager* followCam = new CameraManager("followcam", display);
     flyCam->setMotionManager(new CameraFlyer());
     flyCam->motion()->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
-    CameraFollower *f = new CameraFollower();
+    ItemFollower *f = new ItemFollower();
     f->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
     followCam->setMotionManager(f);
     flyCam->addToWorld(m_rollworld);

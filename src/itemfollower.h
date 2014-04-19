@@ -1,14 +1,14 @@
-#ifndef CAMERAFOLLOWER_H
-#define CAMERAFOLLOWER_H
+#ifndef ITEMFOLLOWER_H
+#define ITEMFOLLOWER_H
 
 #include "motionmanager.h"
 class WorldItem;
 
-class CameraFollower : public MotionManager
+class ItemFollower : public MotionManager
 {
     Q_OBJECT
 public:
-    explicit CameraFollower(WorldItem* parent=0);
+    explicit ItemFollower(WorldItem* parent=0);
     void runStep(int deltaTms);
 
 signals:
@@ -21,4 +21,4 @@ protected:
     float m_dist;
 };
 
-#endif // CAMERAFOLLOWER_H
+#endif // ITEMFOLLOWER_H

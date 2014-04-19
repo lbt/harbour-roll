@@ -1,12 +1,12 @@
-#include "camerafollower.h"
+#include "itemfollower.h"
 #include "worlditem.h"
 
-CameraFollower::CameraFollower(WorldItem *parent) :
+ItemFollower::ItemFollower(WorldItem *parent) :
     MotionManager(parent)
 {
 }
 
-void CameraFollower::runStep(int deltaTms)
+void ItemFollower::runStep(int deltaTms)
 {
     Q_UNUSED(deltaTms);
     QVector3D itemPos = m_wi->getTransform().at();
@@ -17,13 +17,13 @@ void CameraFollower::runStep(int deltaTms)
     //    v.setZ(18);
     //    qDebug() << "v " << v;
 
-    QVector3D cameraOffset = QVector3D(0.2,0.2, m_dist);
+    QVector3D itemOffset = QVector3D(0.2,0.2, m_dist);
     m_transform.setToIdentity();
-    m_transform.lookAt(itemPos + cameraOffset, itemPos, QVector3D(0, 0, -1));
+    m_transform.lookAt(itemPos + itemOffset, itemPos, QVector3D(0, 0, -1));
     m_transform = m_transform.inverted();
 }
 
-void CameraFollower::follow(WorldItem* wi, float dist)
+void ItemFollower::follow(WorldItem* wi, float dist)
 {
     m_wi = wi;
     m_dist = dist;
