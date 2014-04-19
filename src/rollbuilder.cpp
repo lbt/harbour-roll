@@ -139,11 +139,13 @@ void RollBuilder::setup(){
 
     qDebug() << "Setup cameras";
     CameraManager::Display display(540, 960, 50);
-    CameraFlyer* flyCam = new CameraFlyer("flycam", display);
-    CameraFollower* followCam = new CameraFollower("followcam", display);
-    flyCam->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
-    followCam->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
-
+    CameraManager* flyCam = new CameraManager("flycam", display);
+    CameraManager* followCam = new CameraManager("followcam", display);
+    flyCam->setMotionManager(new CameraFlyer());
+    flyCam->motion()->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
+    CameraFollower *f = new CameraFollower();
+    f->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
+    followCam->setMotionManager(f);
     flyCam->addToWorld(m_rollworld);
     followCam->addToWorld(m_rollworld);
 

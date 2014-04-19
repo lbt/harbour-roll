@@ -56,9 +56,12 @@ Roll::Roll(QObject *parent) :
     m_builder->setup();
 
     // We need to interact with these items:
-    m_flyCam = dynamic_cast<CameraFlyer*>(m_world->getCamera("flycam"));
-    m_followCam = dynamic_cast<CameraFollower*>(m_world->getCamera("followcam"));
+    m_flyCam = dynamic_cast<CameraFlyer*>(m_world->getCamera("flycam")->motion());
+    Q_ASSERT(m_flyCam != NULL);
+    m_followCam = dynamic_cast<CameraFollower*>(m_world->getCamera("followcam")->motion());
+    Q_ASSERT(m_followCam != NULL);
     m_mainLight = dynamic_cast<DirectionalLight*>(m_world->getLight("main"));
+    Q_ASSERT(m_mainLight != NULL);
 
 //    QVariant state(m_settings.value("rollState"));
 //    m_world->restore(state.toString());
@@ -107,9 +110,9 @@ void Roll::zoomAndSpin(bool state)
     m_zoomAndSpin = state;
     // Change of state should also handle press/release
     if (state)
-        m_world->setActiveCamera(m_flyCam);
+        m_world->setActiveCamera("flycam");
     else
-        m_world->setActiveCamera(m_followCam);
+        m_world->setActiveCamera("followcam");
     pickMode(! state);
 }
 
