@@ -128,13 +128,11 @@ void World::runStep(int ms)
         dynamicsWorld->debugDrawWorld();
     }
     // Ensure all objects are permanently activated
-    for (auto wi : m_worlditems) {
+    for (WorldItem* wi : m_worlditems) {
         if (wi->physics()) {
             wi->physics()->getRigidBody()->activate();
         }
-    }
-    for (auto c : m_cameras.values()) {
-        c->update(ms);
+        wi->motion()->runStep(ms);
     }
 
     m_worldMutex.unlock();
