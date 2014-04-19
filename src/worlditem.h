@@ -18,8 +18,8 @@ class WorldItem : public QObject
 public:
     explicit WorldItem(QString name);
 
-    void add(Renderable* r);
-    void add(MotionManager *m);
+    void addRenderable(Renderable* r);
+    void setMotionManager(MotionManager *m);
     MotionManager* motion() const { return m_motion;}
     Physics* physics() { return dynamic_cast<Physics*>(m_motion);}
 
