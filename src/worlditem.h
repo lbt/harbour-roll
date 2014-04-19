@@ -5,7 +5,8 @@
 #include <QList>
 #include "transform.h"
 
-class Physics;    // Mutual link with Physics from physics.h
+#include "motionmanager.h"
+#include "physics.h"
 class Renderable; // Mutual link
 class Shader;     // Mutual link
 class World;      // Mutual link
@@ -18,16 +19,17 @@ public:
     explicit WorldItem(QString name);
 
     void add(Renderable* r);
-    void add(Physics* p);
-    Physics* physics() const {return m_physics;}
+    void add(MotionManager *m);
+    MotionManager* motion() const { return m_motion;}
+    Physics* physics() { return dynamic_cast<Physics*>(m_motion);}
 
     void setupGL();
     void render(const Shader *activeProgram);
 
-    void setVelocity(QVector3D v);
-    QVector3D getVelocity() const;
-    void setTransform(QMatrix4x4 t);
-    Transform getTransform() const;
+    void setVelocity(QVector3D v) { m_motion->setVelocity(v); }
+    QVector3D getVelocity() const { return m_motion->getVelocity(); }
+    void setTransform(QMatrix4x4 t) { m_motion->setTransform(t); }
+    Transform getTransform() const { return m_motion->getTransform(); }
 
     void addToWorld(World* world);
     void removeFromWorld();
@@ -42,7 +44,7 @@ protected:
 
 private:
     QList<Renderable*> m_renderables;
-    Physics* m_physics;
+    MotionManager* m_motion;
     Transform m_transform;
     QVector3D m_velocity;
 };

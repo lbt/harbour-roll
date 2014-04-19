@@ -2,6 +2,7 @@
 #include "renderable.h"
 #include "shader.h"
 #include "world.h"
+#include "motionmanager.h"
 #include "physics.h"
 
 #include <QDebug>
@@ -10,7 +11,7 @@
 
 WorldItem::WorldItem(QString name) :
     QObject(NULL)
-  , m_physics(NULL)
+  , m_motion(NULL)
   , m_transform()
   , m_velocity()
 {
@@ -24,13 +25,13 @@ bool WorldItem::inWorld(){
     } else return false;
 }
 
-void WorldItem::add(Physics *p)
+void WorldItem::add(MotionManager *m)
 {
     if (inWorld()) return;
-    if (! m_physics){
-        m_physics = p;
+    if (! m_motion){
+        m_motion = m;
     } else {
-        qDebug() << "Already have a physics. Not adding another";
+        qDebug() << "Already have a MotionManager. Not adding another";
     }
 }
 void WorldItem::add(Renderable *r)
@@ -70,9 +71,10 @@ void WorldItem::setupGL(){
 void WorldItem::addToWorld(World *world)
 {
     if (inWorld()) return;
+    Q_ASSERT(m_motion != NULL);
     world->lock();
     world->add(this, shaderList());
-    if (m_physics) world->add(m_physics);
+    m_motion->addToWorld(world);
     setParent(world);
     world->unlock();
 }
@@ -82,37 +84,10 @@ void WorldItem::removeFromWorld()
     if (! inWorld()) return;
     World* world = dynamic_cast<World*>(parent());
     world->lock();
-    if (m_physics) world->remove(m_physics);
+    m_motion->removeFromWorld(world);
     world->remove(this, shaderList());
     setParent(NULL);
     world->unlock();
-}
-
-void WorldItem::setTransform(QMatrix4x4 t) {
-    if (m_physics && m_physics->ownsMotion()) m_physics->setTransform(t);
-    m_transform = t;
-}
-
-Transform WorldItem::getTransform() const {
-    if (m_physics && m_physics->ownsMotion()) {
-        return m_physics->getTransform();
-    } else {
-        return m_transform;
-    }
-}
-
-void WorldItem::setVelocity(QVector3D v) {
-    // try and set physics velocity and fall back to local
-    if (m_physics && m_physics->ownsMotion()) m_physics->setVelocity(v);
-    m_velocity = v;
-}
-
-QVector3D WorldItem::getVelocity() const {
-    if (m_physics && m_physics->ownsMotion()) {
-        return m_physics->getVelocity();
-    } else {
-        return m_velocity;
-    }
 }
 
 ////
