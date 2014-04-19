@@ -147,8 +147,9 @@ void RollBuilder::setup(){
     flyCam->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
     followCam->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
 
-    m_rollworld->add(flyCam);
-    m_rollworld->add(followCam);
+    flyCam->addToWorld(m_rollworld);
+    followCam->addToWorld(m_rollworld);
+
     m_rollworld->setActiveCamera(followCam);
 
     m_assetStore->load_finished();

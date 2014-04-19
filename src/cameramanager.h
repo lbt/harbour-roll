@@ -1,10 +1,10 @@
 #ifndef ROTATIONMANAGER_H
 #define ROTATIONMANAGER_H
 
-#include <QObject>
+#include "worlditem.h"
 #include "transform.h"
 
-class CameraManager : public QObject
+class CameraManager : public WorldItem
 {
     Q_OBJECT
 public:
@@ -14,15 +14,15 @@ public:
             m_screenWidth(width)
           , m_screenHeight(height)
           , m_fov(fov)
-    {}
+        {}
 
         int m_screenWidth;
         int m_screenHeight;
         qreal m_fov;
     };
 
-    explicit CameraManager(QString name, Display display=Display(), QObject *parent = 0);
-    void setDisplay(int w, int h, qreal fov);
+    explicit CameraManager(QString name, Display display=Display());
+    void setDisplay(int w, int h, qreal fov) { m_display=Display(w, h, fov); }
 
     qreal FOV() const { return m_display.m_fov; }
     int screenWidth() const { return m_display.m_screenWidth; }
@@ -30,21 +30,22 @@ public:
 
     virtual void reset();
 
-    virtual QVector3D right() { return m_camera.right(); }
-    virtual QVector3D up() { return m_camera.up(); }
-    virtual QVector3D forward() { return m_camera.forward(); }
-    virtual QVector3D at() { return m_camera.at(); }
-    virtual QMatrix4x4 projViewMatrix();
+    virtual QVector3D right() const { return getTransform().right(); }
+    virtual QVector3D up() const { return getTransform().up(); }
+    virtual QVector3D forward() const { return getTransform().forward(); }
+    virtual QVector3D at() const { return getTransform().at(); }
+    virtual QMatrix4x4 projViewMatrix() const;
 
+    virtual void addToWorld(World *world);
+    virtual void removeFromWorld();
 signals:
 
 public slots:
     virtual void lookAt(QVector3D go, QVector3D target, QVector3D up);
-
+    virtual void activate();
     virtual void update(int deltaTms);
 
 protected:
-    Transform m_camera;
     Display m_display;
 
 };

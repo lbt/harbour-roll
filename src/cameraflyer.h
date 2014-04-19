@@ -8,7 +8,7 @@ class CameraFlyer : public CameraManager
 {
     Q_OBJECT
 public:
-    explicit CameraFlyer(QString name, Display display, QObject *parent = 0);
+    explicit CameraFlyer(QString name, Display display);
 
     bool isActive() const { return m_pressed; }
     void updatePosition();

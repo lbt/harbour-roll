@@ -27,6 +27,7 @@ class World : public QObject
     friend class WorldBuilder;
     friend class WorldItem;
     friend class Light;
+    friend class CameraManager;
     friend class WorldRunner;
 public:
     explicit World(QObject *parent = 0);
@@ -41,26 +42,33 @@ public:
     // Supporting various shader/render world info
     virtual void setupGL();
     virtual void render();
+
+    // Lights
+    virtual Light* getLight(QString name);
     virtual QList<Light*> getLights();
+
+    // Camera
     virtual QMatrix4x4 getActiveCameraPVM();
     virtual QVector3D getActiveCameraAt();
     virtual CameraManager* getActiveCamera() { return m_activeCamera; }
     void setActiveCamera(CameraManager* camera) { m_activeCamera = camera; }
     void setActiveCamera(QString name);
-
-    virtual Light* getLight(QString name);
     virtual CameraManager* getCamera(QString name);
+
 
 protected:
     virtual void add(WorldItem *item, QList<Shader *> shaderList);
     virtual void remove(WorldItem *item, QList<Shader *> shaderList);
-    virtual void add(Physics *physics);
-    virtual void remove(Physics *physics);
     virtual void add(Light *light);
     virtual void remove(Light *light);
     virtual void add(CameraManager *camera);
+    virtual void remove(CameraManager *camera);
+    virtual void add(Physics *physics);
+    virtual void remove(Physics *physics);
+
     virtual void lock(){ m_worldMutex.lock(); }
     virtual void unlock() { m_worldMutex.unlock(); }
+
     // Support subclassing
     virtual void setupPhysicsWorld();
     virtual void destroyPhysicsWorld();

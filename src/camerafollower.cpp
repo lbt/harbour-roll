@@ -1,8 +1,8 @@
 #include "camerafollower.h"
 #include "worlditem.h"
 
-CameraFollower::CameraFollower(QString name, Display display, QObject *parent) :
-    CameraManager(name, display, parent)
+CameraFollower::CameraFollower(QString name, Display display) :
+    CameraManager(name, display)
 {
 }
 
@@ -18,9 +18,10 @@ void CameraFollower::update(int deltaTms)
     //    qDebug() << "v " << v;
 
     QVector3D cameraOffset = QVector3D(0.2,0.2, m_dist);
-    m_camera=Transform();
-    m_camera.lookAt(itemPos + cameraOffset, itemPos, QVector3D(0, 0, -1));
-    m_camera = m_camera.inverted();
+    Transform camera;
+    camera.lookAt(itemPos + cameraOffset, itemPos, QVector3D(0, 0, -1));
+    camera = camera.inverted();
+    setTransform(camera);
 }
 
 void CameraFollower::follow(WorldItem* wi, float dist)

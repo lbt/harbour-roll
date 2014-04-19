@@ -8,7 +8,7 @@ class CameraFollower : public CameraManager
 {
     Q_OBJECT
 public:
-    explicit CameraFollower(QString name, Display display, QObject *parent = 0);
+    explicit CameraFollower(QString name, Display display);
     void update(int deltaTms);
 
 signals:

@@ -133,9 +133,6 @@ void World::runStep(int ms)
             wi->physics()->getRigidBody()->activate();
         }
     }
-    for (auto l : getLights()) {
-        l->update(ms);
-    }
     for (auto c : m_cameras.values()) {
         c->update(ms);
     }
@@ -223,20 +220,6 @@ void World::setActiveCamera(QString name)
         m_activeCamera = m_cameras[name];
 }
 
-void World::add(CameraManager* camera){
-    m_worldMutex.lock();
-    if (m_cameras.contains(camera->objectName())) {
-        qDebug() <<"Existing camera " << camera->objectName();
-    } else
-        m_cameras[camera->objectName()] = camera;
-    m_worldMutex.unlock();
-}
-
-CameraManager*  World::getCamera(QString name){
-    if (m_cameras.contains(name)) return m_cameras[name];
-    return NULL;
-}
-
 // Called by the item
 // Store by item Name and by all item->Renderable[]->shader
 // All other bits of the WI are added by the WorldItem but the m_byShader is more
@@ -267,6 +250,26 @@ void World::remove(Physics* physics){
     m_worldMutex.unlock();
 }
 
+void World::add(CameraManager* camera){
+    m_worldMutex.lock();
+    if (m_cameras.contains(camera->objectName())) {
+        qDebug() <<"Existing camera " << camera->objectName();
+    } else
+        m_cameras[camera->objectName()] = camera;
+    m_worldMutex.unlock();
+}
+
+void World::remove(CameraManager* camera){
+    m_worldMutex.lock();
+    m_cameras.remove(camera->objectName());
+    m_worldMutex.unlock();
+}
+
+CameraManager*  World::getCamera(QString name){
+    if (m_cameras.contains(name)) return m_cameras[name];
+    return NULL;
+}
+
 void World::add(Light* light){
     m_worldMutex.lock();
     if (m_lights.contains(light->objectName())) {
@@ -281,7 +284,6 @@ void World::remove(Light* light){
     m_lights.remove(light->objectName());
     m_worldMutex.unlock();
 }
-
 
 Light*  World::getLight(QString name){
     if (m_lights.contains(name)) return m_lights[name];
