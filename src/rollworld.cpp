@@ -55,7 +55,8 @@ void RollWorld::runStep(int ms) {
 
     // Do our local collision detection until World has a mechanism
     RollWorld::ContactResultCallback result;
-
+    Q_ASSERT(m_ball->physics() != NULL);
+    Q_ASSERT(m_floor->physics() != NULL);
     dynamicsWorld->contactTest(m_ball->physics()->getRigidBody(), result);
     for (const btCollisionObject *obj : result.getContacts()) {
         if (obj == m_ball->physics()->getRigidBody()) continue;
