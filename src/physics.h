@@ -2,16 +2,17 @@
 #define PHYSICS_H
 
 #include <QObject>
+#include "motionmanager.h"
+
+class WorldItem; // Mutual link with WorldItem from worlditem.h
 
 #include "bullet/btBulletDynamicsCommon.h"
 #include "bullet/BulletCollision/CollisionShapes/btCollisionShape.h"
 
-#include "worlditem.h"
-class WorldItem; // Mutual link with WorldItem from worlditem.h
 
 #include "transform.h"
 
-class Physics : public QObject
+class Physics : public MotionManager
 {
     Q_OBJECT
 public:
