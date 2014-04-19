@@ -43,7 +43,7 @@ Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
     m_body->setUserPointer((void*)this);
 }
 
-bool Physics::hasMotion(){
+bool Physics::hasMotion() const {
     return (m_body && m_body->getMotionState());
 }
 
@@ -69,7 +69,8 @@ void Physics::setTransform(Transform t)
     } else qDebug() << "Tried to set Transform without a MotionState";
 }
 
-Transform Physics::getTransform() {
+Transform Physics::getTransform() const
+{
     if (hasMotion()) {
         btTransform trans;
         m_body->getMotionState()->getWorldTransform(trans);
@@ -87,7 +88,7 @@ void Physics::setVelocity(QVector3D v)
     } else qDebug() << "Tried to set velocity without a MotionState";
 }
 
-QVector3D Physics::getVelocity()
+QVector3D Physics::getVelocity() const
 {
     if (hasMotion()) {
         return bt2QtVector3D(m_body->getLinearVelocity());

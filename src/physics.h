@@ -17,22 +17,22 @@ class Physics : public MotionManager
     Q_OBJECT
 public:
     explicit Physics(btCollisionShape* shape, btScalar mass, WorldItem* parent);
-    btRigidBody* getRigidBody(){ return m_body; }
-    void setTransformVelocity(Transform t, QVector3D v=QVector3D(0,0,0));
-    void setTransform(Transform t);
-    Transform getTransform();
-    void setVelocity(QVector3D v);
-    QVector3D getVelocity();
+    virtual btRigidBody* getRigidBody(){ return m_body; }
+    virtual void setTransformVelocity(Transform t, QVector3D v=QVector3D(0,0,0));
+    virtual void setTransform(Transform t);
+    virtual Transform getTransform() const;
+    virtual void setVelocity(QVector3D v);
+    virtual QVector3D getVelocity() const;
 
-    void addToWorld(World* world);
-    void removeFromWorld(World *world);
-    bool hasMotion();
+    virtual void addToWorld(World* world);
+    virtual void removeFromWorld(World *world);
+    virtual bool hasMotion() const;
 
 signals:
 
 public slots:
 
-private:
+protected:
     btCollisionShape* m_shape;
     btRigidBody* m_body;
     WorldItem* m_worldItem;
