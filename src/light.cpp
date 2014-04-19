@@ -4,21 +4,15 @@
 
 #include <sailfishapp.h>
 #include "utils.h"
+#include "world.h"
 
 GLProgram* PointLight::c_program_debug = 0;
 
 Light::Light(QString name) :
-    QObject(NULL)
+    WorldItem(name)
   , m_lightManager(NULL)
 {
     setObjectName(name);
-}
-
-bool Light::inWorld(){
-    if (parent()) {
-        qDebug() << "In a World (can't add anything)";
-        return true;
-    } else return false;
 }
 
 void Light::addToWorld(World *world)
@@ -26,7 +20,7 @@ void Light::addToWorld(World *world)
     if (inWorld()) return;
     world->lock();
     world->add(this);
-    setParent(world);
+    WorldItem::addToWorld(world);
     world->unlock();
 }
 
@@ -36,18 +30,8 @@ void Light::removeFromWorld()
     World* world = dynamic_cast<World*>(parent());
     world->lock();
     world->remove(this);
-    setParent(NULL);
+    WorldItem::removeFromWorld();
     world->unlock();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void PointLight::update(int deltaT)
-{
-    if (m_lightManager) {
-        m_lightManager->update(deltaT);
-        m_Position= m_lightManager->getTransform().at();
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -61,7 +45,9 @@ void BaseLight::setBaseLight(QVector3D Color, qreal AmbientIntensity, qreal Diff
 
 void PointLight::setPointLight(QVector3D Position, qreal AConstant, qreal ALinear, qreal AExp)
 {
-    m_Position = Position;
+    Transform t;
+    t.translate(Position);
+    setTransform(t);
     m_AConstant = AConstant;
     m_ALinear = ALinear;
     m_AExp = AExp;
@@ -84,7 +70,9 @@ void BaseLight::randomise(){
 }
 
 void PointLight::randomise(){
-    m_Position = QVector3D(rnd(MAXX)-MAXX/2, rnd(MAXY)-MAXY/2, rnd(3.0)+0.0);
+    Transform t;
+    t.translate(QVector3D(rnd(MAXX)-MAXX/2, rnd(MAXY)-MAXY/2, rnd(3.0)+0.0));
+    setTransform(t);
     m_AConstant = rnd(0.3);
     m_ALinear = rnd(0.5);
     m_AExp = rnd(0.15);
@@ -120,7 +108,7 @@ void DirectionalLight::setUniforms(GLProgram *p, int i) {
 void PointLight::setUniforms(GLProgram *p, int i) {
     QString ln = QString("pointLights[%1].").arg(i);
     BaseLight::setUniforms(p, ln);
-    p->setUniformValue(p->getU(ln+"Position"), m_Position);
+    p->setUniformValue(p->getU(ln+"Position"), getTransform().at());
     p->setUniformValue(p->getU(ln+"AConstant"), m_AConstant);
     p->setUniformValue(p->getU(ln+"ALinear"), m_ALinear);
     p->setUniformValue(p->getU(ln+"AExp"), m_AExp);
@@ -140,13 +128,14 @@ void PointLight::debugRender(QMatrix4x4 projViewMatrix){
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     c_program_debug->setUniformValue(c_program_debug->getU("colU"), QVector4D(m_Color, 1.0));
-    GLfloat point[] = {m_Position.x(), m_Position.y(), m_Position.z(), 0.0, 0.0, 0.0 };
+    QVector3D pos = getTransform().at();
+    GLfloat point[] = {pos.x(), pos.y(), pos.z(), 0.0, 0.0, 0.0 };
     glVertexAttribPointer(c_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, point);
     // it's nice to have the line drawn from the origin
     glDrawArrays(GL_POINTS, 0, 1);
     glDrawArrays(GL_LINES, 0, 2);
     glDisableVertexAttribArray(c_program_debug->getA("posA"));
-    //    qDebug() << "Rendering Light at " << m_Position;
+    //    qDebug() << "Rendering Light at " << getTransform().at();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -164,7 +153,7 @@ void BaseLight::debugString(QDebug &d) const
 
 void PointLight::debugString(QDebug &d) const
 { BaseLight::debugString(d);
-    d   << "\nPosition : " << m_Position
+    d   << "\nPosition : " << getTransform().at()
         << "\nAconstant : " << m_AConstant
         << "\nALinear : " << m_ALinear
         << "\nAExp : " << m_AExp;

@@ -1,16 +1,15 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include <QObject>
-#include <QVector3D>
+class World;
+#include "worlditem.h"
 #include "lightmanager.h"
 #include "glprogram.h"
+
+#include <QVector3D>
 #include <QDebug>
 
-#include "world.h"
-class World;      // Mutual link
-
-class Light : public QObject
+class Light : public WorldItem
 {
     friend QDebug operator<<(QDebug d, Light const &l);
     Q_OBJECT
@@ -27,12 +26,11 @@ public:
 
     virtual void debugString(QDebug &d) const;
 
-    void addToWorld(World* world);
-    void removeFromWorld();
+    virtual void addToWorld(World* world);
+    virtual void removeFromWorld();
 
 protected:
     LightManager* m_lightManager;
-    bool inWorld();
 };
 QDebug inline operator<<(QDebug d, Light const &l) {
     l.debugString(d);
@@ -77,7 +75,6 @@ public:
     virtual void setUniforms(GLProgram *p, int i);
     virtual void debugString(QDebug &d) const;
 protected:
-    QVector3D m_Position;
     qreal m_AConstant;
     qreal m_ALinear;
     qreal m_AExp;
