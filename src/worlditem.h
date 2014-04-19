@@ -45,8 +45,6 @@ protected:
 private:
     QList<Renderable*> m_renderables;
     MotionManager* m_motion;
-    Transform m_transform;
-    QVector3D m_velocity;
 };
 
 #endif // WORLDITEM_H

@@ -12,8 +12,6 @@
 WorldItem::WorldItem(QString name) :
     QObject(NULL)
   , m_motion(NULL)
-  , m_transform()
-  , m_velocity()
 {
     setObjectName(name);
 }
@@ -97,10 +95,10 @@ void WorldItem::removeFromWorld()
 ///
 void WorldItem::render(const Shader *activeProgram) {
     // Get the transform from physics or as-stored.
-    m_transform = getTransform();
+    Transform t = getTransform();
 
     for (auto r: m_renderables) {
-        r->render(activeProgram, m_transform);
+        r->render(activeProgram, t);
     }
 }
 
