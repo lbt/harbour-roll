@@ -93,7 +93,7 @@ void WorldItem::setTransform(QMatrix4x4 t) {
     m_transform = t;
 }
 
-Transform WorldItem::getTransform() {
+Transform WorldItem::getTransform() const {
     if (m_physics && m_physics->ownsMotion()) {
         return m_physics->getTransform();
     } else {
@@ -107,7 +107,7 @@ void WorldItem::setVelocity(QVector3D v) {
     m_velocity = v;
 }
 
-QVector3D WorldItem::getVelocity() {
+QVector3D WorldItem::getVelocity() const {
     if (m_physics && m_physics->ownsMotion()) {
         return m_physics->getVelocity();
     } else {

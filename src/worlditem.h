@@ -25,9 +25,9 @@ public:
     void render(const Shader *activeProgram);
 
     void setVelocity(QVector3D v);
-    QVector3D getVelocity();
+    QVector3D getVelocity() const;
     void setTransform(QMatrix4x4 t);
-    Transform getTransform();
+    Transform getTransform() const;
 
     void addToWorld(World* world);
     void removeFromWorld();
