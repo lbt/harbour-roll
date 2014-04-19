@@ -21,6 +21,16 @@ public:
     virtual void setVelocity(QVector3D v) { m_velocity = v; }
     virtual QVector3D getVelocity() const { return m_velocity; }
 
+    // use getTransform to allow non m_transform solutions to work
+    virtual QVector3D right() const { return getTransform().right(); }
+    virtual QVector3D up() const { return getTransform().up(); }
+    virtual QVector3D forward() const { return getTransform().forward(); }
+    virtual QVector3D at() const { return getTransform().at(); }
+
+
+    virtual void lookAt(QVector3D go, QVector3D target, QVector3D up);
+
+    virtual void randomise(QVector3D bottomBackLeft=QVector3D(-5,-5,-5), QVector3D topFrontRight=QVector3D(5,5,5));
     virtual void runStep(int deltaTms);
 
 signals:
