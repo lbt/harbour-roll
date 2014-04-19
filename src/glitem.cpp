@@ -87,6 +87,7 @@ void GLItem::paint()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
 
     // actually clear all depth information
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
