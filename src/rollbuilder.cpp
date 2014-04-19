@@ -48,9 +48,9 @@ void RollBuilder::setup(){
     wi->setMotionManager(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("gutter")),
                         0.0, wi));
-    Transform trackPos;
-    trackPos.translate(QVector3D(0,0,-2.8));
-    wi->setTransform(trackPos);
+    Transform initialPos;
+    initialPos.translate(QVector3D(0,0,-2.8));
+    wi->setTransform(initialPos);
     wi->addToWorld(m_rollworld);
 
     qDebug() << "Setup track2";
@@ -61,9 +61,9 @@ void RollBuilder::setup(){
                                                 m_assetStore->getMesh("track2Curve")),
                         0.0, wi));
 
-    trackPos.setToIdentity();
-    trackPos.translate(QVector3D(0,0,0));
-    wi->setTransform(trackPos);
+    initialPos.setToIdentity();
+    initialPos.translate(QVector3D(0,0,0));
+    wi->setTransform(initialPos);
     wi->addToWorld(m_rollworld);
 
     qDebug() << "Setup ball";
@@ -74,9 +74,9 @@ void RollBuilder::setup(){
 
     // #define START    btVector3(2.0,-0.0,0)
 
-    trackPos.setToIdentity();
-    trackPos.translate(m_rollworld->m_ballStartPos);
-    wi->setTransform(trackPos);
+    initialPos.setToIdentity();
+    initialPos.translate(m_rollworld->m_ballStartPos);
+    wi->setTransform(initialPos);
     wi->addToWorld(m_rollworld);
 
     // Tell the rollworld that this is the ball
