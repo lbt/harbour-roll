@@ -10,27 +10,6 @@
 #include "world.h"
 class World;      // Mutual link
 
-struct _BaseLight
-{
-    QVector3D Color;
-    qreal AmbientIntensity;
-    qreal DiffuseIntensity;
-};
-struct _DirectionalLight
-{
-    _BaseLight Base;
-    QVector3D Direction;
-};
-
-struct _PointLight
-{
-    _BaseLight Base;
-    QVector3D Position;
-    qreal AConstant;
-    qreal ALinear;
-    qreal AExp;
-};
-
 class Light : public QObject
 {
     friend QDebug operator<<(QDebug d, Light const &l);
@@ -46,71 +25,81 @@ public:
     virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix)}
     virtual void setUniforms(GLProgram *p, int i) = 0;
 
+    virtual void debugString(QDebug &d) const;
+
     void addToWorld(World* world);
     void removeFromWorld();
 
 protected:
     LightManager* m_lightManager;
-
     bool inWorld();
 };
 QDebug inline operator<<(QDebug d, Light const &l) {
-    d.nospace() << "Light: " << l.objectName() << "\n";
-    return d;
+    l.debugString(d);
+    d.nospace() << "\n"; return d;
 }
+QDebug inline operator<<(QDebug d, Light* const &l) {
+    l->debugString(d);
+    d.nospace() << "\n"; return d;
+}
+//////////////////////////////////////////////////////////////////////////////
 
-class PointLight : public Light
+class BaseLight : public Light
 {
     Q_OBJECT
-    friend QDebug inline operator<<(QDebug d, PointLight const &l);
 public:
-    explicit PointLight(QString name);
+    explicit BaseLight(QString name) : Light(name) {}
+    void setBaseLight(QVector3D Color, qreal AmbientIntensity, qreal DiffuseIntensity);
 
-    _PointLight light() const { return m_light ; }
-    void set(_PointLight light);
+    void randomise();
+    virtual void setUniforms(GLProgram *p, QString varId);
+    virtual void debugString(QDebug &d) const;
+
+protected:
+    QVector3D m_Color;
+    qreal m_AmbientIntensity;
+    qreal m_DiffuseIntensity;
+
+};
+//////////////////////////////////////////////////////////////////////////////
+
+class PointLight : public BaseLight
+{
+    Q_OBJECT
+public:
+    explicit PointLight(QString name) : BaseLight(name) {}
+
+    void setPointLight(QVector3D Position, qreal AConstant, qreal ALinear, qreal AExp);
+
     void update(int deltaT);
     void randomise();
     void debugRender(QMatrix4x4 projViewMatrix);
     virtual void setUniforms(GLProgram *p, int i);
-private:
-    _PointLight m_light;
+    virtual void debugString(QDebug &d) const;
+protected:
+    QVector3D m_Position;
+    qreal m_AConstant;
+    qreal m_ALinear;
+    qreal m_AExp;
 
     static GLProgram* c_program_debug;
 };
-QDebug inline operator<<(QDebug d, PointLight const &l){
-    d.nospace() << "Point Light: " << l.objectName() << "\n"
-                << "\nColor : " << l.m_light.Base.Color
-                << "\nAmbientIntensity : " << l.m_light.Base.AmbientIntensity
-                << "\nDiffuse : " << l.m_light.Base.DiffuseIntensity
-                << "\nPosition : " << l.m_light.Position
-                << "\nAconstant : " << l.m_light.AConstant
-                << "\nALinear : " << l.m_light.ALinear
-                << "\nAExp : " << l.m_light.AExp;
-    return d;
-}
 
-class DirectionalLight : public Light
+//////////////////////////////////////////////////////////////////////////////
+
+class DirectionalLight : public BaseLight
 {
     Q_OBJECT
-    friend QDebug inline operator<<(QDebug d, const  DirectionalLight &l);
 public:
-    explicit DirectionalLight(QString name);
+    explicit DirectionalLight(QString name) : BaseLight(name) {}
+    void setDirectionalLight(QVector3D Direction);
 
-    void set(_DirectionalLight light);
-    _DirectionalLight light() const { return m_light ; }
     void randomise();
     virtual void setUniforms(GLProgram *p, int i);
+    virtual void debugString(QDebug &d) const;
+protected:
+    QVector3D m_Direction;
 
-private:
-    _DirectionalLight m_light;
 };
-QDebug inline operator<<(QDebug d, const DirectionalLight &l){
-    d.nospace() << "Directional Light: " << l.objectName() << "\n"
-                << "\nColor : " << l.m_light.Base.Color
-                << "\nAmbientIntensity : " << l.m_light.Base.AmbientIntensity
-                << "\nDiffuse : " << l.m_light.Base.DiffuseIntensity
-                << "\nDirection : " << l.m_light.Direction;
-    return d;
-}
 
 #endif // LIGHT_H

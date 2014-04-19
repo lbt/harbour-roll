@@ -143,16 +143,12 @@ void Roll::setMainLight(bool arg)
         m_mainLightOn = arg;
         emit mainLightChanged(arg);
     }
-    _DirectionalLight light;
     if (arg) {
         // Ensure that the first throw has a visible dlight
-        light.Base.Color = QVector3D(1.0, 1.0, 1.0);
-        light.Base.AmbientIntensity=0.4;
-        light.Base.DiffuseIntensity=0.8;
-        light.Direction = QVector3D(-1, 1, 4).normalized();
-        if (m_mainLight) m_mainLight->set(light);
+        m_mainLight->setBaseLight(QVector3D(1.0, 1.0, 1.0), 0.4, 0.8);
+        m_mainLight->setDirectionalLight(QVector3D(-1, 1, 4).normalized());
     } else {
-        if (m_mainLight) m_mainLight->randomise();
+        m_mainLight->randomise();
     }
 }
 
@@ -162,13 +158,8 @@ void Roll::randomiseLights()
         l->randomise();
     }
     if (m_mainLightOn) {
-        _DirectionalLight light;
-        // Ensure that the first throw has a visible dlight
-        light.Base.Color = QVector3D(1.0, 1.0, 1.0);
-        light.Base.AmbientIntensity=0.4;
-        light.Base.DiffuseIntensity=0.8;
-        light.Direction = QVector3D(-1, 1, 4).normalized();
-        if (m_mainLight) m_mainLight->set(light);
+        m_mainLight->setBaseLight(QVector3D(1.0, 1.0, 1.0), 0.4, 0.8);
+        m_mainLight->setDirectionalLight(QVector3D(-1, 1, 4).normalized());
     }
 }
 

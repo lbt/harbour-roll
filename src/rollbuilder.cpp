@@ -116,15 +116,10 @@ void RollBuilder::setup(){
     wi->addToWorld(m_rollworld);
 
     qDebug() << "Setup lights";
-    _DirectionalLight dlight;
     // Ensure that the first throw has a visible dlight
-    dlight.Base.Color = QVector3D(1.0, 1.0, 1.0);
-    dlight.Base.AmbientIntensity=0.4;
-    dlight.Base.DiffuseIntensity=0.8;
-    dlight.Direction = QVector3D(-1, 1, 4).normalized();
-
     DirectionalLight *dl = new DirectionalLight("main");
-    dl->set(dlight);
+    dl->setBaseLight(QVector3D(1.0, 1.0, 1.0), 0.4, 0.8);
+    dl->setDirectionalLight(QVector3D(-1, 1, 4).normalized());
     dl->setLightManager(new LightOrbiter());
     dl->addToWorld(m_rollworld);
 
