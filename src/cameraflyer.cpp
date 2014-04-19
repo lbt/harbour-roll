@@ -1,7 +1,8 @@
 #include "cameraflyer.h"
+#include "cameramanager.h"
 
-CameraFlyer::CameraFlyer(QString name, Display display) :
-    CameraManager(name, display)
+CameraFlyer::CameraFlyer(WorldItem *parent) :
+    MotionManager(parent)
 {
     m_sensor.start();
 }
@@ -12,25 +13,23 @@ void CameraFlyer::touch(qreal x, qreal y) {
         m_touchY = y;
         m_pressed = true;
     }
-    if (m_touchY < m_display.m_screenHeight/2) { // rotation top half
+    CameraManager* cam = dynamic_cast<CameraManager*>(parent());
+    if (!cam) return;
+    if (m_touchY < cam->screenHeight()/2) { // rotation top half
 
         QMatrix4x4 r;
-        r.rotate((m_touchX - x)/m_display.m_screenWidth * 2, up()); // rotate around up
-        r.rotate((y - m_touchY)/m_display.m_screenHeight * 2, right()); // rotate around right
+        r.rotate((m_touchX - x)/cam->screenWidth() * 2, up()); // rotate around up
+        r.rotate((y - m_touchY)/cam->screenHeight() * 2, right()); // rotate around right
 
-        Transform camera = getTransform();
-        camera.rotateOnly(r);
-        setTransform(camera);
+        m_transform.rotateOnly(r);
     } else { // movement bottom half
         QMatrix4x4 t;
-        Transform camera = getTransform();
-        t.translate(camera.forward()*0.5*(y - m_touchY)/m_display.m_screenHeight); // movement
-        camera = t * camera; // move
+        t.translate(m_transform.forward()*0.5*(y - m_touchY)/cam->screenHeight()); // movement
+        m_transform = t * m_transform; // move
 
         QMatrix4x4 r;
-        r.rotate((m_touchX - x)/m_display.m_screenWidth * 2,  up()) ; // rotation vector
-        camera.rotateOnly(r);
-        setTransform(camera);
+        r.rotate((m_touchX - x)/cam->screenWidth() * 2,  up()) ; // rotation vector
+        m_transform.rotateOnly(r);
     }
 
 }
@@ -45,9 +44,7 @@ void CameraFlyer::updatePosition() {
         QMatrix4x4 r;
         //        r.rotate(reading->x()/5.0,  forward()) ; // rotation vector
         //        r.rotate(reading->y()/5.0,  right()) ; // rotation vector
-        Transform camera = getTransform();
-        camera.rotateOnly(r);
-        setTransform(camera);
+        m_transform.rotateOnly(r);
     }
 }
 
@@ -59,15 +56,14 @@ void CameraFlyer::release() {
 
 void CameraFlyer::reset()
 {
-    Transform camera;
+    m_transform.setToIdentity();
     // Normally any messing with the orientation axis would require all 3 to be kept in sync.
     //    m_camera.setColumn(0, QVector4D(1,  0,  0,  0));
     //    m_camera.setColumn(1, QVector4D(0,  1,  0,  0));
     //    m_camera.setColumn(2, QVector4D(0,  0,  1,  0));
     //    m_camera.setColumn(3, QVector4D(0,  0,  10, 1));
-    camera.translate(QVector3D(0,  0,  32));
-    setTransform(camera);
-    qDebug() << "camera set to " << camera;
+    m_transform.translate(QVector3D(0,  0,  32));
+    qDebug() << "camera set to " << m_transform;
     m_touchY=0;
     m_touchX=0;
     m_pressed=false;

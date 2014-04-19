@@ -1,14 +1,14 @@
 #ifndef CAMERAFLYER_H
 #define CAMERAFLYER_H
 
-#include "cameramanager.h"
+#include "motionmanager.h"
 #include <QtSensors/QAccelerometer>
 
-class CameraFlyer : public CameraManager
+class CameraFlyer : public MotionManager
 {
     Q_OBJECT
 public:
-    explicit CameraFlyer(QString name, Display display);
+    explicit CameraFlyer(WorldItem* parent = 0);
 
     bool isActive() const { return m_pressed; }
     void updatePosition();
