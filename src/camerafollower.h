@@ -1,15 +1,15 @@
 #ifndef CAMERAFOLLOWER_H
 #define CAMERAFOLLOWER_H
 
-#include "cameramanager.h"
+#include "motionmanager.h"
 class WorldItem;
 
-class CameraFollower : public CameraManager
+class CameraFollower : public MotionManager
 {
     Q_OBJECT
 public:
-    explicit CameraFollower(QString name, Display display);
-    void update(int deltaTms);
+    explicit CameraFollower(WorldItem* parent=0);
+    void runStep(int deltaTms);
 
 signals:
 
