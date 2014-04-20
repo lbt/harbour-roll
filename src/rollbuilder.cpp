@@ -39,6 +39,7 @@ void RollBuilder::setup(){
     m_assetStore->getRenderable("track2Curve")->setShader(trackShader);
 
     WorldItem* wi;
+    ItemFollower *follower;
 
     qDebug() << "Setup track";
     wi = new WorldItem("track");
@@ -131,11 +132,14 @@ void RollBuilder::setup(){
     for (int i: {1, 2, 3}) {
         QString name = QString("p%1").arg(i);
         PointLight *pl = new PointLight(name);
-        pl->setMotionManager(new MotionManager());
+        pl->setMotionManager(new ItemOrbiter());
         pl->randomise();
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
         pl->addToWorld(m_rollworld);
     }
+    follower = new ItemFollower();
+    follower->follow(m_rollworld->m_ball, 0); // follow the ball from inside
+    delete(m_world->getLight("p1")->setMotionManager(follower));
 
     qDebug() << "Setup cameras";
     CameraManager::Display display(540, 960, 50);
@@ -143,9 +147,10 @@ void RollBuilder::setup(){
     CameraManager* followCam = new CameraManager("followcam", display);
     flyCam->setMotionManager(new CameraFlyer());
     flyCam->motion()->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
-    ItemFollower *f = new ItemFollower();
-    f->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
-    followCam->setMotionManager(f);
+
+    follower = new ItemFollower();
+    follower->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
+    followCam->setMotionManager(follower);
     flyCam->addToWorld(m_rollworld);
     followCam->addToWorld(m_rollworld);
 
