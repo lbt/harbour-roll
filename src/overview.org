@@ -110,8 +110,7 @@ methods
   World objects
 
 contains:
- * geometry
- * physics
+ * motion
  * 0+ renderable (invisible objects etc)
  * world
 
@@ -120,32 +119,48 @@ methods
    in the world ??
  + render()
 
-** Physics
-simple wrapper around a btRigidBody
+*** WI/Light
 
-A Physics is typically owned by (parent=) the wi it belongs to and is
-destroyed when the wi is destroyed.
-
-** Light
 Lights have various attributes which are passed to GLSL (col, intensity etc)
 They have a light manager which they update each tick and which provides position/direction.
 
  * Point / Directional
 
-** Camera
+*** WI/Camera
+
+** Motion
+WorldItems can have Motion.
+
+Motions can be chained so an item has a Motion which then has another motion applied.
+This allows, eg, an OrbitMotion to be applied after a FollowMotion to make a WI orbit an object.
+
+Motions are owned by the World.
+Since one Motion can (by default) be used by multiple WIs the World iterates through all Motions to do updates.
+
+*** BaseMotion
+Simple static motion
+
+*** PhysicsMotion
+A Motion which is a simple wrapper around a btRigidBody
+
+*** FollowMotion
+Follows another WI at a given offset
+
+*** OrbitMotion
+Follows a circular path
+
+*** CurveMotion
+Follows a curve (obtained from asset library)
 
 
 
 ** Shaders
 
 
-
 ** Game objects : World objects + sig/slots
 
-
 ** Paths
-  Mesh
-
+Mesh
 
 
 ** GLSL variables
@@ -162,3 +177,26 @@ uniform PointLight pointLights[n];
 
 uniform float matSpecularIntensityU;
 uniform float specularPowerU;
+
+
+
+
+* Methods
+
+** setupGL
+Called with a GLcontext when there's a new world
+Initiated by the world. AssetStore does this for textures (which is bad)
+
+** render
+Actual render
+
+** clearGL
+Clear any GL usage. Used when changing worlds
+
+
+* Blender
+
+To get the correct mesh orientation set the export to
+Forward: Y
+Up: -Z
+Include Normals
