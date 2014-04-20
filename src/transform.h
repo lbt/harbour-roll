@@ -13,7 +13,9 @@ public:
     QVector3D up() const { return column(1).toVector3D(); }
     QVector3D forward() const { return column(2).toVector3D(); }
     QVector3D at() const { return column(3).toVector3D(); }
+
     void rotateOnly(QMatrix4x4 r);
+    void setTranslate(QVector3D t);
 
 private:
     QVector4D position() const {return column(3);}

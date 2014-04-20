@@ -18,3 +18,10 @@ void Transform::rotateOnly(QMatrix4x4 r)
 //    this->optimize();
     setPosition(p); // restore position
 }
+
+void Transform::setTranslate(QVector3D t)
+{
+    QVector4D pos = t.toVector4D();
+    pos.setW(1.0);
+    setColumn(3, pos);
+}
