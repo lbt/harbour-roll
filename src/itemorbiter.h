@@ -1,10 +1,10 @@
 #ifndef ITEMORBITER_H
 #define ITEMORBITER_H
-#include "motionmanager.h"
+#include "basemotion.h"
 #include <QMatrix4x4>
 #include <QVector3D>
 
-class ItemOrbiter : public MotionManager
+class ItemOrbiter : public BaseMotion
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
-#ifndef MOTIONMANAGER_H
-#define MOTIONMANAGER_H
+#ifndef BASEMOTION_H
+#define BASEMOTION_H
 
 #include <QObject>
 #include "transform.h"
@@ -7,11 +7,11 @@
 class WorldItem;
 class World;
 
-class MotionManager : public QObject
+class BaseMotion : public QObject
 {
     Q_OBJECT
 public:
-    explicit MotionManager(WorldItem* parent = 0);
+    explicit BaseMotion(WorldItem* parent = 0);
     virtual void addToWorld(World *world) { Q_UNUSED(world); }
     virtual void removeFromWorld(World *world) { Q_UNUSED(world); }
 
@@ -42,4 +42,4 @@ protected:
     QVector3D m_velocity;
 };
 
-#endif // MOTIONMANAGER_H
+#endif // BASEMOTION_H

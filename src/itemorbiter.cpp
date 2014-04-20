@@ -2,7 +2,7 @@
 #include "utils.h"
 
 ItemOrbiter::ItemOrbiter(WorldItem *parent) :
-    MotionManager(parent)
+    BaseMotion(parent)
   , m_origin()
   , m_theta(0)
   , m_scale(1,1,1)

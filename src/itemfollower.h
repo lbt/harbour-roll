@@ -1,10 +1,10 @@
 #ifndef ITEMFOLLOWER_H
 #define ITEMFOLLOWER_H
 
-#include "motionmanager.h"
+#include "basemotion.h"
 class WorldItem;
 
-class ItemFollower : public MotionManager
+class ItemFollower : public BaseMotion
 {
     Q_OBJECT
 public:

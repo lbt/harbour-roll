@@ -2,7 +2,7 @@
 #include "worlditem.h"
 
 ItemFollower::ItemFollower(WorldItem *parent) :
-    MotionManager(parent)
+    BaseMotion(parent)
 {
 }
 

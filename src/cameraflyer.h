@@ -1,10 +1,10 @@
 #ifndef CAMERAFLYER_H
 #define CAMERAFLYER_H
 
-#include "motionmanager.h"
+#include "basemotion.h"
 #include <QtSensors/QAccelerometer>
 
-class CameraFlyer : public MotionManager
+class CameraFlyer : public BaseMotion
 {
     Q_OBJECT
 public:

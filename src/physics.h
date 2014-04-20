@@ -2,7 +2,7 @@
 #define PHYSICS_H
 
 #include <QObject>
-#include "motionmanager.h"
+#include "basemotion.h"
 
 class WorldItem; // Mutual link with WorldItem from worlditem.h
 
@@ -12,7 +12,7 @@ class WorldItem; // Mutual link with WorldItem from worlditem.h
 
 #include "transform.h"
 
-class Physics : public MotionManager
+class Physics : public BaseMotion
 {
     Q_OBJECT
 public:

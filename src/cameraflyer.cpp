@@ -2,7 +2,7 @@
 #include "cameramanager.h"
 
 CameraFlyer::CameraFlyer(WorldItem *parent) :
-    MotionManager(parent)
+    BaseMotion(parent)
 {
     m_sensor.start();
 }

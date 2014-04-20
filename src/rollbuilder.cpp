@@ -46,7 +46,7 @@ void RollBuilder::setup(){
     wi->addRenderable(m_assetStore->getRenderable("gutter"));
     wi->addRenderable(m_assetStore->getRenderable("gutterBot"));
     // Create a Shape and a Physics and add to wi
-    wi->setMotionManager(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("gutter")),
                         0.0, wi));
     Transform initialPos;
@@ -58,7 +58,7 @@ void RollBuilder::setup(){
     wi = new WorldItem("track2");
     wi->addRenderable(m_assetStore->getRenderable("track2Curve"));
     // Create a Shape and a Physics and add to wi
-    wi->setMotionManager(new Physics(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("track2Curve")),
                         0.0, wi));
 
@@ -70,7 +70,7 @@ void RollBuilder::setup(){
     qDebug() << "Setup ball";
     wi = new WorldItem("ball");
     wi->addRenderable(m_assetStore->getRenderable("Sphere"));
-    wi->setMotionManager(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                         0.1, wi));
 
     // #define START    btVector3(2.0,-0.0,0)
@@ -86,32 +86,32 @@ void RollBuilder::setup(){
     wi = new WorldItem("floor");
     // This is oriented to point up (z=1) and set at offset (z=) -10
     m_rollworld->m_floor = wi;
-    wi->setMotionManager(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
                             "Floor", "btStaticPlane",
                             btVector3( 0, 0, 1 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor2");
-    wi->setMotionManager(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
                             "Floor2", "btStaticPlane",
                             btVector3( 0, 0,-1 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor3");
-    wi->setMotionManager(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
                             "Floor3", "btStaticPlane",
                             btVector3( 0, 1, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor4");
-    wi->setMotionManager(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
                             "Floor4", "btStaticPlane",
                             btVector3( 0,-1, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor5");
-    wi->setMotionManager(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
                             "Floor5", "btStaticPlane",
                             btVector3( 1, 0, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor6");
-    wi->setMotionManager(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
                             "Floor6", "btStaticPlane",
                             btVector3(-1, 0, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
@@ -121,36 +121,36 @@ void RollBuilder::setup(){
     DirectionalLight *dl = new DirectionalLight("main");
     dl->setBaseLight(QVector3D(1.0, 1.0, 1.0), 0.4, 0.8);
     dl->setDirectionalLight(QVector3D(-1, 1, 4).normalized());
-    dl->setMotionManager(new MotionManager());
+    dl->setBaseMotion(new BaseMotion());
     dl->addToWorld(m_rollworld);
 
     dl = new DirectionalLight("d2");
-    dl->setMotionManager(new MotionManager());
+    dl->setBaseMotion(new BaseMotion());
     dl->randomise();
     dl->addToWorld(m_rollworld);
 
     for (int i: {1, 2, 3}) {
         QString name = QString("p%1").arg(i);
         PointLight *pl = new PointLight(name);
-        pl->setMotionManager(new ItemOrbiter());
+        pl->setBaseMotion(new ItemOrbiter());
         pl->randomise();
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
         pl->addToWorld(m_rollworld);
     }
     follower = new ItemFollower();
     follower->follow(m_rollworld->m_ball, 0); // follow the ball from inside
-    delete(m_world->getLight("p1")->setMotionManager(follower));
+    delete(m_world->getLight("p1")->setBaseMotion(follower));
 
     qDebug() << "Setup cameras";
     CameraManager::Display display(540, 960, 50);
     CameraManager* flyCam = new CameraManager("flycam", display);
     CameraManager* followCam = new CameraManager("followcam", display);
-    flyCam->setMotionManager(new CameraFlyer());
+    flyCam->setBaseMotion(new CameraFlyer());
     flyCam->motion()->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
 
     follower = new ItemFollower();
     follower->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
-    followCam->setMotionManager(follower);
+    followCam->setBaseMotion(follower);
     flyCam->addToWorld(m_rollworld);
     followCam->addToWorld(m_rollworld);
 

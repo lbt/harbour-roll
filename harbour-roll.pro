@@ -48,7 +48,7 @@ SOURCES += src/harbour-roll.cpp \
     src/rendermeshtextured.cpp \
     src/rendermeshshaded.cpp \
     src/cameraflyer.cpp \
-    src/motionmanager.cpp \
+    src/basemotion.cpp \
     src/itemfollower.cpp \
     src/itemorbiter.cpp
 
@@ -108,7 +108,7 @@ HEADERS += \
     src/rendermeshtextured.h \
     src/rendermeshshaded.h \
     src/cameraflyer.h \
-    src/motionmanager.h \
+    src/basemotion.h \
     src/itemfollower.h \
     src/itemorbiter.h
 

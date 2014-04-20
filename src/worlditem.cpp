@@ -2,7 +2,7 @@
 #include "renderable.h"
 #include "shader.h"
 #include "world.h"
-#include "motionmanager.h"
+#include "basemotion.h"
 #include "physics.h"
 
 #include <QDebug>
@@ -23,9 +23,9 @@ bool WorldItem::inWorld(){
     } else return false;
 }
 
-MotionManager* WorldItem::setMotionManager(MotionManager *m)
+BaseMotion* WorldItem::setBaseMotion(BaseMotion *m)
 {
-    MotionManager* old = m_motion;
+    BaseMotion* old = m_motion;
     m_motion = m;
     return old;
 }

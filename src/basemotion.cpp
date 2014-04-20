@@ -1,20 +1,20 @@
-#include "motionmanager.h"
+#include "basemotion.h"
 #include "worlditem.h"
 #include "world.h"
 #include "utils.h"
 
-MotionManager::MotionManager(WorldItem *parent) :
+BaseMotion::BaseMotion(WorldItem *parent) :
     QObject(parent)
 {
 }
 
-void MotionManager::setTransformVelocity(Transform t, QVector3D v)
+void BaseMotion::setTransformVelocity(Transform t, QVector3D v)
 {
     m_transform = t;
     m_velocity = v;
 }
 
-void MotionManager::lookAt(QVector3D go, QVector3D target, QVector3D up)
+void BaseMotion::lookAt(QVector3D go, QVector3D target, QVector3D up)
 {
     Transform t;
     t.lookAt(go, target, up);
@@ -22,7 +22,7 @@ void MotionManager::lookAt(QVector3D go, QVector3D target, QVector3D up)
     setTransform(t); // don't write to m_transform so subclasses will respect this
 }
 
-void MotionManager::randomise(QVector3D bottomBackLeft, QVector3D topFrontRight)
+void BaseMotion::randomise(QVector3D bottomBackLeft, QVector3D topFrontRight)
 {
     QVector3D &min = bottomBackLeft;
     QVector3D &max = topFrontRight;
@@ -34,6 +34,6 @@ void MotionManager::randomise(QVector3D bottomBackLeft, QVector3D topFrontRight)
     setTransform(t);
 }
 
-void MotionManager::runStep(int deltaTms) {
+void BaseMotion::runStep(int deltaTms) {
     m_transform.translate(m_velocity * (deltaTms/1000.0));
 }

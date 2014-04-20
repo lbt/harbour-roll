@@ -10,7 +10,7 @@
 #include <QDebug>
 
 Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
-    MotionManager(parent)
+    BaseMotion(parent)
   , m_shape(shape)
 {
     /// Create Dynamic Objects

@@ -5,7 +5,7 @@
 #include <QList>
 #include "transform.h"
 
-#include "motionmanager.h"
+#include "basemotion.h"
 #include "physics.h"
 class Renderable; // Mutual link
 class Shader;     // Mutual link
@@ -19,8 +19,8 @@ public:
     explicit WorldItem(QString name);
 
     virtual void addRenderable(Renderable* r);
-    virtual MotionManager* setMotionManager(MotionManager *m);
-    virtual MotionManager* motion() const { return m_motion;}
+    virtual BaseMotion* setBaseMotion(BaseMotion *m);
+    virtual BaseMotion* motion() const { return m_motion;}
     virtual Physics* physics() { return dynamic_cast<Physics*>(m_motion);}
 
     virtual void setupGL();
@@ -44,7 +44,7 @@ protected:
 
 private:
     QList<Renderable*> m_renderables;
-    MotionManager* m_motion;
+    BaseMotion* m_motion;
     QString m_name;
 };
 
