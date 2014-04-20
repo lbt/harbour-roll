@@ -23,7 +23,7 @@ bool WorldItem::inWorld(){
     } else return false;
 }
 
-BaseMotion* WorldItem::setBaseMotion(BaseMotion *m)
+BaseMotion* WorldItem::setMotion(BaseMotion *m)
 {
     BaseMotion* old = m_motion;
     m_motion = m;

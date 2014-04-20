@@ -19,7 +19,7 @@ public:
     explicit WorldItem(QString name);
 
     virtual void addRenderable(Renderable* r);
-    virtual BaseMotion* setBaseMotion(BaseMotion *m);
+    virtual BaseMotion* setMotion(BaseMotion *m);
     virtual BaseMotion* motion() const { return m_motion;}
     virtual PhysicsMotion* physicsMotion() { return dynamic_cast<PhysicsMotion*>(m_motion);}
 
