@@ -65,8 +65,8 @@ void RollWorld::runStep(int ms) {
             //            m_ball->collision(m_floor);
             Transform pos;
             pos.translate(m_ballStartPos);
-            m_ball->setTransform(pos);
-            m_ball->setVelocity(QVector3D());
+            m_ball->physicsMotion()->setTransform(pos);
+            m_ball->physicsMotion()->setVelocity(QVector3D());
         }
     }
 }

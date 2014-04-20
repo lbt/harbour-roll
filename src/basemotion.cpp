@@ -8,12 +8,6 @@ BaseMotion::BaseMotion(WorldItem *parent) :
 {
 }
 
-void BaseMotion::setTransformVelocity(Transform t, QVector3D v)
-{
-    m_transform = t;
-    m_velocity = v;
-}
-
 void BaseMotion::lookAt(QVector3D go, QVector3D target, QVector3D up)
 {
     Transform t;
@@ -34,6 +28,3 @@ void BaseMotion::randomise(QVector3D bottomBackLeft, QVector3D topFrontRight)
     setTransform(t);
 }
 
-void BaseMotion::runStep(int deltaTms) {
-    m_transform.translate(m_velocity * (deltaTms/1000.0));
-}

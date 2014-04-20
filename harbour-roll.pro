@@ -50,7 +50,8 @@ SOURCES += src/harbour-roll.cpp \
     src/cameraflyermotion.cpp \
     src/basemotion.cpp \
     src/followmotion.cpp \
-    src/orbitmotion.cpp
+    src/orbitmotion.cpp \
+    src/linearmotion.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -110,7 +111,8 @@ HEADERS += \
     src/cameraflyermotion.h \
     src/basemotion.h \
     src/followmotion.h \
-    src/orbitmotion.h
+    src/orbitmotion.h \
+    src/linearmotion.h
 
 # ~/src/glsl-optimizer/glslopt -f track_frag.glsl
 # ~/src/glsl-optimizer/glslopt -v track_vert.glsl

@@ -26,8 +26,6 @@ public:
     virtual void setupGL();
     virtual void render(const Shader *activeProgram);
 
-    virtual void setVelocity(QVector3D v) { m_motion->setVelocity(v); }
-    virtual QVector3D getVelocity() const { return m_motion->getVelocity(); }
     virtual void setTransform(QMatrix4x4 t) { m_motion->setTransform(t); }
     virtual Transform getTransform() const { return m_motion->getTransform(); }
 
