@@ -47,11 +47,10 @@ SOURCES += src/harbour-roll.cpp \
     src/transform.cpp \
     src/rendermeshtextured.cpp \
     src/rendermeshshaded.cpp \
-    src/lightorbiter.cpp \
-    src/cameracurveflyer.cpp \
     src/cameraflyer.cpp \
-    src/camerafollower.cpp \
-    src/motionmanager.cpp
+    src/motionmanager.cpp \
+    src/itemfollower.cpp \
+    src/itemorbiter.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -108,11 +107,10 @@ HEADERS += \
     src/transform.h \
     src/rendermeshtextured.h \
     src/rendermeshshaded.h \
-    src/lightorbiter.h \
-    src/cameracurveflyer.h \
     src/cameraflyer.h \
-    src/camerafollower.h \
-    src/motionmanager.h
+    src/motionmanager.h \
+    src/itemfollower.h \
+    src/itemorbiter.h
 
 # ~/src/glsl-optimizer/glslopt -f track_frag.glsl
 # ~/src/glsl-optimizer/glslopt -v track_vert.glsl
