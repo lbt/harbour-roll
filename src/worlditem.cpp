@@ -23,15 +23,11 @@ bool WorldItem::inWorld(){
     } else return false;
 }
 
-void WorldItem::setMotionManager(MotionManager *m)
+MotionManager* WorldItem::setMotionManager(MotionManager *m)
 {
-    if (inWorld()) return;
-    if (! m_motion){
-        m_motion = m;
-        m->setParent(this);
-    } else {
-        qDebug() << "Already have a MotionManager. Not adding another";
-    }
+    MotionManager* old = m_motion;
+    m_motion = m;
+    return old;
 }
 void WorldItem::addRenderable(Renderable *r)
 {
