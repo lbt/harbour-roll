@@ -83,6 +83,19 @@ void RollBuilder::setup(){
     // Tell the rollworld that this is the ball
     m_rollworld->m_ball = wi;
 
+    OrbitMotion* o;
+    o = new OrbitMotion();
+    o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 1, 300 );
+
+    follower = new FollowMotion();
+    follower->follow(wi, 1);
+    follower->setMotion(o);
+
+    wi = new WorldItem("ball2");
+    wi->addRenderable(m_assetStore->getRenderable("Sphere"));
+    wi->setMotion(follower);
+    wi->addToWorld(m_rollworld);
+
     wi = new WorldItem("floor");
     // This is oriented to point up (z=1) and set at offset (z=) -10
     m_rollworld->m_floor = wi;
@@ -138,7 +151,10 @@ void RollBuilder::setup(){
         pl->addToWorld(m_rollworld);
     }
     follower = new FollowMotion();
-    follower->follow(m_rollworld->m_ball, 0); // follow the ball from inside
+    follower->follow(m_rollworld->m_ball, 1); // follow the ball from inside
+    o = new OrbitMotion();
+    o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 0.5, 300 );
+    follower->setMotion(o);
     delete(m_world->getLight("p1")->setMotion(follower));
 
     qDebug() << "Setup cameras";
