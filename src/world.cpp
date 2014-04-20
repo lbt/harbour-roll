@@ -132,7 +132,12 @@ void World::runStep(int ms)
         if (wi->physicsMotion()) {
             wi->physicsMotion()->getRigidBody()->activate();
         }
-        wi->motion()->runStep(ms);
+        // This will break if/when Motions are shared
+        BaseMotion* m = wi->motion();
+        while (m){
+            m->runStep(ms);
+            m=m->m_next;
+        }
     }
 
     m_worldMutex.unlock();

@@ -10,6 +10,7 @@ class World;
 class BaseMotion : public QObject
 {
     Q_OBJECT
+    friend class World; // The world calls runStep and uses m_next;
 public:
     explicit BaseMotion(WorldItem* parent = 0);
     virtual void addToWorld(World *world) { Q_UNUSED(world); }
