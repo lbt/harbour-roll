@@ -20,7 +20,8 @@ public:
     virtual btRigidBody* getRigidBody(){ return m_body; }
     virtual void setTransformVelocity(Transform t, QVector3D v=QVector3D(0,0,0));
     virtual void setTransform(Transform t);
-    virtual Transform getTransform() const;
+    virtual Transform getTransform(Transform current=Transform()) const;
+
     virtual void setVelocity(QVector3D v);
     virtual QVector3D getVelocity() const;
 

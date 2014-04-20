@@ -9,7 +9,6 @@ public:
     explicit LinearMotion(WorldItem *parent = 0);
 
     virtual void setTransformVelocity(Transform t, QVector3D v=QVector3D(0,0,0));
-    virtual void setTransform(Transform t) {  m_transform = t; }
     virtual void setVelocity(QVector3D v) { m_velocity = v; }
     virtual QVector3D getVelocity() const { return m_velocity; }
 

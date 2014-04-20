@@ -59,7 +59,3 @@ void OrbitMotion::runStep(int deltaTms)
     m_transform.setTranslate(newPos);
     // qDebug() << "theta : " << m_theta << " transform:" << m_transform;
 }
-
-Transform OrbitMotion::getTransform() const {
-    return m_transform;
-}

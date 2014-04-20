@@ -15,25 +15,28 @@ public:
     virtual void addToWorld(World *world) { Q_UNUSED(world); }
     virtual void removeFromWorld(World *world) { Q_UNUSED(world); }
 
-    virtual void setTransform(Transform t) {  m_transform = t; }
-    virtual Transform getTransform() const { return m_transform; }
+    virtual BaseMotion *setMotion(BaseMotion *m);
 
-    // use getTransform to allow non m_transform solutions to work
+    // Primary API for subclasses
+    virtual void setTransform(Transform t) {  m_transform = t; }
+    virtual Transform getTransform(Transform current=Transform()) const;
+    virtual void randomise(QVector3D bottomBackLeft=QVector3D(-5,-5,-5), QVector3D topFrontRight=QVector3D(5,5,5));
+    virtual void runStep(int deltaTms) { Q_UNUSED(deltaTms); }
+
+    // Utility methods usin getTransform to be inheritance safe
+    virtual void lookAt(QVector3D go, QVector3D target, QVector3D up);
     virtual QVector3D right() const { return getTransform().right(); }
     virtual QVector3D up() const { return getTransform().up(); }
     virtual QVector3D forward() const { return getTransform().forward(); }
     virtual QVector3D at() const { return getTransform().at(); }
 
-    virtual void lookAt(QVector3D go, QVector3D target, QVector3D up);
-
-    virtual void randomise(QVector3D bottomBackLeft=QVector3D(-5,-5,-5), QVector3D topFrontRight=QVector3D(5,5,5));
-    virtual void runStep(int deltaTms) { Q_UNUSED(deltaTms); }
 
 signals:
 
 public slots:
 
 protected:
+    BaseMotion* m_next;
     Transform m_transform;
     QVector3D m_velocity;
 };

@@ -5,7 +5,22 @@
 
 BaseMotion::BaseMotion(WorldItem *parent) :
     QObject(parent)
+  , m_next(NULL)
 {
+}
+
+BaseMotion* BaseMotion::setMotion(BaseMotion *m)
+{
+    BaseMotion* old = m_next;
+    m_next = m;
+    return old;
+}
+
+Transform BaseMotion::getTransform(Transform current) const {
+    Transform here = current * m_transform;
+    if (m_next)
+        return m_next->getTransform(here);
+    return here;
 }
 
 void BaseMotion::lookAt(QVector3D go, QVector3D target, QVector3D up)

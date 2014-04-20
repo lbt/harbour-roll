@@ -18,7 +18,6 @@ public:
     void active(bool state) { m_active = state; }
 
     void runStep(int deltaTms);
-    Transform getTransform() const;
 
 signals:
 

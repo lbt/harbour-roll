@@ -69,16 +69,19 @@ void PhysicsMotion::setTransform(Transform t)
     } else qDebug() << "Tried to set Transform without a MotionState";
 }
 
-Transform PhysicsMotion::getTransform() const
+Transform PhysicsMotion::getTransform(Transform current) const
 {
+    Transform here;
     if (hasMotion()) {
         btTransform trans;
         m_body->getMotionState()->getWorldTransform(trans);
-        return Transform(bt2QMatrix4x4(&trans));
+        here = current * Transform(bt2QMatrix4x4(&trans));
     } else {
         qDebug() << "Tried to get Transform without a MotionState";
-        return Transform();
     }
+    if (m_next)
+        return m_next->getTransform(here);
+    return here;
 }
 void PhysicsMotion::setVelocity(QVector3D v)
 {
