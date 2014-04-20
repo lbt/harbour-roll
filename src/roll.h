@@ -5,7 +5,7 @@
 #include "glprogram.h"
 #include "rollworld.h"
 #include "cameraflyer.h"
-#include "itemfollower.h"
+#include "followmotion.h"
 #include "light.h"
 #include "itemorbiter.h"
 #include "worlditem.h"
@@ -91,7 +91,7 @@ private:
     QSettings m_settings;
     
     CameraFlyer* m_flyCam;
-    ItemFollower* m_followCam;
+    FollowMotion* m_followCam;
 
     qreal p_x;
     qreal p_y;

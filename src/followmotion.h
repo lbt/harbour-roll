@@ -1,14 +1,14 @@
-#ifndef ITEMFOLLOWER_H
-#define ITEMFOLLOWER_H
+#ifndef FOLLOWMOTION_H
+#define FOLLOWMOTION_H
 
 #include "basemotion.h"
 class WorldItem;
 
-class ItemFollower : public BaseMotion
+class FollowMotion : public BaseMotion
 {
     Q_OBJECT
 public:
-    explicit ItemFollower(WorldItem* parent=0);
+    explicit FollowMotion(WorldItem* parent=0);
     void runStep(int deltaTms);
 
 signals:
@@ -21,4 +21,4 @@ protected:
     float m_dist;
 };
 
-#endif // ITEMFOLLOWER_H
+#endif // FOLLOWMOTION_H

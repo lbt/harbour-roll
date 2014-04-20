@@ -49,7 +49,7 @@ SOURCES += src/harbour-roll.cpp \
     src/rendermeshshaded.cpp \
     src/cameraflyer.cpp \
     src/basemotion.cpp \
-    src/itemfollower.cpp \
+    src/followmotion.cpp \
     src/itemorbiter.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
@@ -109,7 +109,7 @@ HEADERS += \
     src/rendermeshshaded.h \
     src/cameraflyer.h \
     src/basemotion.h \
-    src/itemfollower.h \
+    src/followmotion.h \
     src/itemorbiter.h
 
 # ~/src/glsl-optimizer/glslopt -f track_frag.glsl

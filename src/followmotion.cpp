@@ -1,12 +1,12 @@
-#include "itemfollower.h"
+#include "followmotion.h"
 #include "worlditem.h"
 
-ItemFollower::ItemFollower(WorldItem *parent) :
+FollowMotion::FollowMotion(WorldItem *parent) :
     BaseMotion(parent)
 {
 }
 
-void ItemFollower::runStep(int deltaTms)
+void FollowMotion::runStep(int deltaTms)
 {
     Q_UNUSED(deltaTms);
     QVector3D itemPos = m_wi->getTransform().at();
@@ -23,7 +23,7 @@ void ItemFollower::runStep(int deltaTms)
     m_transform = m_transform.inverted();
 }
 
-void ItemFollower::follow(WorldItem* wi, float dist)
+void FollowMotion::follow(WorldItem* wi, float dist)
 {
     m_wi = wi;
     m_dist = dist;

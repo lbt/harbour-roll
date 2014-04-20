@@ -1,7 +1,7 @@
 #include "rollbuilder.h"
 #include "itemorbiter.h"
 #include "cameraflyer.h"
-#include "itemfollower.h"
+#include "followmotion.h"
 
 #include "sailfishapp.h"
 
@@ -39,7 +39,7 @@ void RollBuilder::setup(){
     m_assetStore->getRenderable("track2Curve")->setShader(trackShader);
 
     WorldItem* wi;
-    ItemFollower *follower;
+    FollowMotion *follower;
 
     qDebug() << "Setup track";
     wi = new WorldItem("track");
@@ -137,7 +137,7 @@ void RollBuilder::setup(){
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
         pl->addToWorld(m_rollworld);
     }
-    follower = new ItemFollower();
+    follower = new FollowMotion();
     follower->follow(m_rollworld->m_ball, 0); // follow the ball from inside
     delete(m_world->getLight("p1")->setBaseMotion(follower));
 
@@ -148,7 +148,7 @@ void RollBuilder::setup(){
     flyCam->setBaseMotion(new CameraFlyer());
     flyCam->motion()->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
 
-    follower = new ItemFollower();
+    follower = new FollowMotion();
     follower->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
     followCam->setBaseMotion(follower);
     flyCam->addToWorld(m_rollworld);
