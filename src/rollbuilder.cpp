@@ -37,6 +37,7 @@ void RollBuilder::setup(){
     m_assetStore->getRenderable("Sphere")->setShader(defaultShader);
 
     m_assetStore->getRenderable("track2Curve")->setShader(trackShader);
+    m_assetStore->getRenderable("track3Curve")->setShader(trackShader);
 
     WorldItem* wi;
     FollowMotion *follower;
@@ -46,20 +47,36 @@ void RollBuilder::setup(){
     wi->addRenderable(m_assetStore->getRenderable("gutter"));
     wi->addRenderable(m_assetStore->getRenderable("gutterBot"));
     // Create a Shape and a PhysicsMotion and add to wi
-    wi->setMotion(new PhysicsMotion(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
-                                                            m_assetStore->getMesh("gutter")),
+    wi->setMotion(new PhysicsMotion(m_assetStore->makeShape(
+                                        "gutter", "btBvhTriangleMesh",
+                                        m_assetStore->getMesh("gutter")),
                                     0.0, wi));
     Transform initialPos;
     initialPos.translate(QVector3D(0,0,-2.8));
     wi->setTransform(initialPos);
-    wi->addToWorld(m_rollworld);
+    //    wi->addToWorld(m_rollworld);
 
     qDebug() << "Setup track2";
     wi = new WorldItem("track2");
     wi->addRenderable(m_assetStore->getRenderable("track2Curve"));
     // Create a Shape and a PhysicsMotion and add to wi
-    wi->setMotion(new PhysicsMotion(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
-                                                            m_assetStore->getMesh("track2Curve")),
+    wi->setMotion(new PhysicsMotion(m_assetStore->makeShape(
+                                        "track2Curve", "btBvhTriangleMesh",
+                                        m_assetStore->getMesh("track2Curve")),
+                                    0.0, wi));
+
+    initialPos.setToIdentity();
+    initialPos.translate(QVector3D(0,0,0));
+    wi->setTransform(initialPos);
+    //    wi->addToWorld(m_rollworld);
+
+    qDebug() << "Setup track3";
+    wi = new WorldItem("track3");
+    wi->addRenderable(m_assetStore->getRenderable("track3Curve"));
+    // Create a Shape and a PhysicsMotion and add to wi
+    wi->setMotion(new PhysicsMotion(m_assetStore->makeShape(
+                                        "track3Curve", "btBvhTriangleMesh",
+                                        m_assetStore->getMesh("track3Curve")),
                                     0.0, wi));
 
     initialPos.setToIdentity();
@@ -94,7 +111,7 @@ void RollBuilder::setup(){
     wi = new WorldItem("ball2");
     wi->addRenderable(m_assetStore->getRenderable("Sphere"));
     wi->setMotion(follower);
-    wi->addToWorld(m_rollworld);
+//    wi->addToWorld(m_rollworld);
 
     wi = new WorldItem("floor");
     // This is oriented to point up (z=1) and set at offset (z=) -10
@@ -153,7 +170,7 @@ void RollBuilder::setup(){
     follower = new FollowMotion();
     follower->follow(m_rollworld->m_ball, 1); // follow the ball from inside
     o = new OrbitMotion();
-    o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 0.5, 300 );
+    o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 1.5, 300 );
     follower->setMotion(o);
     delete(m_world->getLight("p1")->setMotion(follower));
 
