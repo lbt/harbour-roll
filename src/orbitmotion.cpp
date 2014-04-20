@@ -57,5 +57,4 @@ void OrbitMotion::runStep(int deltaTms)
     if (m_faceOrigin) m_transform.rotateOnly(t);
     QVector3D newPos = m_origin + (m_radius * t) * m_scale;
     m_transform.setTranslate(newPos);
-    // qDebug() << "theta : " << m_theta << " transform:" << m_transform;
 }
