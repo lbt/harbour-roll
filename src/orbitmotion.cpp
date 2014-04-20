@@ -1,7 +1,7 @@
-#include "itemorbiter.h"
+#include "orbitmotion.h"
 #include "utils.h"
 
-ItemOrbiter::ItemOrbiter(WorldItem *parent) :
+OrbitMotion::OrbitMotion(WorldItem *parent) :
     BaseMotion(parent)
   , m_origin()
   , m_theta(0)
@@ -12,7 +12,7 @@ ItemOrbiter::ItemOrbiter(WorldItem *parent) :
     randomise();
 }
 
-void ItemOrbiter::randomise() {
+void OrbitMotion::randomise() {
 
     m_axis = QVector3D(1- rnd(2.0), 1-rnd(2.0), 1-rnd(2.0));
     m_radius = QVector3D(QVector3D::normal(m_axis, QVector3D(
@@ -34,7 +34,7 @@ void ItemOrbiter::randomise() {
 /// \param faceOrigin
 /// \param startTheta
 ///
-void ItemOrbiter::setup(QVector3D axis, QVector3D axisPlane, qreal radius, qreal angularSpeed,
+void OrbitMotion::setup(QVector3D axis, QVector3D axisPlane, qreal radius, qreal angularSpeed,
                         QVector3D origin, bool faceOrigin, qreal startTheta)
 {
     m_origin = origin;
@@ -46,7 +46,7 @@ void ItemOrbiter::setup(QVector3D axis, QVector3D axisPlane, qreal radius, qreal
     m_theta = startTheta;
 }
 
-void ItemOrbiter::runStep(int deltaTms)
+void OrbitMotion::runStep(int deltaTms)
 {
     m_theta += m_angularSpeed * (deltaTms/1000.0);
     if (m_theta < 0) m_theta += 360;
@@ -60,6 +60,6 @@ void ItemOrbiter::runStep(int deltaTms)
     // qDebug() << "theta : " << m_theta << " transform:" << m_transform;
 }
 
-Transform ItemOrbiter::getTransform() const {
+Transform OrbitMotion::getTransform() const {
     return m_transform;
 }

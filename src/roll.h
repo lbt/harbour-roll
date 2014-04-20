@@ -7,7 +7,7 @@
 #include "cameraflyer.h"
 #include "followmotion.h"
 #include "light.h"
-#include "itemorbiter.h"
+#include "orbitmotion.h"
 #include "worlditem.h"
 
 #include "rollbuilder.h"

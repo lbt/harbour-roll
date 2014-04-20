@@ -1,14 +1,14 @@
-#ifndef ITEMORBITER_H
-#define ITEMORBITER_H
+#ifndef ORBITMOTION_H
+#define ORBITMOTION_H
 #include "basemotion.h"
 #include <QMatrix4x4>
 #include <QVector3D>
 
-class ItemOrbiter : public BaseMotion
+class OrbitMotion : public BaseMotion
 {
     Q_OBJECT
 public:
-    explicit ItemOrbiter(WorldItem *parent = 0);
+    explicit OrbitMotion(WorldItem *parent = 0);
 
     void setup(QVector3D axis, QVector3D axisPlane, qreal radius, qreal angularSpeed,
                QVector3D origin = QVector3D(), bool faceOrigin = false,
@@ -37,4 +37,4 @@ private:
 
 };
 
-#endif // ITEMORBITER_H
+#endif // ORBITMOTION_H

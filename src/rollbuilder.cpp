@@ -1,5 +1,5 @@
 #include "rollbuilder.h"
-#include "itemorbiter.h"
+#include "orbitmotion.h"
 #include "cameraflyer.h"
 #include "followmotion.h"
 
@@ -132,7 +132,7 @@ void RollBuilder::setup(){
     for (int i: {1, 2, 3}) {
         QString name = QString("p%1").arg(i);
         PointLight *pl = new PointLight(name);
-        pl->setBaseMotion(new ItemOrbiter());
+        pl->setBaseMotion(new OrbitMotion());
         pl->randomise();
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
         pl->addToWorld(m_rollworld);
