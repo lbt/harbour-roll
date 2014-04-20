@@ -6,7 +6,7 @@
 #include "transform.h"
 
 #include "basemotion.h"
-#include "physics.h"
+#include "physicsmotion.h"
 class Renderable; // Mutual link
 class Shader;     // Mutual link
 class World;      // Mutual link
@@ -21,7 +21,7 @@ public:
     virtual void addRenderable(Renderable* r);
     virtual BaseMotion* setBaseMotion(BaseMotion *m);
     virtual BaseMotion* motion() const { return m_motion;}
-    virtual Physics* physics() { return dynamic_cast<Physics*>(m_motion);}
+    virtual PhysicsMotion* physicsMotion() { return dynamic_cast<PhysicsMotion*>(m_motion);}
 
     virtual void setupGL();
     virtual void render(const Shader *activeProgram);

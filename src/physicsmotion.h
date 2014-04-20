@@ -1,5 +1,5 @@
-#ifndef PHYSICS_H
-#define PHYSICS_H
+#ifndef PHYSICSMOTION_H
+#define PHYSICSMOTION_H
 
 #include <QObject>
 #include "basemotion.h"
@@ -12,11 +12,11 @@ class WorldItem; // Mutual link with WorldItem from worlditem.h
 
 #include "transform.h"
 
-class Physics : public BaseMotion
+class PhysicsMotion : public BaseMotion
 {
     Q_OBJECT
 public:
-    explicit Physics(btCollisionShape* shape, btScalar mass, WorldItem* parent);
+    explicit PhysicsMotion(btCollisionShape* shape, btScalar mass, WorldItem* parent);
     virtual btRigidBody* getRigidBody(){ return m_body; }
     virtual void setTransformVelocity(Transform t, QVector3D v=QVector3D(0,0,0));
     virtual void setTransform(Transform t);
@@ -38,4 +38,4 @@ protected:
     WorldItem* m_worldItem;
 };
 
-#endif // PHYSICS_H
+#endif // PHYSICSMOTION_H

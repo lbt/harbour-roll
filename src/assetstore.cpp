@@ -3,7 +3,7 @@
 
 #include "rendermeshtextured.h"
 #include "rendermeshshaded.h"
-#include "physics.h"
+#include "physicsmotion.h"
 
 #include "utils.h"
 #include "sailfishapp.h"

@@ -45,8 +45,8 @@ void RollBuilder::setup(){
     wi = new WorldItem("track");
     wi->addRenderable(m_assetStore->getRenderable("gutter"));
     wi->addRenderable(m_assetStore->getRenderable("gutterBot"));
-    // Create a Shape and a Physics and add to wi
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
+    // Create a Shape and a PhysicsMotion and add to wi
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape("gutter", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("gutter")),
                         0.0, wi));
     Transform initialPos;
@@ -57,8 +57,8 @@ void RollBuilder::setup(){
     qDebug() << "Setup track2";
     wi = new WorldItem("track2");
     wi->addRenderable(m_assetStore->getRenderable("track2Curve"));
-    // Create a Shape and a Physics and add to wi
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
+    // Create a Shape and a PhysicsMotion and add to wi
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape("track2Curve", "btBvhTriangleMesh",
                                                 m_assetStore->getMesh("track2Curve")),
                         0.0, wi));
 
@@ -70,7 +70,7 @@ void RollBuilder::setup(){
     qDebug() << "Setup ball";
     wi = new WorldItem("ball");
     wi->addRenderable(m_assetStore->getRenderable("Sphere"));
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                         0.1, wi));
 
     // #define START    btVector3(2.0,-0.0,0)
@@ -86,32 +86,32 @@ void RollBuilder::setup(){
     wi = new WorldItem("floor");
     // This is oriented to point up (z=1) and set at offset (z=) -10
     m_rollworld->m_floor = wi;
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape(
                             "Floor", "btStaticPlane",
                             btVector3( 0, 0, 1 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor2");
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape(
                             "Floor2", "btStaticPlane",
                             btVector3( 0, 0,-1 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor3");
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape(
                             "Floor3", "btStaticPlane",
                             btVector3( 0, 1, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor4");
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape(
                             "Floor4", "btStaticPlane",
                             btVector3( 0,-1, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor5");
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape(
                             "Floor5", "btStaticPlane",
                             btVector3( 1, 0, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor6");
-    wi->setBaseMotion(new Physics(m_assetStore->makeShape(
+    wi->setBaseMotion(new PhysicsMotion(m_assetStore->makeShape(
                             "Floor6", "btStaticPlane",
                             btVector3(-1, 0, 0 ), -10), 0.0, wi));
     wi->addToWorld(m_rollworld);

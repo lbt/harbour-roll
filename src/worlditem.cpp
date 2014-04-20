@@ -3,7 +3,7 @@
 #include "shader.h"
 #include "world.h"
 #include "basemotion.h"
-#include "physics.h"
+#include "physicsmotion.h"
 
 #include <QDebug>
 
@@ -90,7 +90,7 @@ void WorldItem::removeFromWorld()
 /// \param p - This is used to select the correct VAO for the currently active GLProgram
 ///
 void WorldItem::render(const Shader *activeProgram) {
-    // Get the transform from physics or as-stored.
+    // Get the transform from PhysicsMotion or as-stored.
     Transform t = getTransform();
 
     for (auto r: m_renderables) {

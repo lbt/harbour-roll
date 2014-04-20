@@ -7,8 +7,8 @@
 
 #include "light.h"
 class Light;        // Mutual link
-#include "physics.h"
-class Physics;      // Mutual link
+#include "physicsmotion.h"
+class PhysicsMotion;      // Mutual link
 #include "shader.h"
 class Shader;       // Mutual link
 #include "worlddebugdrawer.h"
@@ -27,7 +27,7 @@ class World : public QObject
     friend class WorldBuilder;
     friend class WorldItem;
     friend class Light;
-    friend class Physics;
+    friend class PhysicsMotion;
     friend class CameraManager;
     friend class WorldRunner;
 public:

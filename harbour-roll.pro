@@ -31,7 +31,7 @@ SOURCES += src/harbour-roll.cpp \
     src/lightmanager.cpp \
     src/light.cpp \
     src/renderable.cpp \
-    src/physics.cpp \
+    src/physicsmotion.cpp \
     src/assetstore.cpp \
     src/vao.cpp \
     src/utils.cpp \
@@ -91,7 +91,7 @@ HEADERS += \
     src/lightmanager.h \
     src/light.h \
     src/renderable.h \
-    src/physics.h \
+    src/physicsmotion.h \
     src/assetstore.h \
     src/vao.h \
     src/utils.h \

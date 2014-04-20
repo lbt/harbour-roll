@@ -129,8 +129,8 @@ void World::runStep(int ms)
     }
     // Ensure all objects are permanently activated
     for (WorldItem* wi : m_worlditems) {
-        if (wi->physics()) {
-            wi->physics()->getRigidBody()->activate();
+        if (wi->physicsMotion()) {
+            wi->physicsMotion()->getRigidBody()->activate();
         }
         wi->motion()->runStep(ms);
     }

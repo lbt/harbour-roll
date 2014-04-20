@@ -1,4 +1,4 @@
-#include "physics.h"
+#include "physicsmotion.h"
 #include "utils.h"
 
 #include "world.h"
@@ -9,7 +9,7 @@
 
 #include <QDebug>
 
-Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
+PhysicsMotion::PhysicsMotion(btCollisionShape* shape, btScalar mass, WorldItem *parent):
     BaseMotion(parent)
   , m_shape(shape)
 {
@@ -32,7 +32,7 @@ Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
     if (isDynamic)
         shape->calculateLocalInertia(mass,localInertia);
 
-    qDebug() << "add physics ";
+    qDebug() << "add PhysicsMotion ";
     btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, shape, localInertia);
     rbInfo.m_friction=0.9;
@@ -43,11 +43,11 @@ Physics::Physics(btCollisionShape* shape, btScalar mass, WorldItem *parent):
     m_body->setUserPointer((void*)this);
 }
 
-bool Physics::hasMotion() const {
+bool PhysicsMotion::hasMotion() const {
     return (m_body && m_body->getMotionState());
 }
 
-void Physics::setTransformVelocity(Transform t, QVector3D v)
+void PhysicsMotion::setTransformVelocity(Transform t, QVector3D v)
 {
     if (hasMotion()) {
         btTransform transform = Qt2btTransform(&t);
@@ -59,7 +59,7 @@ void Physics::setTransformVelocity(Transform t, QVector3D v)
     } else qDebug() << "Tried to set pos, velocity without a MotionState";
 }
 
-void Physics::setTransform(Transform t)
+void PhysicsMotion::setTransform(Transform t)
 {
     if (hasMotion()) {
         btTransform transform = Qt2btTransform(&t);
@@ -69,7 +69,7 @@ void Physics::setTransform(Transform t)
     } else qDebug() << "Tried to set Transform without a MotionState";
 }
 
-Transform Physics::getTransform() const
+Transform PhysicsMotion::getTransform() const
 {
     if (hasMotion()) {
         btTransform trans;
@@ -80,7 +80,7 @@ Transform Physics::getTransform() const
         return Transform();
     }
 }
-void Physics::setVelocity(QVector3D v)
+void PhysicsMotion::setVelocity(QVector3D v)
 {
     if (hasMotion()) {
         btVector3 velocity = Qt2btVector3(v);
@@ -88,7 +88,7 @@ void Physics::setVelocity(QVector3D v)
     } else qDebug() << "Tried to set velocity without a MotionState";
 }
 
-QVector3D Physics::getVelocity() const
+QVector3D PhysicsMotion::getVelocity() const
 {
     if (hasMotion()) {
         return bt2QtVector3D(m_body->getLinearVelocity());
@@ -98,14 +98,14 @@ QVector3D Physics::getVelocity() const
     }
 }
 
-void Physics::addToWorld(World *world)
+void PhysicsMotion::addToWorld(World *world)
 {
     world->lock();
     world->dynamicsWorld->addRigidBody(m_body);
     world->unlock();
 }
 
-void Physics::removeFromWorld(World *world)
+void PhysicsMotion::removeFromWorld(World *world)
 {
     world->lock();
     world->dynamicsWorld->removeRigidBody(m_body);
