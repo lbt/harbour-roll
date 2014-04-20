@@ -56,7 +56,7 @@ Roll::Roll(QObject *parent) :
     m_builder->setup();
 
     // We need to interact with these items:
-    m_flyCam = dynamic_cast<CameraFlyer*>(m_world->getCamera("flycam")->motion());
+    m_flyCam = dynamic_cast<CameraFlyerMotion*>(m_world->getCamera("flycam")->motion());
     Q_ASSERT(m_flyCam != NULL);
     m_followCam = dynamic_cast<FollowMotion*>(m_world->getCamera("followcam")->motion());
     Q_ASSERT(m_followCam != NULL);

@@ -1,6 +1,6 @@
 #include "rollbuilder.h"
 #include "orbitmotion.h"
-#include "cameraflyer.h"
+#include "cameraflyermotion.h"
 #include "followmotion.h"
 
 #include "sailfishapp.h"
@@ -145,7 +145,7 @@ void RollBuilder::setup(){
     CameraManager::Display display(540, 960, 50);
     CameraManager* flyCam = new CameraManager("flycam", display);
     CameraManager* followCam = new CameraManager("followcam", display);
-    flyCam->setBaseMotion(new CameraFlyer());
+    flyCam->setBaseMotion(new CameraFlyerMotion());
     flyCam->motion()->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
 
     follower = new FollowMotion();

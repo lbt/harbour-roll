@@ -1,14 +1,14 @@
-#ifndef CAMERAFLYER_H
-#define CAMERAFLYER_H
+#ifndef CAMERAFLYERMOTION_H
+#define CAMERAFLYERMOTION_H
 
 #include "basemotion.h"
 #include <QtSensors/QAccelerometer>
 
-class CameraFlyer : public BaseMotion
+class CameraFlyerMotion : public BaseMotion
 {
     Q_OBJECT
 public:
-    explicit CameraFlyer(WorldItem* parent = 0);
+    explicit CameraFlyerMotion(WorldItem* parent = 0);
 
     bool isActive() const { return m_pressed; }
     void updatePosition();
@@ -28,4 +28,4 @@ private:
     qreal m_touchY;
 };
 
-#endif // CAMERAFLYER_H
+#endif // CAMERAFLYERMOTION_H

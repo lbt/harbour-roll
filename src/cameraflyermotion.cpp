@@ -1,13 +1,13 @@
-#include "cameraflyer.h"
+#include "cameraflyermotion.h"
 #include "cameramanager.h"
 
-CameraFlyer::CameraFlyer(WorldItem *parent) :
+CameraFlyerMotion::CameraFlyerMotion(WorldItem *parent) :
     BaseMotion(parent)
 {
     m_sensor.start();
 }
 
-void CameraFlyer::touch(qreal x, qreal y) {
+void CameraFlyerMotion::touch(qreal x, qreal y) {
     if (! m_pressed) {
         m_touchX = x;
         m_touchY = y;
@@ -34,7 +34,7 @@ void CameraFlyer::touch(qreal x, qreal y) {
 
 }
 
-void CameraFlyer::updatePosition() {
+void CameraFlyerMotion::updatePosition() {
     QAccelerometerReading *reading = m_sensor.reading();
     if (reading) {
         //        QMatrix4x4 t;
@@ -48,13 +48,13 @@ void CameraFlyer::updatePosition() {
     }
 }
 
-void CameraFlyer::release() {
+void CameraFlyerMotion::release() {
     m_pressed = false;
     m_touchX = 0;
     m_touchY = 0;
 }
 
-void CameraFlyer::reset()
+void CameraFlyerMotion::reset()
 {
     m_transform.setToIdentity();
     // Normally any messing with the orientation axis would require all 3 to be kept in sync.
