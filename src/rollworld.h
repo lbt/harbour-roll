@@ -43,7 +43,7 @@ public:
 signals:
 
 public slots:
-    void setDebugDraw(bool state) ;
+    void setDebugDraw(int mode) ;
     void setGravity(float x, float y, float z);
     void gravity(bool state) { m_gravity = state; }
 
@@ -54,6 +54,7 @@ private:
 
     QAccelerometer m_sensor;
     bool m_gravity;
+    int m_dbgMode;
 };
 
 

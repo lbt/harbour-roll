@@ -19,7 +19,8 @@ BaseMotion* BaseMotion::setMotion(BaseMotion *m)
 Transform BaseMotion::getTransform(Transform current) const {
     Transform here = current * m_transform;
     if (m_next)
-        return m_next->getTransform(here);
+        here = m_next->getTransform(here);
+//    qDebug() << this->metaObject()->className()<< ":Transform "<< here << " at " << here.at() << " looking at " << here.forward() ;
     return here;
 }
 

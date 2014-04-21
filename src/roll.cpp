@@ -172,9 +172,9 @@ void Roll::gravity(bool state)
     m_world->gravity(state);
 }
 
-void Roll::setDebugDraw(bool state)
+void Roll::setDebugDraw(int mode)
 {
-    m_world->setDebugDraw(state);
+    m_world->setDebugDraw(mode);
 }
 void Roll::setRunning(bool running) {
     m_world->setRunning(running);

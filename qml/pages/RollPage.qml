@@ -164,12 +164,38 @@ Page {                                          id: page
                     width: parent.width
                     checked: false
                 }
-                TextSwitch {                    id: dbg
-                    text: "Debug Draw"
-                    width: parent.width
-                    checked: false
-                    onClicked: track.setDebugDraw(checked);
+
+                Row { width: parent.width; height: childrenRect.height
+                    TextSwitch {
+                        text: "W/F"
+                        width: parent.width/3
+                        onClicked: track.setDebugDraw(1);
+                    }
+                    TextSwitch {
+                        text: "F-W/F"
+                        width: parent.width/3
+                        onClicked: track.setDebugDraw((1<<13));
+                    }
+                    TextSwitch {
+                        text: "Nmls"
+                        width: parent.width/3
+                        onClicked: track.setDebugDraw((1<<14));
+                    }
                 }
+
+
+                Flow {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    Repeater {
+                        model: track.debugItems
+                        Button { text: "Use track " + modelData
+                            onClicked: track.toggleDebug(modelData)
+                            anchors.margins: Theme.paddingMedium
+                        }
+                    }
+                }
+
             }
         }
 

@@ -10,6 +10,7 @@ RollWorld::RollWorld(QObject *parent) :
   , m_floor(NULL)
   , m_ballStartPos(3.5, -2.5, 1)
   , m_gravity(true)
+  , m_dbgMode(0)
 {}
 
 void RollWorld::setup() {
@@ -27,12 +28,17 @@ void RollWorld::setGravity(float x,float y,float z)
     dynamicsWorld->setGravity(btVector3(-x*10, -y*10, -z*10));
 }
 
-void RollWorld::setDebugDraw(bool state)
+void RollWorld::setDebugDraw(int mode)
 {
-    if (state)
-        m_debugDrawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-    else
-        m_debugDrawer.setDebugMode(0);
+    qDebug() << "Set debug "<< m_dbgMode << " to toggle" << mode;
+    m_dbgMode ^= mode;
+    qDebug() << " now "<< m_dbgMode;
+// http://www.continuousphysics.com/Bullet/BulletFull/btIDebugDraw_8h_source.html
+// DBG_DrawWireframe = 1,
+// DBG_DrawAabb=2,
+// DBG_FastWireframe = (1<<13),
+// DBG_DrawNormals = (1<<14),
+    m_debugDrawer.setDebugMode(m_dbgMode);
 }
 
 

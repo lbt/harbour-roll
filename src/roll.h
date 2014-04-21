@@ -78,7 +78,7 @@ public slots:
     void pickMode(bool state);
     void fancyLights(bool state);
     void gravity(bool state);
-    void setDebugDraw(bool state);
+    void setDebugDraw(int mode);
     void useTrack(QString track);
     void setMainLight(bool arg);
 
