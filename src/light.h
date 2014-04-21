@@ -3,7 +3,6 @@
 
 class World;
 #include "worlditem.h"
-#include "lightmanager.h"
 #include "glprogram.h"
 
 #include <QVector3D>

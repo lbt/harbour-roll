@@ -28,7 +28,6 @@ SOURCES += src/harbour-roll.cpp \
     src/glprogram.cpp \
     src/cameramanager.cpp \
     src/roll.cpp \
-    src/lightmanager.cpp \
     src/light.cpp \
     src/renderable.cpp \
     src/physicsmotion.cpp \
@@ -92,7 +91,6 @@ HEADERS += \
     src/glprogram.h \
     src/cameramanager.h \
     src/roll.h \
-    src/lightmanager.h \
     src/light.h \
     src/renderable.h \
     src/physicsmotion.h \
