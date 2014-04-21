@@ -121,6 +121,7 @@ void World::restore(QString state) {
 void World::runStep(int ms)
 {
     m_worldMutex.lock();
+
     dynamicsWorld->stepSimulation(ms/1000.f, 10, 1.f/300.f);
     if (m_debugDrawer.getDebugMode() != WorldDebugDrawer::DBG_NoDebug )
     {
@@ -141,6 +142,18 @@ void World::runStep(int ms)
     }
     for (WorldItem* wi : m_worlditems) {
         wi->updateTransform();
+    }
+
+    // WTF GL?
+    // http://stackoverflow.com/questions/3388294/opengl-question-about-the-usage-of-gldepthmask
+    // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-10-transparency/
+    QVector3D camPos = m_activeCamera->at();
+    m_WIByDistance.clear();
+
+    for (WorldItem* wi : m_worlditems) {
+        qreal dist = (camPos - wi->getTransform().at()).lengthSquared();
+        //qDebug() << "Distance:" << dist << " " << wi->objectName();
+        m_WIByDistance.insert(dist, wi);
     }
 
     m_worldMutex.unlock();
@@ -180,15 +193,43 @@ void World::render()
 {
     m_worldMutex.lock();
 
-    for (Shader* s : m_byShader.keys()) {
-        //        qDebug() << "renderPrep for shader " << s;
-        s->renderPrep(); // bind and setup Lights (maybe do that here?)
-        for (WorldItem* wi : m_byShader[s]) {
-            //            qDebug() << "render for WI " << wi->objectName();
-            wi->render(s);
+    // Prepare to do an OPAQUE render pass
+    // Depth is coarsley ordered by Transform of the item, not triangles!
+
+    // We want to store depth information in this pass and no need to blend
+    glDepthMask(true);
+    glDisable(GL_BLEND);
+    Shader* activeShader = NULL;
+    for (WorldItem* wi : m_WIByDistance.values()){
+        // qDebug() << "Render by distance:" << wi->objectName();
+        for (Shader* s: wi->shaderList()){ // Only swap shaders if we must
+            if (activeShader != s){
+                s->renderPrep();
+                activeShader = s;
+            }
+            wi->render(s, WorldItem::OPAQUE);
         }
     }
 
+    // Prepare to do a TRANSLUCENT render pass
+    // reverse depth order if it matters
+    glDepthMask(false);
+    glEnable(GL_BLEND);
+    QListIterator<WorldItem*> it(m_WIByDistance.values());
+    it.toBack();
+    while (it.hasPrevious()) {
+        WorldItem* wi = it.previous();
+        // qDebug() << "Render by reverse distance:" << wi->objectName();
+        for (Shader* s: wi->shaderList()){
+            if (activeShader != s){
+                s->renderPrep();
+                activeShader = s;
+            }
+            wi->render(s, WorldItem::TRANSLUCENT);
+        }
+    }
+
+    // Now do any debug. Later introduce finer control
     if (m_debugDrawer.getDebugMode() != 0) {
         m_debugShader->renderPrep();
         for (WorldItem* wi : m_worlditems) {
@@ -283,4 +324,3 @@ Light*  World::getLight(QString name){
     if (m_lights.contains(name)) return m_lights[name];
     return NULL;
 }
-

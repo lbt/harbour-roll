@@ -11,13 +11,14 @@
 
 WorldItem::WorldItem(QString name) :
     QObject(NULL)
+  , m_renderables()
   , m_motion(NULL)
   , m_transform()
 {
     setObjectName(name);
 }
-bool WorldItem::inWorld(){
 
+bool WorldItem::inWorld(){
     if (parent()) {
         qDebug() << "In a World (can't add anything)";
         return true;
@@ -92,13 +93,18 @@ void WorldItem::removeFromWorld()
 /// \brief WorldItem::render
 /// \param p - This is used to select the correct VAO for the currently active GLProgram
 ///
-void WorldItem::render(const Shader *activeProgram) {
+void WorldItem::render(const Shader *activeProgram, render_pass pass) {
     // Get the transform from PhysicsMotion or as-stored.
+    if (m_renderables.isEmpty()) return;
     Transform t = getTransform();
-
-    for (auto r: m_renderables) {
-        r->render(activeProgram, t);
+    for (Renderable* r: m_renderables) {
+        if (pass == OPAQUE and r->isOpaque()){
+            // qDebug() <<"OPAQUE: " << r->objectName();
+            r->render(activeProgram, t);
+        }
+        if (pass == TRANSLUCENT and r->isTranslucent()){
+            // qDebug() <<"TRANSLUCENT: " << r->objectName();
+            r->render(activeProgram, t);
+        }
     }
 }
-
-

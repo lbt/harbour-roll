@@ -24,7 +24,8 @@ public:
     virtual PhysicsMotion* physicsMotion() { return dynamic_cast<PhysicsMotion*>(m_motion);}
 
     virtual void setupGL();
-    virtual void render(const Shader *activeProgram);
+    enum render_pass { OPAQUE, TRANSLUCENT } ;
+    virtual void render(const Shader *activeProgram, render_pass pass);
     virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix); }
 
     virtual void setTransform(QMatrix4x4 t) { m_motion->setTransform(t); }

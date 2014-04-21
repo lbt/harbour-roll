@@ -89,6 +89,7 @@ protected:
     QHash<QString, WorldItem*> m_worlditems;
     QHash<Shader*, QSet<WorldItem*>> m_byShader;
 
+    QMultiMap<qreal, WorldItem*> m_WIByDistance;
     QHash<QString, Light*> m_lights;
     QHash<QString, CameraManager*> m_cameras;
 
