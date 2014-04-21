@@ -7,14 +7,16 @@ CameraFlyerMotion::CameraFlyerMotion(WorldItem *parent) :
     m_sensor.start();
 }
 
-void CameraFlyerMotion::touch(qreal x, qreal y) {
+void CameraFlyerMotion::touch(int x, int y) {
+
+    CameraManager* cam = dynamic_cast<CameraManager*>(parent());
+    if (!cam) return;
+
     if (! m_pressed) {
         m_touchX = x;
         m_touchY = y;
         m_pressed = true;
     }
-    CameraManager* cam = dynamic_cast<CameraManager*>(parent());
-    if (!cam) return;
     if (m_touchY < cam->screenHeight()/2) { // rotation top half
 
         QMatrix4x4 r;

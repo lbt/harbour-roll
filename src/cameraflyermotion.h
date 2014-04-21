@@ -17,7 +17,7 @@ public:
 signals:
 
 public slots:
-    void touch(qreal x, qreal y);
+    void touch(int x, int y);
     void release();
 
 private:

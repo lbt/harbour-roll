@@ -26,7 +26,9 @@ bool WorldItem::inWorld(){
 BaseMotion* WorldItem::setMotion(BaseMotion *m)
 {
     BaseMotion* old = m_motion;
+    if (old) old->setParent(NULL);
     m_motion = m;
+    if (m) m->setParent(this);
     return old;
 }
 void WorldItem::addRenderable(Renderable *r)
