@@ -87,6 +87,11 @@ void GLItem::paint()
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     this->render();
+
+    // This is needed just in case nothing renders for a few frames
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
     glDepthRangef(depthrange[0], depthrange[1]);
     glClearDepthf(depthclear);
 }
