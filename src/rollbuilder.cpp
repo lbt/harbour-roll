@@ -40,6 +40,7 @@ void RollBuilder::setup(){
 
     m_assetStore->getRenderable("track2Curve")->setShader(trackShader);
     m_assetStore->getRenderable("track3Curve")->setShader(trackShader);
+    m_assetStore->getRenderable("track3Curve")->setTranslucent(true);
 
     WorldItem* wi;
     FollowMotion *follower;
