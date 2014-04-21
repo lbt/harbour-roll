@@ -108,7 +108,7 @@ void RollBuilder::setup(){
     o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 1, 300 );
 
     follower = new FollowMotion();
-    follower->follow(wi, 1);
+    follower->follow(wi, QVector3D(0,0,1));
     follower->setMotion(o);
 
     CurveMotion* curvy = new CurveMotion();
@@ -177,7 +177,7 @@ void RollBuilder::setup(){
         pl->addToWorld(m_rollworld);
     }
     follower = new FollowMotion();
-    follower->follow(m_rollworld->m_ball, 1); // follow the ball from inside
+    follower->follow(m_rollworld->m_ball, QVector3D(0,0,1)); // follow the ball from inside
     o = new OrbitMotion();
     o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 1.5, 300 );
     follower->setMotion(o);
@@ -192,7 +192,7 @@ void RollBuilder::setup(){
 
     CameraManager* followCam = new CameraManager("followcam", display);
     follower = new FollowMotion();
-    follower->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
+    follower->follow(m_rollworld->m_ball, QVector3D(0.5,0.5,8)); // follow the ball from 8 away
     followCam->setMotion(follower);
     followCam->addToWorld(m_rollworld);
 

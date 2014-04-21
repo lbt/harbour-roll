@@ -3,6 +3,7 @@
 
 FollowMotion::FollowMotion(WorldItem *parent) :
     BaseMotion(parent)
+  , m_offset(0,0,1)
 {
 }
 
@@ -17,15 +18,14 @@ void FollowMotion::runStep(int deltaTms)
     //    v.setZ(18);
     //    qDebug() << "v " << v;
 
-    QVector3D itemOffset = QVector3D(0.2,0.2, m_dist);
     m_transform.setToIdentity();
-    m_transform.lookAt(itemPos + itemOffset, itemPos, QVector3D(0, 0, -1));
+    m_transform.lookAt(itemPos + m_offset, itemPos, QVector3D(0, 0, -1));
     m_transform = m_transform.inverted();
 }
 
-void FollowMotion::follow(WorldItem* wi, float dist)
+void FollowMotion::follow(WorldItem* wi, QVector3D offset)
 {
     m_wi = wi;
-    m_dist = dist;
+    m_offset = offset;
     runStep(0);
 }

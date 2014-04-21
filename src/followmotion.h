@@ -14,11 +14,11 @@ public:
 signals:
 
 public slots:
-    void follow(WorldItem* wi, float dist);
+    void follow(WorldItem* wi, QVector3D offset);
 
 protected:
     WorldItem* m_wi;
-    float m_dist;
+    QVector3D m_offset;
 };
 
 #endif // FOLLOWMOTION_H
