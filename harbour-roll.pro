@@ -51,7 +51,9 @@ SOURCES += src/harbour-roll.cpp \
     src/basemotion.cpp \
     src/followmotion.cpp \
     src/orbitmotion.cpp \
-    src/linearmotion.cpp
+    src/linearmotion.cpp \
+    src/curvemotion.cpp \
+    src/lookatmotion.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -82,7 +84,8 @@ OTHER_FILES += \
     src/light_frag.glsl \
     src/light_vert.glsl \
     qml/pages/RollPage.qml \
-    qml/harbour-roll.qml
+    qml/harbour-roll.qml \
+    qml/pages/Debug.qml
 
 HEADERS += \
     src/glitem.h \
@@ -112,7 +115,9 @@ HEADERS += \
     src/basemotion.h \
     src/followmotion.h \
     src/orbitmotion.h \
-    src/linearmotion.h
+    src/linearmotion.h \
+    src/curvemotion.h \
+    src/lookatmotion.h
 
 # ~/src/glsl-optimizer/glslopt -f track_frag.glsl
 # ~/src/glsl-optimizer/glslopt -v track_vert.glsl

@@ -2,6 +2,8 @@
 #include "orbitmotion.h"
 #include "cameraflyermotion.h"
 #include "followmotion.h"
+#include "curvemotion.h"
+#include "lookatmotion.h"
 
 #include "sailfishapp.h"
 
@@ -108,11 +110,17 @@ void RollBuilder::setup(){
     follower->follow(wi, 1);
     follower->setMotion(o);
 
+    CurveMotion* curvy = new CurveMotion();
+    curvy->setCurve(m_assetStore->getVAO("camera3curve"));
+    curvy->setSpeed(10);
+    LookAtMotion* looker = new LookAtMotion();
+    looker->setLookAt(QVector3D(0,0,0));
+    curvy->setMotion(looker);
+
     wi = new WorldItem("ball2");
     wi->addRenderable(m_assetStore->getRenderable("Sphere"));
-    wi->setMotion(follower);
-//    wi->addToWorld(m_rollworld);
-
+    wi->setMotion(curvy);
+    wi->addToWorld(m_rollworld);
     wi = new WorldItem("floor");
     // This is oriented to point up (z=1) and set at offset (z=) -10
     m_rollworld->m_floor = wi;
@@ -177,17 +185,29 @@ void RollBuilder::setup(){
     qDebug() << "Setup cameras";
     CameraManager::Display display(540, 960, 50);
     CameraManager* flyCam = new CameraManager("flycam", display);
-    CameraManager* followCam = new CameraManager("followcam", display);
     flyCam->setMotion(new CameraFlyerMotion());
     flyCam->motion()->lookAt(QVector3D(0,-0.1,32), QVector3D(), QVector3D(0, 0, 1)); // top
+    flyCam->addToWorld(m_rollworld);
 
+    CameraManager* followCam = new CameraManager("followcam", display);
     follower = new FollowMotion();
     follower->follow(m_rollworld->m_ball, 8); // follow the ball from 8 away
     followCam->setMotion(follower);
-    flyCam->addToWorld(m_rollworld);
     followCam->addToWorld(m_rollworld);
 
-    m_rollworld->setActiveCamera(followCam);
+    CameraManager* curveCam = new CameraManager("curvecam", display);
+    looker = new LookAtMotion();
+    looker->setLookAt(QVector3D(0,0,0));
+    looker->setLookAt(m_rollworld->m_ball);
+    curvy = new CurveMotion();
+    curvy->setCurve(m_assetStore->getVAO("camera3curve"));
+    curvy->setSpeed(10);
+    curvy->setMotion(looker);
+
+    curveCam->setMotion(curvy);
+    curveCam->addToWorld(m_rollworld);
+
+    m_rollworld->setActiveCamera(curveCam);
 
     m_assetStore->load_finished();
 
