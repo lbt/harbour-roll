@@ -87,7 +87,7 @@ public:
     virtual void setUniforms(GLProgram *p, int i);
     virtual void debugString(QDebug &d) const;
 protected:
-    QVector3D m_Direction;
+
 
 };
 

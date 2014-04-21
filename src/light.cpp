@@ -54,7 +54,12 @@ void PointLight::setPointLight(QVector3D Position, qreal AConstant, qreal ALinea
 
 void DirectionalLight::setDirectionalLight(QVector3D Direction)
 {
-    m_Direction = Direction;
+    Transform t;
+    if (Direction == QVector3D(0,0,1))
+        t.lookAt(QVector3D(), Direction,QVector3D(0,-1, 0));
+    else
+        t.lookAt(QVector3D(), Direction,QVector3D(0, 0, 1));
+    setTransform(t);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -79,7 +84,7 @@ void PointLight::randomise(){
 
 
 void DirectionalLight::randomise(){
-    m_Direction = QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0).normalized();
+    setDirectionalLight(QVector3D(rnd(10.0)-5.0,rnd(10.0)-5.0,rnd(10.0)-5.0).normalized());
     BaseLight::randomise();
 }
 
@@ -100,7 +105,7 @@ void BaseLight::setUniforms(GLProgram *p, QString ln) {
 void DirectionalLight::setUniforms(GLProgram *p, int i) {
     QString ln = QString("directionalLights[%1].").arg(i);
     BaseLight::setUniforms(p, ln);
-    p->setUniformValue(p->getU(ln+"Direction"), m_Direction);
+    p->setUniformValue(p->getU(ln+"Direction"), getTransform().forward());
 }
 
 void PointLight::setUniforms(GLProgram *p, int i) {
@@ -158,5 +163,5 @@ void PointLight::debugString(QDebug &d) const
 }
 void DirectionalLight::debugString(QDebug &d) const
 {   BaseLight::debugString(d);
-    d << "\nDirection : " << m_Direction;
+    d << "\nDirection : " << getTransform().forward();
 }
