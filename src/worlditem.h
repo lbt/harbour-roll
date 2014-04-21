@@ -25,6 +25,7 @@ public:
 
     virtual void setupGL();
     virtual void render(const Shader *activeProgram);
+    virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix); }
 
     virtual void setTransform(QMatrix4x4 t) { m_motion->setTransform(t); }
     virtual Transform getTransform() const { return m_motion->getTransform(); }

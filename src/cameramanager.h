@@ -3,6 +3,7 @@
 
 #include "worlditem.h"
 #include "transform.h"
+#include "glprogram.h"
 
 class CameraManager : public WorldItem
 {
@@ -36,6 +37,8 @@ public:
     virtual QVector3D at() const { return getTransform().at(); }
     virtual QMatrix4x4 projViewMatrix() const;
 
+    virtual void debugRender(QMatrix4x4 projViewMatrix);
+
     virtual void addToWorld(World *world);
     virtual void removeFromWorld();
 signals:
@@ -47,6 +50,7 @@ public slots:
 
 protected:
     Display m_display;
+    static GLProgram* c_program_debug;
 
 };
 

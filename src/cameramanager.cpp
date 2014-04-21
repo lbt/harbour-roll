@@ -1,6 +1,7 @@
 #include "cameramanager.h"
 #include "world.h"
 #include <QDebug>
+#include <sailfishapp.h>
 
 // Thanks to : https://stevehazen.wordpress.com/2010/02/15/matrix-basics-how-to-step-away-from-storing-an-orientation-as-3-angles/
 
@@ -56,4 +57,28 @@ void CameraManager::reset()
 void CameraManager::update(int deltaTms)
 {
     Q_UNUSED(deltaTms);
+}
+
+GLProgram* CameraManager::c_program_debug = 0;
+
+void CameraManager::debugRender(QMatrix4x4 projViewMatrix){
+    if (! c_program_debug)
+        c_program_debug = new GLProgram(SailfishApp::pathTo("light_vert.glsl"), SailfishApp::pathTo("light_frag.glsl"));
+    // Renders each light as a large point
+    QMatrix4x4 worldMatrix; // null
+    c_program_debug->bind();
+    c_program_debug->setUniformValue(c_program_debug->getU("projViewMatrixU"), projViewMatrix);
+    c_program_debug->setUniformValue(c_program_debug->getU("worldMatrixU"), worldMatrix);
+    glEnableVertexAttribArray(c_program_debug->getA("posA"));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    c_program_debug->setUniformValue(c_program_debug->getU("colU"), QVector4D(1, .2, .2, 1.0));
+    QVector3D pos = getTransform().at();
+    GLfloat point[] = {pos.x(), pos.y(), pos.z(), 0.0, 0.0, 0.0 };
+    glVertexAttribPointer(c_program_debug->getA("posA"), 3, GL_FLOAT, GL_FALSE, 0, point);
+    // it's nice to have the line drawn from the origin
+    glDrawArrays(GL_POINTS, 0, 1);
+    glDrawArrays(GL_LINES, 0, 2);
+    glDisableVertexAttribArray(c_program_debug->getA("posA"));
+    //    qDebug() << "Rendering Light at " << getTransform().at();
 }
