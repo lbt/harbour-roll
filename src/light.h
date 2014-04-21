@@ -43,7 +43,7 @@ public:
     explicit BaseLight(QString name) : Light(name) {}
     void setBaseLight(QVector3D Color, qreal AmbientIntensity, qreal DiffuseIntensity);
 
-    void randomise();
+    virtual void randomise();
     virtual void setUniforms(GLProgram *p, QString varId);
     virtual void debugString(QDebug &d) const;
 
@@ -63,8 +63,8 @@ public:
 
     void setPointLight(QVector3D Position, qreal AConstant, qreal ALinear, qreal AExp);
 
-    void randomise();
-    void debugRender(QMatrix4x4 projViewMatrix);
+    virtual void randomise();
+    virtual void debugRender(QMatrix4x4 projViewMatrix);
     virtual void setUniforms(GLProgram *p, int i);
     virtual void debugString(QDebug &d) const;
 protected:
@@ -82,9 +82,9 @@ class DirectionalLight : public BaseLight
     Q_OBJECT
 public:
     explicit DirectionalLight(QString name) : BaseLight(name) {}
-    void setDirectionalLight(QVector3D Direction);
+    virtual void setDirectionalLight(QVector3D Direction);
 
-    void randomise();
+    virtual void randomise();
     virtual void setUniforms(GLProgram *p, int i);
     virtual void debugString(QDebug &d) const;
 protected:

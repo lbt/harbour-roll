@@ -188,8 +188,8 @@ void World::render()
 
     if (m_debugDrawer.getDebugMode() != 0) {
         m_debugShader->renderPrep();
-        for (Light* l : getLights()) {
-            l->debugRender(getActiveCameraPVM());
+        for (WorldItem* wi : m_worlditems) {
+            wi->debugRender(getActiveCameraPVM());
         }
         m_debugDrawer.render(getActiveCameraPVM());
     }
