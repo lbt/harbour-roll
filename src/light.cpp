@@ -8,8 +8,8 @@
 
 GLProgram* PointLight::c_program_debug = 0;
 
-Light::Light(QString name) :
-    WorldItem(name)
+Light::Light(QString name, BaseMotion *motion) :
+    WorldItem(name, motion)
 {
     setObjectName(name);
 }

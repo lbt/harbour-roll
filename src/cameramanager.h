@@ -22,7 +22,7 @@ public:
         qreal m_fov;
     };
 
-    explicit CameraManager(QString name, Display display=Display());
+    explicit CameraManager(QString name, BaseMotion *motion, Display display=Display());
     void setDisplay(int w, int h, qreal fov) { m_display=Display(w, h, fov); }
 
     qreal FOV() const { return m_display.m_fov; }

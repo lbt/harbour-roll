@@ -5,8 +5,8 @@
 
 // Thanks to : https://stevehazen.wordpress.com/2010/02/15/matrix-basics-how-to-step-away-from-storing-an-orientation-as-3-angles/
 
-CameraManager::CameraManager(QString name, Display display) :
-    WorldItem(name)
+CameraManager::CameraManager(QString name, BaseMotion *motion, Display display) :
+    WorldItem(name, motion)
   , m_display(display)
 { }
 

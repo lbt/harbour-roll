@@ -16,7 +16,7 @@ class WorldItem : public QObject
     Q_OBJECT
     friend class World;
 public:
-    explicit WorldItem(QString name);
+    explicit WorldItem(QString name, BaseMotion* motion);
 
     virtual void addRenderable(Renderable* r);
     virtual BaseMotion* setMotion(BaseMotion *m);

@@ -13,7 +13,7 @@ class Light : public WorldItem
     friend QDebug operator<<(QDebug d, Light const &l);
     Q_OBJECT
 public:
-    explicit Light(QString name);
+    explicit Light(QString name, BaseMotion *motion);
 
     virtual void randomise() = 0;
     virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix)}
@@ -39,7 +39,7 @@ class BaseLight : public Light
 {
     Q_OBJECT
 public:
-    explicit BaseLight(QString name) : Light(name) {}
+    explicit BaseLight(QString name, BaseMotion *motion) : Light(name, motion) {}
     void setBaseLight(QVector3D Color, qreal AmbientIntensity, qreal DiffuseIntensity);
 
     virtual void randomise();
@@ -58,7 +58,7 @@ class PointLight : public BaseLight
 {
     Q_OBJECT
 public:
-    explicit PointLight(QString name) : BaseLight(name) {}
+    explicit PointLight(QString name, BaseMotion *motion) : BaseLight(name, motion) {}
 
     void setPointLight(QVector3D Position, qreal AConstant, qreal ALinear, qreal AExp);
 
@@ -80,7 +80,7 @@ class DirectionalLight : public BaseLight
 {
     Q_OBJECT
 public:
-    explicit DirectionalLight(QString name) : BaseLight(name) {}
+    explicit DirectionalLight(QString name, BaseMotion *motion) : BaseLight(name, motion) {}
     virtual void setDirectionalLight(QVector3D Direction);
 
     virtual void randomise();

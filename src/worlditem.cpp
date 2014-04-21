@@ -9,12 +9,13 @@
 
 #include "utils.h"
 
-WorldItem::WorldItem(QString name) :
+WorldItem::WorldItem(QString name, BaseMotion *motion) :
     QObject(NULL)
   , m_renderables()
-  , m_motion(NULL)
+  , m_motion(motion)
   , m_transform()
 {
+    if (m_motion) m_motion->setParent(this);
     setObjectName(name);
 }
 
@@ -28,7 +29,8 @@ bool WorldItem::inWorld(){
 BaseMotion* WorldItem::setMotion(BaseMotion *m)
 {
     BaseMotion* old = m_motion;
-    if (old) old->setParent(NULL);
+    if (old)
+        old->setParent(NULL);
     m_motion = m;
     if (m) m->setParent(this);
     return old;
