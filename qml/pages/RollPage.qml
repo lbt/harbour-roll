@@ -146,6 +146,20 @@ Page {                                          id: page
                     }
                 }
                 Row { width: parent.width; height: childrenRect.height
+                    Button {text: "Fly"
+                        onClicked: track.setCamera("flycam");
+                        width: parent.width/3
+                    }
+                    Button {text: "Follow"
+                        onClicked: track.setCamera("followcam");
+                        width: parent.width/3
+                    }
+                    Button {text: "Curve"
+                        onClicked: track.setCamera("curvecam");
+                        width: parent.width/3
+                    }
+                }
+                Row { width: parent.width; height: childrenRect.height
                     Button {text: "Top"
                         onClicked: track.setCameraPos(0,-0.1,32);
                         width: parent.width/3

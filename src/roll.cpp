@@ -129,6 +129,11 @@ void Roll::setCameraPos(qreal x, qreal y, qreal z)
                      QVector3D(0, 0, 1));
 }
 
+void Roll::setCamera(QString camera)
+{
+    m_world->setActiveCamera(camera);
+}
+
 void Roll::fancyLights(bool state)
 {
     if (m_fancyLights == state) return;

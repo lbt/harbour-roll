@@ -84,6 +84,7 @@ public slots:
 
     void saveSettings();
     void setCameraPos(qreal x, qreal y, qreal z);
+    void setCamera(QString camera);
 private:
     void handleTouchAsRotation();
 
