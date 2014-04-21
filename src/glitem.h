@@ -25,7 +25,7 @@ private slots:
     void handleWindowChanged(QQuickWindow *win);
 
 protected:
-    QOpenGLShaderProgram *m_program;
+    bool m_donePrep;
 
 };
 

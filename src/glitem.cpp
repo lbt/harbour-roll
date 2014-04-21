@@ -9,10 +9,9 @@
 #include <QDebug>
 
 GLItem::GLItem()
-    : m_program(0)
+    : m_donePrep(false)
 {
     connect(this, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(handleWindowChanged(QQuickWindow*)));
-    qDebug() << "Created";
 }
 
 
@@ -42,19 +41,14 @@ void GLItem::handleWindowChanged(QQuickWindow *win)
 
 void GLItem::paint()
 {
-    if (!m_program) {
-        qDebug() << "create program";
-        m_program = new QOpenGLShaderProgram();
-
+    if (!m_donePrep) {
         connect(window()->openglContext(), SIGNAL(aboutToBeDestroyed()),
                 this, SLOT(cleanup()), Qt::DirectConnection);
         initializeOpenGLFunctions();
         this->prep();
+        m_donePrep=true;
     }
     QRectF vpr = mapRectToScene(QRectF(0.0,0.0,width(),height()));
-    //    qDebug()<< "Item width "<< width()<< "height "<< height();
-    //    qDebug()<< "transform  x "<< vpr.x()<< "y "<< vpr.y()<< "width "<< vpr.width()<< "height "<< vpr.height();
-    //    qDebug()<< "Window width "<< window()->width()<< "height "<< window()->height();
     glViewport( vpr.x(), (window()->height() -( vpr.y() + vpr.height())),
                 vpr.width(), vpr.height());
 
@@ -92,9 +86,6 @@ void GLItem::paint()
     // actually clear all depth information
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    // Bind the program and render
-    if (m_program->isLinked())
-        m_program->bind();
     this->render();
     glDepthRangef(depthrange[0], depthrange[1]);
     glClearDepthf(depthclear);
@@ -102,11 +93,7 @@ void GLItem::paint()
 
 void GLItem::cleanup()
 {
-    if (m_program) {
-        qDebug() << "cleanup program";
-        delete m_program;
-        m_program = 0;
-    }
+    m_donePrep = false;
 }
 void GLItem::sync(){
 }
