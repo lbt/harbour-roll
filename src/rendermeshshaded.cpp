@@ -62,9 +62,18 @@ void RenderMeshShaded::render(const Shader *activeShader, QMatrix4x4 worldMatrix
     p->setUniformValue(p->getU("specularPowerFU"), m_specPowerF);
     p->setUniformValue(p->getU("specularPowerBU"), m_specPowerB);
 
-    glDisable(GL_CULL_FACE);
+    glDepthMask(true);
+    glDisable(GL_BLEND);
+    glCullFace(GL_FRONT);
     glDrawElements(GL_TRIANGLES, m_vao->numIndices(), GL_UNSIGNED_SHORT, 0);
-    glEnable(GL_CULL_FACE);
+
+    glDepthMask(false);
+    glEnable(GL_BLEND);
+    glCullFace(GL_BACK);
+    glDrawElements(GL_TRIANGLES, m_vao->numIndices(), GL_UNSIGNED_SHORT, 0);
+
+    glDepthMask(true);
+    glDisable(GL_BLEND);
 
     glDisableVertexAttribArray(p->getA("posA"));
     glDisableVertexAttribArray(p->getA("normalA"));
