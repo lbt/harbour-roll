@@ -27,6 +27,10 @@ public:
     int m_vsize;
     char *m_VAO;
     GLushort* m_Indices;
+    unsigned int m_numFaces;
+    unsigned int m_numVertPerFaces;
+
+    void faceAt(int n, QVector3D v[]);
 };
 
 #endif // VAO_H
