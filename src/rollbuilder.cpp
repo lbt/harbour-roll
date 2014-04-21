@@ -198,7 +198,7 @@ void RollBuilder::setup(){
     CameraManager* curveCam = new CameraManager("curvecam", display);
     looker = new LookAtMotion();
     looker->setLookAt(QVector3D(0,0,0));
-    looker->setLookAt(m_rollworld->m_ball);
+//    looker->setLookAt(m_rollworld->m_ball);
     curvy = new CurveMotion();
     curvy->setCurve(m_assetStore->getVAO("camera3curve"));
     curvy->setSpeed(10);
