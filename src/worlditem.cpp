@@ -12,11 +12,12 @@
 WorldItem::WorldItem(QString name) :
     QObject(NULL)
   , m_motion(NULL)
+  , m_transform()
 {
     setObjectName(name);
 }
-
 bool WorldItem::inWorld(){
+
     if (parent()) {
         qDebug() << "In a World (can't add anything)";
         return true;

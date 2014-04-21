@@ -28,7 +28,8 @@ public:
     virtual void debugRender(QMatrix4x4 projViewMatrix) { Q_UNUSED(projViewMatrix); }
 
     virtual void setTransform(QMatrix4x4 t) { m_motion->setTransform(t); }
-    virtual Transform getTransform() const { return m_motion->getTransform(); }
+    Transform getTransform() const { return m_transform; }
+    virtual void updateTransform() { m_transform = m_motion->getTransform(); }
 
     virtual void addToWorld(World* world);
     virtual void removeFromWorld();
@@ -45,6 +46,7 @@ private:
     QList<Renderable*> m_renderables;
     BaseMotion* m_motion;
     QString m_name;
+    Transform m_transform;
 };
 
 #endif // WORLDITEM_H

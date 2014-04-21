@@ -139,6 +139,9 @@ void World::runStep(int ms)
             m=m->m_next;
         }
     }
+    for (WorldItem* wi : m_worlditems) {
+        wi->updateTransform();
+    }
 
     m_worldMutex.unlock();
 }
