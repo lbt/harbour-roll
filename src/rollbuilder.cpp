@@ -4,7 +4,7 @@
 #include "followmotion.h"
 #include "curvemotion.h"
 #include "lookatmotion.h"
-
+#include "delayedmotion.h"
 #include "sailfishapp.h"
 
 RollBuilder::RollBuilder(RollWorld *parent) :
@@ -181,7 +181,8 @@ void RollBuilder::setup(){
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
         pl->addToWorld(m_rollworld);
     }
-    follower = new FollowMotion();
+//    follower = new FollowMotion();
+    follower = new DelayedMotion(10);
     follower->follow(m_rollworld->m_ball, QVector3D(0,0,1)); // follow the ball from inside
     o = new OrbitMotion();
     o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 1.5, 300 );
@@ -195,13 +196,12 @@ void RollBuilder::setup(){
     flyCam->addToWorld(m_rollworld);
 
     follower = new FollowMotion();
-    follower->follow(m_rollworld->m_ball, QVector3D(0.5,0.5,8)); // follow the ball from 8 away
+    follower->follow(m_rollworld->m_ball, QVector3D(0.5,0.5,10)); // follow the ball from 8 away
     CameraManager* followCam = new CameraManager("followcam", follower, display);
     followCam->addToWorld(m_rollworld);
 
     looker = new LookAtMotion();
     looker->setLookAt(QVector3D(0,0,0));
-//    looker->setLookAt(m_rollworld->m_ball);
     curvy = new CurveMotion();
     curvy->setCurve(m_assetStore->getVAO("camera3curve"));
     curvy->setSpeed(10);
@@ -210,7 +210,7 @@ void RollBuilder::setup(){
     CameraManager* curveCam = new CameraManager("curvecam", curvy, display);
     curveCam->addToWorld(m_rollworld);
 
-    m_rollworld->setActiveCamera(curveCam);
+    m_rollworld->setActiveCamera(followCam);
 
     m_assetStore->load_finished();
 

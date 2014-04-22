@@ -52,7 +52,8 @@ SOURCES += src/harbour-roll.cpp \
     src/orbitmotion.cpp \
     src/linearmotion.cpp \
     src/curvemotion.cpp \
-    src/lookatmotion.cpp
+    src/lookatmotion.cpp \
+    src/delayedmotion.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -115,7 +116,8 @@ HEADERS += \
     src/orbitmotion.h \
     src/linearmotion.h \
     src/curvemotion.h \
-    src/lookatmotion.h
+    src/lookatmotion.h \
+    src/delayedmotion.h
 
 # ~/src/glsl-optimizer/glslopt -f track_frag.glsl
 # ~/src/glsl-optimizer/glslopt -v track_vert.glsl
