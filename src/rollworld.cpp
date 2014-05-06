@@ -8,7 +8,6 @@ RollWorld::RollWorld(QObject *parent) :
     World(parent)
   , m_ball(NULL)
   , m_floor(NULL)
-  , m_ballStartPos(3.5, -2.5, 1)
   , m_gravity(true)
   , m_dbgMode(0)
 {}
@@ -68,11 +67,7 @@ void RollWorld::runStep(int ms) {
         if (obj == m_ball->physicsMotion()->getRigidBody()) continue;
         if (obj == m_floor->physicsMotion()->getRigidBody()) {
             qDebug() << "Hit the floor";
-            //            m_ball->collision(m_floor);
-            Transform pos;
-            pos.translate(m_ballStartPos);
-            m_ball->physicsMotion()->setTransform(pos);
-            m_ball->physicsMotion()->setVelocity(QVector3D());
+            m_ball->reset();
         }
     }
 }

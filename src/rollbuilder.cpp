@@ -1,4 +1,7 @@
 #include "rollbuilder.h"
+
+#include "rollball.h"
+
 #include "orbitmotion.h"
 #include "cameraflyermotion.h"
 #include "followmotion.h"
@@ -92,18 +95,16 @@ void RollBuilder::setup(){
     qDebug() << "Setup ball";
     pm = new PhysicsMotion(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                                     0.1);
-    wi = new WorldItem("ball", pm);
-    wi->addRenderable(m_assetStore->getRenderable("Sphere"));
+    RollBall* ball = new RollBall("ball", pm);
+    ball->addRenderable(m_assetStore->getRenderable("Sphere"));
 
     // #define START    btVector3(2.0,-0.0,0)
-
-    initialPos.setToIdentity();
-    initialPos.translate(m_rollworld->m_ballStartPos);
-    wi->setTransform(initialPos);
-    wi->addToWorld(m_rollworld);
+    ball->setStart(QVector3D(3.5, -2.5, 1));
+    ball->reset();
+    ball->addToWorld(m_rollworld);
 
     // Tell the rollworld that this is the ball
-    m_rollworld->m_ball = wi;
+    m_rollworld->m_ball = ball;
 
     OrbitMotion* o;
     o = new OrbitMotion();

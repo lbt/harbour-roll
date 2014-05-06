@@ -3,6 +3,7 @@
 
 #include "world.h"
 #include "cameramanager.h"
+#include "rollball.h"
 
 #include <QJsonDocument>
 #include <QtSensors/QAccelerometer>
@@ -48,7 +49,7 @@ public slots:
     void gravity(bool state) { m_gravity = state; }
 
 private:
-    WorldItem* m_ball;
+    RollBall* m_ball;
     WorldItem* m_floor;
     QVector3D m_ballStartPos;
 
