@@ -110,23 +110,27 @@ methods
   World objects
 
 contains:
- * motion
+ * motion list
  * 0+ renderable (invisible objects etc)
- * world
+ * world membership management
 
 methods
  + register()
    in the world ??
  + render()
 
-*** WI/Light
+*** Light
 
 Lights have various attributes which are passed to GLSL (col, intensity etc)
 They have a light manager which they update each tick and which provides position/direction.
 
  * Point / Directional
 
-*** WI/Camera
+Note that Lights are WIs and can be manipulated by Motions - eg to Follow items, curves or LookAt (eventually useful for spotlights)
+
+*** Camera
+Cameras are simply WIs with a projViewMatrix() method and (eventually) special debug draw.
+They have special addToWorld() so the World can enumerate and activate them easily.
 
 ** Motion
 WorldItems can have Motion.
@@ -135,7 +139,8 @@ Motions can be chained so an item has a Motion which then has another motion app
 This allows, eg, an OrbitMotion to be applied after a FollowMotion to make a WI orbit an object.
 
 Motions are owned by the World.
-Since one Motion can (by default) be used by multiple WIs the World iterates through all Motions to do updates.
+Since one Motion could (by default) be used by multiple WIs the World iterates through all Motions to do updates.
+(This is not done properly yet - it just follows WI->motion->motion chains so will execute runStep twice for reused Motions and there are issues with using a single 'parent')
 
 *** BaseMotion
 Simple static motion
@@ -144,15 +149,29 @@ Simple static motion
 A Motion which is a simple wrapper around a btRigidBody
 
 *** FollowMotion
-Follows another WI at a given offset
+Follows another WI at a given vector offset
 
 *** OrbitMotion
 Follows a circular path
 
+*** LinearMotion
+Simple linear velocity.
+
 *** CurveMotion
 Follows a curve (obtained from asset library)
 
+Curves are used direct from the VAO
+On intialisation the line segments are read to create an distance@point list
+This is used to determine which point pair a given distance is between.
+Extrapolation is done in a linear manner.
 
+*** LookAtMotion
+This Motion simply adjusts the Transform to look at either another WI or a point.
+This is especially useful for Cameras.
+
+*** DelayedFollow (TODO)
+A circular buffer of delayFrames worth of Transforms to provide laggy motion.
+This Follows another WI but has a circular buffer of Transforms so it's always 'n' framses behind.
 
 ** Shaders
 
@@ -161,7 +180,6 @@ Follows a curve (obtained from asset library)
 
 ** Paths
 Mesh
-
 
 ** GLSL variables
 These variables will automatically be populated if used
@@ -200,3 +218,4 @@ To get the correct mesh orientation set the export to
 Forward: Y
 Up: -Z
 Include Normals
+DO NOT tick 'triangulate' - Assimp does it better
