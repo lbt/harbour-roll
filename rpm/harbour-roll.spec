@@ -26,7 +26,6 @@ BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(sailfishapp)
-BuildRequires:  pkgconfig(bullet)
 BuildRequires:  desktop-file-utils
 
 %description
