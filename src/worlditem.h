@@ -10,6 +10,8 @@
 class Renderable; // Mutual link
 class Shader;     // Mutual link
 class World;      // Mutual link
+#include "collision.h"
+class Collision;
 
 class WorldItem : public QObject
 {
@@ -32,6 +34,11 @@ public:
     Transform getTransform() const { return m_transform; }
     virtual void updateTransform() { m_transform = m_motion->getTransform(); }
 
+    enum collision_type { NO_COLLISONS, WORLD_COLLISONS, ITEM_COLLISONS } ;
+    virtual collision_type getCollisionType() { return m_collisionType; }
+    virtual void setCollisionType(collision_type type) { m_collisionType = type; }
+    virtual void collision(Collision &collision);
+
     virtual void addToWorld(World* world);
     virtual void removeFromWorld();
 
@@ -48,6 +55,7 @@ private:
     BaseMotion* m_motion;
     QString m_name;
     Transform m_transform;
+    collision_type m_collisionType;
 };
 
 #endif // WORLDITEM_H

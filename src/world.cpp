@@ -1,5 +1,10 @@
 #include "world.h"
 
+static void WorldTickCallback(btDynamicsWorld *world, btScalar timeStep) {
+    World *w = static_cast<World *>(world->getWorldUserInfo());
+    w->btTickCallback(timeStep);
+}
+
 World::World(QObject *parent) :
     QObject(parent)
   , m_debugDrawer(this)
@@ -49,6 +54,9 @@ void World::setupPhysicsWorld() {
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
     dynamicsWorld->setGravity(btVector3(0,0,0));
     dynamicsWorld->setDebugDrawer(&m_debugDrawer);
+
+    // To be used by WorldTickCallback to call 'this'
+    dynamicsWorld->setInternalTickCallback(WorldTickCallback, static_cast<void *>(this));
 
 }
 
@@ -123,6 +131,10 @@ void World::runStep(int ms)
     m_worldMutex.lock();
 
     dynamicsWorld->stepSimulation(ms/1000.f, 10, 1.f/300.f);
+
+    // At this point the per-substep btTickCallback() is called and any collisions
+    // are handled
+
     if (m_debugDrawer.getDebugMode() != WorldDebugDrawer::DBG_NoDebug )
     {
         m_debugDrawer.newFrame();
@@ -157,6 +169,42 @@ void World::runStep(int ms)
     }
 
     m_worldMutex.unlock();
+}
+
+void World::btTickCallback(btScalar timestep)
+{
+    Q_UNUSED(timestep);
+    // This approach to collision detection looks at all pre-calculated
+    // contact manifolds in the physics step
+    int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+    for (int i=0;i<numManifolds;i++)
+    {
+        btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+        const btCollisionObject* obA = static_cast<const btCollisionObject*>(contactManifold->getBody0());
+        const btCollisionObject* obB = static_cast<const btCollisionObject*>(contactManifold->getBody1());
+
+        // *possible* that same pair may exist in another manifold - hope for the best :)
+        WorldItem* wiA = static_cast<WorldItem*>(obA->getUserPointer());
+        WorldItem* wiB = static_cast<WorldItem*>(obB->getUserPointer());
+        if ((wiA->getCollisionType() == WorldItem::NO_COLLISONS) ||
+                (wiB->getCollisionType() == WorldItem::NO_COLLISONS))
+            continue;
+        int numContacts = contactManifold->getNumContacts();
+        for (int j=0;j<numContacts;j++)
+        {
+            btManifoldPoint& pt = contactManifold->getContactPoint(j);
+            if (pt.getDistance()<=0.f)
+            {
+                Collision c(wiA, wiB, pt);
+                if (wiA->getCollisionType() == WorldItem::ITEM_COLLISONS)
+                      wiA->collision(c);
+                if (wiB->getCollisionType() == WorldItem::ITEM_COLLISONS)
+                      wiB->collision(c);
+                handleCollision(c);
+            }
+        }
+    }
+
 }
 
 ////////////////////////////////////////////////

@@ -48,6 +48,9 @@ public slots:
     void setGravity(float x, float y, float z);
     void gravity(bool state) { m_gravity = state; }
 
+protected:
+    virtual void handleCollision(Collision &collision);
+
 private:
     RollBall* m_ball;
     WorldItem* m_floor;

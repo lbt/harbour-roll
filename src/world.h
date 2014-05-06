@@ -39,6 +39,7 @@ public:
     virtual void restore(QString state);
 
     virtual void runStep(int ms);
+    virtual void btTickCallback(btScalar timestep);
 
     // Supporting various shader/render world info
     virtual void setupGL();
@@ -72,6 +73,7 @@ protected:
     virtual void setupPhysicsWorld();
     virtual void destroyPhysicsWorld();
     virtual void createRunner();
+    virtual void handleCollision(Collision& collision) { Q_UNUSED(collision); }
 
 signals:
     void stepReady();

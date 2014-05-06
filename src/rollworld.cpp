@@ -58,14 +58,15 @@ void RollWorld::runStep(int ms) {
 
     World::runStep(ms);
 
-    // Do our local collision detection until World has a mechanism
-    RollWorld::ContactResultCallback result;
-    Q_ASSERT(m_ball->physicsMotion() != NULL);
-    Q_ASSERT(m_floor->physicsMotion() != NULL);
-    dynamicsWorld->contactTest(m_ball->physicsMotion()->getRigidBody(), result);
-    for (const btCollisionObject *obj : result.getContacts()) {
-        if (obj == m_ball->physicsMotion()->getRigidBody()) continue;
-        if (obj == m_floor->physicsMotion()->getRigidBody()) {
+}
+
+void RollWorld::handleCollision(Collision& collision){
+
+    qDebug() << "Collision between " << collision.getColliderA()->objectName() << " and " << collision.getColliderB()->objectName();
+    WorldItem* hit;
+    hit = collision.getCollidee(m_ball);
+    if (hit){
+        if (hit == m_floor) {
             qDebug() << "Hit the floor";
             m_ball->reset();
         }

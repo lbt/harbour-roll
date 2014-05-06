@@ -96,6 +96,7 @@ void RollBuilder::setup(){
     pm = new PhysicsMotion(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                                     0.1);
     RollBall* ball = new RollBall("ball", pm);
+    ball->setCollisionType(WorldItem::WORLD_COLLISONS);
     ball->addRenderable(m_assetStore->getRenderable("Sphere"));
 
     // #define START    btVector3(2.0,-0.0,0)
@@ -132,6 +133,7 @@ void RollBuilder::setup(){
     wi = new WorldItem("floor", pm);
     wi->addToWorld(m_rollworld);
     m_rollworld->m_floor = wi;
+    wi->setCollisionType(WorldItem::WORLD_COLLISONS);
 
     pm = new PhysicsMotion(m_assetStore->makeShape(
                                         "Floor2", "btStaticPlane",

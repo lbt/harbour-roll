@@ -14,6 +14,7 @@ WorldItem::WorldItem(QString name, BaseMotion *motion) :
   , m_renderables()
   , m_motion(motion)
   , m_transform()
+  , m_collisionType(NO_COLLISONS)
 {
     if (m_motion) m_motion->setOwner(this);
     setObjectName(name);
@@ -109,4 +110,8 @@ void WorldItem::render(const Shader *activeProgram, render_pass pass) {
             r->render(activeProgram, t);
         }
     }
+}
+
+void WorldItem::collision(Collision& collision) {
+    Q_UNUSED(collision);
 }
