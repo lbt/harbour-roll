@@ -9,7 +9,7 @@
 
 #include <QDebug>
 
-PhysicsMotion::PhysicsMotion(btCollisionShape* shape, btScalar mass, WorldItem *parent):
+PhysicsMotion::PhysicsMotion(btCollisionShape* shape, btScalar mass, WorldItem* parent):
     BaseMotion(parent)
   , m_shape(shape)
 {
@@ -40,7 +40,13 @@ PhysicsMotion::PhysicsMotion(btCollisionShape* shape, btScalar mass, WorldItem *
 
     m_body = new btRigidBody(rbInfo);
 
-    m_body->setUserPointer((void*)this);
+    m_body->setUserPointer((void*)parent);
+
+}
+
+void PhysicsMotion::setOwner(WorldItem* parent) {
+    BaseMotion::setOwner(parent);
+    m_body->setUserPointer((void*)parent);
 }
 
 bool PhysicsMotion::hasMotion() const {

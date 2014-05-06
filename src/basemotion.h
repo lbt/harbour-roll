@@ -17,6 +17,7 @@ public:
     virtual void removeFromWorld(World *world) { Q_UNUSED(world); }
 
     virtual BaseMotion *setMotion(BaseMotion *m);
+    virtual void setOwner(WorldItem* parent);
 
     // Primary API for subclasses
     virtual void setTransform(Transform t) {  m_transform = t; }

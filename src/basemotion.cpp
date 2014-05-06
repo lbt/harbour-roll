@@ -16,6 +16,10 @@ BaseMotion* BaseMotion::setMotion(BaseMotion *m)
     return old;
 }
 
+void BaseMotion::setOwner(WorldItem *parent) {
+    QObject::setParent(parent);
+}
+
 Transform BaseMotion::getTransform(Transform current) const {
     Transform here = current * m_transform;
     if (m_next)

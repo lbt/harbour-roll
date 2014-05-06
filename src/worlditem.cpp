@@ -15,7 +15,7 @@ WorldItem::WorldItem(QString name, BaseMotion *motion) :
   , m_motion(motion)
   , m_transform()
 {
-    if (m_motion) m_motion->setParent(this);
+    if (m_motion) m_motion->setOwner(this);
     setObjectName(name);
 }
 
@@ -30,9 +30,9 @@ BaseMotion* WorldItem::setMotion(BaseMotion *m)
 {
     BaseMotion* old = m_motion;
     if (old)
-        old->setParent(NULL);
+        old->setOwner(NULL);
     m_motion = m;
-    if (m) m->setParent(this);
+    if (m) m->setOwner(this);
     return old;
 }
 void WorldItem::addRenderable(Renderable *r)
