@@ -2,8 +2,8 @@
 
 DelayedMotion::DelayedMotion(int frameDelay, WorldItem *parent) :
     FollowMotion(parent)
-  , m_ptr(0)
   , m_frameDelay(frameDelay)
+  , m_ptr(0)
 {
     m_stack.reserve(frameDelay);
 }
