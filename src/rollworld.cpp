@@ -52,10 +52,6 @@ void RollWorld::runStep(int ms) {
         setGravity(0, 0, 0);
     }
 
-    // For dynamic camera following a curve
-    // m_camera->update(ms);
-    // m_cammanager.updatePosition();
-
     World::runStep(ms);
 
 }
