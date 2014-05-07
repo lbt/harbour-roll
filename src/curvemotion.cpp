@@ -18,7 +18,7 @@ void CurveMotion::setCurve(VAO* vao)
     m_distance << 0.0; // First point is at 0
     for (unsigned int n = 0; n < vao->m_numFaces; ++n) {
         vao->faceAt(n, vec);
-        qDebug() << "line " << n << " is " << vec[0] << " to " << vec[1];
+//        qDebug() << "line " << n << " is " << vec[0] << " to " << vec[1];
         m_circumference += (vec[1] - vec[0]).length();
         m_distance << m_circumference;
     }
