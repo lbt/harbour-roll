@@ -54,6 +54,7 @@ Roll::Roll(QObject *parent) :
     qDebug() << "Making a Builder";
     m_builder = new RollBuilder(m_world);
     m_builder->setup();
+    m_builder->setTrack("track1");
 
     // We need to interact with these items:
     m_flyCam = dynamic_cast<CameraFlyerMotion*>(m_world->getCamera("flycam")->motion());

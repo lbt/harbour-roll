@@ -38,6 +38,7 @@ public:
     explicit RollWorld(QObject *parent = 0);
     void setup();
     void runStep(int ms);
+    RollBall* getBall() { return m_ball; }
     Transform getFollowInfo() { return m_ball->getTransform(); }
 
     QStringList getTrackNames();

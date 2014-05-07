@@ -32,99 +32,28 @@ void RollBuilder::setup(){
                 SailfishApp::pathTo("roll_vert.glsl.out"),
                 SailfishApp::pathTo("roll_frag.glsl.out"));
 
-    Shader* trackShader = m_assetStore->makeShader(
+    m_assetStore->makeShader(
                 "track",
                 SailfishApp::pathTo("track_vert.glsl.out"),
                 SailfishApp::pathTo("track_frag.glsl.out"));
 
-    m_assetStore->getRenderable("gutter")->setShader(defaultShader);
-    m_assetStore->getRenderable("gutterBot")->setShader(defaultShader);
     m_assetStore->getRenderable("Sphere")->setShader(defaultShader);
-
-    m_assetStore->getRenderable("track2Curve")->setShader(trackShader);
-    m_assetStore->getRenderable("track3Curve")->setShader(trackShader);
-    m_assetStore->getRenderable("track3Curve")->setTranslucent(true);
 
     WorldItem* wi;
     FollowMotion *follower;
 
-    qDebug() << "Setup track";
-    // Create a Shape and a PhysicsMotion and add to a new wi
-    PhysicsMotion* pm = new PhysicsMotion(
-                m_assetStore->makeShape(
-                    "gutter", "btBvhTriangleMesh",
-                    m_assetStore->getMesh("gutter")),
-                0.0);
-    wi = new WorldItem("track", pm);
-    wi->addRenderable(m_assetStore->getRenderable("gutter"));
-    wi->addRenderable(m_assetStore->getRenderable("gutterBot"));
-
-    Transform initialPos;
-    initialPos.translate(QVector3D(0,0,-2.8));
-    wi->setTransform(initialPos);
-    //    wi->addToWorld(m_rollworld);
-
-    qDebug() << "Setup track2";
-    // Create a Shape and a PhysicsMotion and add to wi
-    pm = new PhysicsMotion(m_assetStore->makeShape(
-                                        "track2Curve", "btBvhTriangleMesh",
-                                        m_assetStore->getMesh("track2Curve")),
-                                    0.0);
-    wi = new WorldItem("track2", pm);
-    wi->addRenderable(m_assetStore->getRenderable("track2Curve"));
-
-    initialPos.setToIdentity();
-    initialPos.translate(QVector3D(0,0,0));
-    wi->setTransform(initialPos);
-    //    wi->addToWorld(m_rollworld);
-
-    qDebug() << "Setup track3";
-    // Create a Shape and a PhysicsMotion and add to wi
-    pm =new PhysicsMotion(m_assetStore->makeShape(
-                                        "track3Curve", "btBvhTriangleMesh",
-                                        m_assetStore->getMesh("track3Curve")),
-                                    0.0);
-    wi = new WorldItem("track3", pm);
-    wi->addRenderable(m_assetStore->getRenderable("track3Curve"));
-
-    initialPos.setToIdentity();
-    initialPos.translate(QVector3D(0,0,0));
-    wi->setTransform(initialPos);
-    wi->addToWorld(m_rollworld);
-
     qDebug() << "Setup ball";
-    pm = new PhysicsMotion(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
+    PhysicsMotion* pm = new PhysicsMotion(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
                                     0.1);
     RollBall* ball = new RollBall("ball", pm);
     ball->setCollisionType(WorldItem::WORLD_COLLISONS);
     ball->addRenderable(m_assetStore->getRenderable("Sphere"));
 
-    // #define START    btVector3(2.0,-0.0,0)
-    ball->setStart(QVector3D(3.5, -2.5, 1));
     ball->reset();
     ball->addToWorld(m_rollworld);
 
     // Tell the rollworld that this is the ball
     m_rollworld->m_ball = ball;
-
-    OrbitMotion* o;
-    o = new OrbitMotion();
-    o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 1, 300 );
-
-    follower = new FollowMotion();
-    follower->follow(wi, QVector3D(0,0,1));
-    follower->setMotion(o);
-
-    CurveMotion* curvy = new CurveMotion();
-    curvy->setCurve(m_assetStore->getVAO("camera3curve"));
-    curvy->setSpeed(10);
-    LookAtMotion* looker = new LookAtMotion();
-    looker->setLookAt(QVector3D(0,0,0));
-    curvy->setMotion(looker);
-
-    wi = new WorldItem("ball2", curvy);
-    wi->addRenderable(m_assetStore->getRenderable("Sphere"));
-    wi->addToWorld(m_rollworld);
 
     // This is oriented to point up (z=1) and set at offset (z=) -10
     pm = new PhysicsMotion(m_assetStore->makeShape(
@@ -184,7 +113,9 @@ void RollBuilder::setup(){
         qDebug() <<"Adding Light: " << pl->metaObject()->className();
         pl->addToWorld(m_rollworld);
     }
-//    follower = new FollowMotion();
+    OrbitMotion* o;
+
+    //    follower = new FollowMotion();
     follower = new DelayedMotion(10);
     follower->follow(m_rollworld->m_ball, QVector3D(0,0,1)); // follow the ball from inside
     o = new OrbitMotion();
@@ -199,22 +130,46 @@ void RollBuilder::setup(){
     flyCam->addToWorld(m_rollworld);
 
     follower = new FollowMotion();
-    follower->follow(m_rollworld->m_ball, QVector3D(0.5,0.5,10)); // follow the ball from 8 away
+    follower->follow(m_rollworld->m_ball, QVector3D(0.5,0.5,10)); // follow the ball from 10 away
     CameraManager* followCam = new CameraManager("followcam", follower, display);
     followCam->addToWorld(m_rollworld);
 
-    looker = new LookAtMotion();
+    LookAtMotion* looker = new LookAtMotion();
     looker->setLookAt(QVector3D(0,0,0));
-    curvy = new CurveMotion();
-    curvy->setCurve(m_assetStore->getVAO("camera3curve"));
-    curvy->setSpeed(10);
-    curvy->setMotion(looker);
 
-    CameraManager* curveCam = new CameraManager("curvecam", curvy, display);
+    CameraManager* curveCam = new CameraManager("curvecam", new BaseMotion(), display);
     curveCam->addToWorld(m_rollworld);
 
     m_rollworld->setActiveCamera(followCam);
 
-    m_assetStore->load_finished();
+//    m_assetStore->load_finished();
+
+}
+
+void RollBuilder::setTrack(QString track)
+{
+    qDebug() << "Setup track";
+    // Create a Shape and a PhysicsMotion and add to a new wi
+    m_assetStore->getRenderable("track3Curve")->setShader(m_assetStore->getShader("track"));
+    m_assetStore->getRenderable("track3Curve")->setTranslucent(true);
+
+    PhysicsMotion* pm =new PhysicsMotion(m_assetStore->makeShape(
+                                        "track3Curve", "btBvhTriangleMesh",
+                                        m_assetStore->getMesh("track3Curve")),
+                                    0.0);
+    WorldItem* wi = new WorldItem("track", pm);
+    wi->addRenderable(m_assetStore->getRenderable("track3Curve"));
+    wi->addToWorld(m_rollworld);
+
+    m_rollworld->getBall()->setStart(QVector3D(3.5, -2.5, 1));
+
+    CurveMotion* curvy = new CurveMotion();
+    curvy->setCurve(m_assetStore->getVAO("camera3curve"));
+    curvy->setSpeed(10);
+    LookAtMotion* looker = new LookAtMotion();
+    looker->setLookAt(QVector3D(0,0,0));
+    curvy->setMotion(looker);
+
+    m_world->getCamera("curvecam")->setMotion(curvy);
 
 }

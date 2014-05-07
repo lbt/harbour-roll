@@ -11,6 +11,7 @@ public:
     explicit RollBuilder(RollWorld *parent = 0);
 
     void setup();
+    void setTrack(QString track);
 
 signals:
 
