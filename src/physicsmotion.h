@@ -17,7 +17,8 @@ class PhysicsMotion : public BaseMotion
     Q_OBJECT
 public:
     explicit PhysicsMotion(btCollisionShape* shape, btScalar mass, WorldItem* parent = NULL);
-    virtual void setOwner(WorldItem* parent);
+    ~PhysicsMotion();
+    virtual void setWorldItem(WorldItem* parent);
 
     virtual btRigidBody* getRigidBody(){ return m_body; }
     virtual void setTransformVelocity(Transform t, QVector3D v=QVector3D(0,0,0));
@@ -40,6 +41,7 @@ protected:
     btCollisionShape* m_shape;
     btRigidBody* m_body;
     WorldItem* m_worldItem;
+    World* m_myWorld;
 };
 
 #endif // PHYSICSMOTION_H

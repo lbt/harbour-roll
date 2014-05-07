@@ -190,7 +190,7 @@ void RollBuilder::setup(){
     o = new OrbitMotion();
     o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 1.5, 300 );
     follower->setMotion(o);
-    delete(m_world->getLight("p1")->setMotion(follower));
+    m_world->getLight("p1")->setMotion(follower);
 
     qDebug() << "Setup cameras";
     CameraManager::Display display(540, 960, 50);

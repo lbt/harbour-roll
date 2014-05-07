@@ -6,18 +6,17 @@
 BaseMotion::BaseMotion(WorldItem *parent) :
     QObject(parent)
   , m_next(NULL)
+  , m_worldItem(NULL)
 {
 }
 
-BaseMotion* BaseMotion::setMotion(BaseMotion *m)
+void BaseMotion::setMotion(BaseMotion *m)
 {
-    BaseMotion* old = m_next;
+    delete m_next;
     m_next = m;
-    return old;
-}
-
-void BaseMotion::setOwner(WorldItem *parent) {
-    QObject::setParent(parent);
+    // m_next will be deleted as a QObject child
+    m_next->setParent(this);
+    m_next->setWorldItem(m_worldItem);
 }
 
 Transform BaseMotion::getTransform(Transform current) const {

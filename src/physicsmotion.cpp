@@ -12,6 +12,7 @@
 PhysicsMotion::PhysicsMotion(btCollisionShape* shape, btScalar mass, WorldItem* parent):
     BaseMotion(parent)
   , m_shape(shape)
+  , m_myWorld(0)
 {
     /// Create Dynamic Objects
     //    btMatrix3x3 rot;
@@ -44,8 +45,15 @@ PhysicsMotion::PhysicsMotion(btCollisionShape* shape, btScalar mass, WorldItem* 
 
 }
 
-void PhysicsMotion::setOwner(WorldItem* parent) {
-    BaseMotion::setOwner(parent);
+PhysicsMotion::~PhysicsMotion()
+{
+    removeFromWorld(m_myWorld);
+    delete m_body->getMotionState();
+    delete m_body;
+}
+
+void PhysicsMotion::setWorldItem(WorldItem* parent) {
+    BaseMotion::setWorldItem(parent);
     m_body->setUserPointer((void*)parent);
 }
 
@@ -111,6 +119,7 @@ void PhysicsMotion::addToWorld(World *world)
 {
     world->lock();
     world->dynamicsWorld->addRigidBody(m_body);
+    m_myWorld = world;
     world->unlock();
 }
 
@@ -118,5 +127,6 @@ void PhysicsMotion::removeFromWorld(World *world)
 {
     world->lock();
     world->dynamicsWorld->removeRigidBody(m_body);
+    m_myWorld = 0;
     world->unlock();
 }

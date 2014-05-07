@@ -16,7 +16,7 @@ WorldItem::WorldItem(QString name, BaseMotion *motion) :
   , m_transform()
   , m_collisionType(NO_COLLISONS)
 {
-    if (m_motion) m_motion->setOwner(this);
+    if (m_motion) m_motion->setWorldItem(this);
     setObjectName(name);
 }
 
@@ -27,15 +27,15 @@ bool WorldItem::inWorld(){
     } else return false;
 }
 
-BaseMotion* WorldItem::setMotion(BaseMotion *m)
+void WorldItem::setMotion(BaseMotion *m)
 {
-    BaseMotion* old = m_motion;
-    if (old)
-        old->setOwner(NULL);
+    delete m_motion;
     m_motion = m;
-    if (m) m->setOwner(this);
-    return old;
+    // m_motion will be deleted as a QObject child
+    m_motion->setParent(this);
+    m_motion->setWorldItem(this);
 }
+
 void WorldItem::addRenderable(Renderable *r)
 {
     if (inWorld()) return;

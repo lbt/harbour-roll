@@ -16,8 +16,8 @@ public:
     virtual void addToWorld(World *world) { Q_UNUSED(world); }
     virtual void removeFromWorld(World *world) { Q_UNUSED(world); }
 
-    virtual BaseMotion *setMotion(BaseMotion *m);
-    virtual void setOwner(WorldItem* parent);
+    virtual void setMotion(BaseMotion *m);
+    virtual void setWorldItem(WorldItem* parent) { m_worldItem = parent ; }
 
     // Primary API for subclasses
     virtual void setTransform(Transform t) {  m_transform = t; }
@@ -41,6 +41,7 @@ protected:
     BaseMotion* m_next;
     Transform m_transform;
     QVector3D m_velocity;
+    WorldItem* m_worldItem;
 };
 
 #endif // BASEMOTION_H
