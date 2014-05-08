@@ -216,6 +216,6 @@ Clear any GL usage. Used when changing worlds
 
 To get the correct mesh orientation set the export to
 Forward: Y
-Up: -Z
+Up: Z
 Include Normals
 DO NOT tick 'triangulate' - Assimp does it better
