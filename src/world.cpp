@@ -326,6 +326,14 @@ void World::add(WorldItem* item, QList<Shader*> shaderList){
     m_worldMutex.unlock();
 }
 
+WorldItem *World::getItem(QString name)
+{
+    if (m_worlditems.contains(name)) {
+        return m_worlditems.value(name);
+    }
+    return NULL;
+}
+
 void World::remove(WorldItem* item, QList<Shader*> shaderList){
     m_worldMutex.lock();
     m_worlditems.remove(item->objectName());

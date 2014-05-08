@@ -45,6 +45,9 @@ public:
     virtual void setupGL();
     virtual void render();
 
+    // Items
+    virtual WorldItem* getItem(QString name);
+
     // Lights
     virtual Light* getLight(QString name);
     virtual QList<Light*> getLights();
