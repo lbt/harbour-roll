@@ -146,7 +146,7 @@ void RollBuilder::setup(){
 
 }
 
-void RollBuilder::setTrack(QString track, bool doGLSetup)
+void RollBuilder::setTrack(QString track)
 {
     qDebug() << "Setup track";
 
@@ -168,9 +168,6 @@ void RollBuilder::setTrack(QString track, bool doGLSetup)
     wi = new WorldItem(track, pm);
     wi->addRenderable(m_assetStore->getRenderable(track));
     wi->addToWorld(m_rollworld);
-
-    if (doGLSetup)
-        m_rollworld->m_WIneedGLSetup << wi;
 
     m_rollworld->getBall()->setStart(QVector3D(3.5, -2.5, 1));
 

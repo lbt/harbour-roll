@@ -11,7 +11,7 @@ public:
     explicit RollBuilder(RollWorld *parent = 0);
 
     void setup();
-    void setTrack(QString track, bool doGLSetup = false);
+    void setTrack(QString track);
 
     QStringList getTrackNames();
 signals:

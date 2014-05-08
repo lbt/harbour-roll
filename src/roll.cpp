@@ -188,7 +188,7 @@ void Roll::setRunning(bool running) {
 
 void Roll::useTrack(QString track)
 {
-    m_builder->setTrack(track, true);
+    m_builder->setTrack(track);
 }
 
 const QStringList Roll::getNames() const {
