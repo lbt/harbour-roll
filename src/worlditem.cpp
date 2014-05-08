@@ -22,7 +22,6 @@ WorldItem::WorldItem(QString name, BaseMotion *motion) :
 
 bool WorldItem::inWorld(){
     if (parent()) {
-        qDebug() << "In a World (can't add anything)";
         return true;
     } else return false;
 }
