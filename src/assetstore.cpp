@@ -161,6 +161,7 @@ btCollisionShape* AssetStore::makeShape(QString name, QString modelType, aiMesh*
     btCollisionShape* rshape= NULL;
     if (m_shapes.contains(name)) {
         qDebug() <<"Existing shape " << name;
+        return m_shapes.value(name);
     }
     if (! m) {
         qDebug() << "Mesh type "<< modelType << " requested and no mesh passed";
