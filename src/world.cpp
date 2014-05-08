@@ -197,9 +197,9 @@ void World::btTickCallback(btScalar timestep)
             {
                 Collision c(wiA, wiB, pt);
                 if (wiA->getCollisionType() == WorldItem::ITEM_COLLISONS)
-                      wiA->collision(c);
+                    wiA->collision(c);
                 if (wiB->getCollisionType() == WorldItem::ITEM_COLLISONS)
-                      wiB->collision(c);
+                    wiB->collision(c);
                 handleCollision(c);
             }
         }
@@ -227,6 +227,20 @@ void World::setupGL(){
     m_worldMutex.unlock();
     m_debugShader->setupGL();
     m_debugDrawer.setupGL();
+    qDebug() << "Setup GL done";
+}
+
+void World::setupNewGL(){
+    if (m_WIneedGLSetup.isEmpty()) return;
+
+    qDebug() << "Setup NewGL";
+    m_worldMutex.lock();
+    for (WorldItem* wi : m_WIneedGLSetup) {
+        qDebug() << "setupGL for WI " << wi->objectName();
+        wi->setupGL();
+    }
+    m_WIneedGLSetup.clear();
+    m_worldMutex.unlock();
     qDebug() << "Setup GL done";
 }
 /////////////////////////////////////////////////
@@ -288,6 +302,7 @@ void World::render()
     m_worldMutex.unlock();
 }
 
+
 QList<Light *> World::getLights()
 {
     return m_lights.values();
@@ -321,8 +336,13 @@ void World::setActiveCamera(QString name)
 // local to world and the majority of this is about world containers
 void World::add(WorldItem* item, QList<Shader*> shaderList){
     m_worldMutex.lock();
-    m_worlditems[item->objectName()] = item;
-    for (Shader* s : shaderList) m_byShader[s] << item;
+    if (m_worlditems.contains(item->objectName())) {
+        qDebug() <<"Existing Item " << item->objectName();
+    } else {
+        qDebug() <<"Adding Item " << item->objectName();
+        m_worlditems[item->objectName()] = item;
+        for (Shader* s : shaderList) m_byShader[s] << item;
+    }
     m_worldMutex.unlock();
 }
 
@@ -337,6 +357,13 @@ WorldItem *World::getItem(QString name)
 void World::remove(WorldItem* item, QList<Shader*> shaderList){
     m_worldMutex.lock();
     m_worlditems.remove(item->objectName());
+    qreal dist = m_WIByDistance.key(item); // could be a 'default constructed key'
+    if (m_WIByDistance.contains(dist, item)) // so check before removing
+        m_WIByDistance.remove(dist, item);
+    // Extremely unlikely that a WI is removed before GLSetup
+    // but remove() is rare so no harm in being cautious
+    if (m_WIneedGLSetup.contains(item))
+        m_WIneedGLSetup.remove(item);
     for (Shader* s : shaderList) m_byShader[s].remove(item);
     m_worldMutex.unlock();
 }

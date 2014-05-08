@@ -43,6 +43,7 @@ public:
 
     // Supporting various shader/render world info
     virtual void setupGL();
+    virtual void setupNewGL();
     virtual void render();
 
     // Items
@@ -97,6 +98,7 @@ protected:
     QMultiMap<qreal, WorldItem*> m_WIByDistance;
     QHash<QString, Light*> m_lights;
     QHash<QString, CameraManager*> m_cameras;
+    QSet<WorldItem*> m_WIneedGLSetup;
 
     WorldDebugDrawer m_debugDrawer;
     Shader* m_debugShader;
