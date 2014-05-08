@@ -18,7 +18,8 @@ void RenderMeshShaded::setupGL() {
         qDebug() << "No shader";
         return;
     }
-
+    // This is safe to call multiple times
+    m_shader->setupGL();
     // bind buffers to GL_ARRAY_BUFFER and then upload mesh data
     // VA pointers are defined as they're used
     glGenBuffers(2, m_vboIds); // one for VAO, other for indices
