@@ -215,16 +215,7 @@ void World::btTickCallback(btScalar timestep)
 
 void World::setupGL(){
     qDebug() << "Setup GL";
-    m_worldMutex.lock();
-    for (Shader* s : m_byShader.keys()) {
-        qDebug() << "setupGL for shader " << s;
-        s->setupGL(); // bind and setup Lights (maybe do that here?)
-        for (WorldItem* wi : m_byShader[s]) {
-            qDebug() << "setupGL for WI " << wi->objectName();
-            wi->setupGL();
-        }
-    }
-    m_worldMutex.unlock();
+    setupNewGL(); // setup all WIs and corresponding shaders
     m_debugShader->setupGL();
     m_debugDrawer.setupGL();
     qDebug() << "Setup GL done";
@@ -343,6 +334,8 @@ void World::add(WorldItem* item, QList<Shader*> shaderList){
         m_worlditems[item->objectName()] = item;
         for (Shader* s : shaderList) m_byShader[s] << item;
     }
+    // Mark this item as needing GLSetup
+    m_WIneedGLSetup << item;
     m_worldMutex.unlock();
 }
 
