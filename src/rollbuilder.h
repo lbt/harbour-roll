@@ -11,13 +11,15 @@ public:
     explicit RollBuilder(RollWorld *parent = 0);
 
     void setup();
-    void setTrack(QString track);
+    void setTrack(QString track, bool doGLSetup = false);
 
+    QStringList getTrackNames();
 signals:
 
 public slots:
 protected:
     RollWorld* m_rollworld;
+    QString m_currentTrack;
 };
 
 #endif // ROLLBUILDER_H

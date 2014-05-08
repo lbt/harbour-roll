@@ -54,7 +54,7 @@ Roll::Roll(QObject *parent) :
     qDebug() << "Making a Builder";
     m_builder = new RollBuilder(m_world);
     m_builder->setup();
-    m_builder->setTrack("track1");
+    m_builder->setTrack("track1Curve");
 
     // We need to interact with these items:
     m_flyCam = dynamic_cast<CameraFlyerMotion*>(m_world->getCamera("flycam")->motion());
@@ -188,12 +188,11 @@ void Roll::setRunning(bool running) {
 
 void Roll::useTrack(QString track)
 {
-    Q_UNUSED(track)
-//    m_world->useTrack(track);
+    m_builder->setTrack(track, true);
 }
 
 const QStringList Roll::getNames() const {
-    QStringList l = m_world->getTrackNames();
+    QStringList l = m_builder->getTrackNames();
     l.sort();
     return l;
 }
@@ -281,6 +280,9 @@ void Roll::render()
         }
     } else {
     }
+
+    // Allow the world to setupGL any new WIs from the render thread
+    m_world->setupNewGL();
 
     // Draw the world
     m_world->render();

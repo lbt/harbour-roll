@@ -146,20 +146,31 @@ void RollBuilder::setup(){
 
 }
 
-void RollBuilder::setTrack(QString track)
+void RollBuilder::setTrack(QString track, bool doGLSetup)
 {
     qDebug() << "Setup track";
+
+
+    WorldItem* wi = m_rollworld->getItem(m_currentTrack);
+    if (wi) {
+        wi->removeFromWorld();
+        delete wi;
+    }
+
     // Create a Shape and a PhysicsMotion and add to a new wi
-    m_assetStore->getRenderable("track3Curve")->setShader(m_assetStore->getShader("track"));
-    m_assetStore->getRenderable("track3Curve")->setTranslucent(true);
+    m_assetStore->getRenderable(track)->setShader(m_assetStore->getShader("track"));
+    m_assetStore->getRenderable(track)->setTranslucent(true);
 
     PhysicsMotion* pm =new PhysicsMotion(m_assetStore->makeShape(
-                                        "track3Curve", "btBvhTriangleMesh",
-                                        m_assetStore->getMesh("track3Curve")),
+                                        track, "btBvhTriangleMesh",
+                                        m_assetStore->getMesh(track)),
                                     0.0);
-    WorldItem* wi = new WorldItem("track", pm);
-    wi->addRenderable(m_assetStore->getRenderable("track3Curve"));
+    wi = new WorldItem(track, pm);
+    wi->addRenderable(m_assetStore->getRenderable(track));
     wi->addToWorld(m_rollworld);
+
+    if (doGLSetup)
+        m_rollworld->m_WIneedGLSetup << wi;
 
     m_rollworld->getBall()->setStart(QVector3D(3.5, -2.5, 1));
 
@@ -172,4 +183,12 @@ void RollBuilder::setTrack(QString track)
 
     m_world->getCamera("curvecam")->setMotion(curvy);
 
+    m_currentTrack = track;
+}
+
+QStringList RollBuilder::getTrackNames()
+{
+    QStringList l;
+    l << "track1Curve"<< "track2Curve"<< "track3Curve";
+    return l;
 }
