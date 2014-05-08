@@ -16,14 +16,21 @@ Shader::Shader(QUrl v_glsl_path, QUrl f_glsl_path, World *parent) :
 void Shader::setupGL()
 {
     qDebug() << "Setup GL using '" << m_vpath << "' and '" << m_fpath <<"'";
-    m_p = new GLProgram(m_vpath, m_fpath);
+    if (m_p == NULL) {
+        m_p = new GLProgram(m_vpath, m_fpath);
+        if (m_p && m_p->isLinked()) {
+            qDebug() <<"Shader is linked";
+        } else {
+            qDebug() <<"Shader failed to link";
+        }
+    }
 }
 
 void Shader::renderPrep()
 {
     if (m_p && m_p->isLinked()){
         m_p->bind();
-//        qDebug() <<"Shader is linked and bound";
+        //        qDebug() <<"Shader is linked and bound";
     } else {
         qDebug() <<"Shader is not linked";
         return;
@@ -37,10 +44,10 @@ void Shader::renderPrep()
     int nPointLights = 0;
     for (Light* l : m_world->getLights()) {
         if (l->inherits("DirectionalLight")) {
-//            qDebug() <<"Prep light : " << *dynamic_cast<DirectionalLight*>(l);
+            //            qDebug() <<"Prep light : " << *dynamic_cast<DirectionalLight*>(l);
             l->setUniforms(m_p, nDirLights++);
         } else if (l->inherits("PointLight")) {
-//            qDebug() <<"Prep light : " << *dynamic_cast<PointLight*>(l);
+            //            qDebug() <<"Prep light : " << *dynamic_cast<PointLight*>(l);
             l->setUniforms(m_p, nPointLights++);
         } else {
             qDebug() <<"Prep light : " << *l;
