@@ -55,7 +55,8 @@ SOURCES += src/harbour-roll.cpp \
     src/lookatmotion.cpp \
     src/delayedmotion.cpp \
     src/rollball.cpp \
-    src/collision.cpp
+    src/collision.cpp \
+    src/track.cpp
 
 DEPLOYMENT_PATH = /usr/share/$$TARGET
 
@@ -68,7 +69,7 @@ glsl.files = \
     src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
-model.files = model/*.png model/*.obj model/*.mtl
+model.files = model/*.png model/*.obj model/*.mtl tracks.json
 model.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl model
@@ -121,7 +122,8 @@ HEADERS += \
     src/lookatmotion.h \
     src/delayedmotion.h \
     src/rollball.h \
-    src/collision.h
+    src/collision.h \
+    src/track.h
 
 # ~/src/glsl-optimizer/glslopt -f track_frag.glsl
 # ~/src/glsl-optimizer/glslopt -v track_vert.glsl

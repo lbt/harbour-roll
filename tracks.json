@@ -1,0 +1,22 @@
+{
+    "tracks": [
+	{
+	    "name": "The First One",
+	    "start": [7.0, -5.0, 1.0],
+	    "mesh":"track1Curve",
+	    "cameracurve": "camera3curve"
+	},
+	{
+	    "name": "Bow Tie",
+	    "start": [3.0, -1.0, 1.0],
+	    "mesh": "track2Curve",
+	    "cameracurve": "camera3curve"
+	},
+	{
+	    "name": "Squiggle",
+	    "start": [3.5, -2.5, 1.0],
+	    "mesh": "track3Curve",
+	    "cameracurve": "camera3curve"
+	}
+    ]
+}

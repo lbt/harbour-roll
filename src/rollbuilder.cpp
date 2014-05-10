@@ -10,6 +10,10 @@
 #include "delayedmotion.h"
 #include "sailfishapp.h"
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+
 RollBuilder::RollBuilder(RollWorld *parent) :
     WorldBuilder(parent)
   , m_rollworld(parent)
@@ -146,10 +150,50 @@ void RollBuilder::setup(){
 
 }
 
-void RollBuilder::setTrack(QString track)
-{
-    qDebug() << "Setup track";
+bool RollBuilder::loadTracks(QString jsonFile){
+    QFile loadFile(jsonFile);
 
+    if (!loadFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open tracks file.");
+        return false;
+    }
+    qDebug() << "Found tracks.json";
+
+    QJsonDocument loadDoc(QJsonDocument::fromJson(loadFile.readAll()));
+
+    if (loadDoc.isArray())
+        qDebug() << "tracks.json is an array";
+    else if (loadDoc.isObject())
+        qDebug() << "tracks.json is an object";
+    else if (loadDoc.isNull())
+        qDebug() << "tracks.json is null";
+
+
+    QJsonObject roll = loadDoc.object();
+    if (! roll.contains("tracks")) {
+        return false;
+    }
+    qDebug() << "Found tracks";
+
+    m_tracks.clear();
+    QJsonArray tracksArray = roll["tracks"].toArray();
+    foreach (QJsonValue trackJ, tracksArray) {
+        Track* t = new Track();
+        t->read(trackJ.toObject());
+        m_tracks[t->name()] = t ;
+        qDebug() << "Found track " << t->name();
+    }
+    return true;
+}
+
+void RollBuilder::setTrack(QString trackname)
+{
+    Track* t = m_tracks[trackname];
+    if (!t) {
+        qDebug() << "No track " << trackname;
+          return;
+    }
+    qDebug() << "Setup track " << trackname;
 
     WorldItem* wi = m_rollworld->getItem(m_currentTrack);
     if (wi) {
@@ -158,21 +202,21 @@ void RollBuilder::setTrack(QString track)
     }
 
     // Create a Shape and a PhysicsMotion and add to a new wi
-    m_assetStore->getRenderable(track)->setShader(m_assetStore->getShader("track"));
-    m_assetStore->getRenderable(track)->setTranslucent(true);
+    m_assetStore->getRenderable(t->mesh())->setShader(m_assetStore->getShader("track"));
+    m_assetStore->getRenderable(t->mesh())->setTranslucent(true);
 
     PhysicsMotion* pm =new PhysicsMotion(m_assetStore->makeShape(
-                                        track, "btBvhTriangleMesh",
-                                        m_assetStore->getMesh(track)),
-                                    0.0);
-    wi = new WorldItem(track, pm);
-    wi->addRenderable(m_assetStore->getRenderable(track));
+                                             t->mesh(), "btBvhTriangleMesh",
+                                             m_assetStore->getMesh(t->mesh())),
+                                         0.0);
+    wi = new WorldItem(t->name(), pm);
+    wi->addRenderable(m_assetStore->getRenderable(t->mesh()));
     wi->addToWorld(m_rollworld);
 
-    m_rollworld->getBall()->setStart(QVector3D(3.5, -2.5, 1));
+    m_rollworld->getBall()->setStart(t->start());
 
     CurveMotion* curvy = new CurveMotion();
-    curvy->setCurve(m_assetStore->getVAO("camera3curve"));
+    curvy->setCurve(m_assetStore->getVAO(t->cameraCurve()));
     curvy->setSpeed(10);
     LookAtMotion* looker = new LookAtMotion();
     looker->setLookAt(QVector3D(0,0,0));
@@ -180,12 +224,11 @@ void RollBuilder::setTrack(QString track)
 
     m_world->getCamera("curvecam")->setMotion(curvy);
 
-    m_currentTrack = track;
+    m_currentTrack = t->name();
 }
 
 QStringList RollBuilder::getTrackNames()
 {
-    QStringList l;
-    l << "track1Curve"<< "track2Curve"<< "track3Curve";
+    QStringList l(m_tracks.keys());
     return l;
 }
