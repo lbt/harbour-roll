@@ -23,7 +23,7 @@ Transform BaseMotion::getTransform(Transform current) const {
     Transform here = current * m_transform;
     if (m_next)
         here = m_next->getTransform(here);
-//    qDebug() << this->metaObject()->className()<< ":Transform "<< here << " at " << here.at() << " looking at " << here.forward() ;
+    //    qDebug() << this->metaObject()->className()<< ":Transform "<< here << " at " << here.at() << " looking at " << here.forward() ;
     return here;
 }
 
@@ -45,5 +45,10 @@ void BaseMotion::randomise(QVector3D bottomBackLeft, QVector3D topFrontRight)
     Transform t;
     t.translate(pos);
     setTransform(t);
+}
+
+void BaseMotion::runStep(int deltaTms) {
+    // This will break if/when Motions are shared
+    if (m_next) m_next->runStep(deltaTms);
 }
 

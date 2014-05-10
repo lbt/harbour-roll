@@ -146,11 +146,7 @@ void World::runStep(int ms)
             wi->physicsMotion()->getRigidBody()->activate();
         }
         // This will break if/when Motions are shared
-        BaseMotion* m = wi->motion();
-        while (m){
-            m->runStep(ms);
-            m=m->m_next;
-        }
+        wi->motion()->runStep(ms);
     }
     for (WorldItem* wi : m_worlditems) {
         wi->updateTransform();

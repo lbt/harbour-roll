@@ -10,7 +10,6 @@ class World;
 class BaseMotion : public QObject
 {
     Q_OBJECT
-    friend class World; // The world calls runStep and uses m_next;
 public:
     explicit BaseMotion(WorldItem* parent = 0);
     virtual void addToWorld(World *world) { Q_UNUSED(world); }
@@ -23,7 +22,7 @@ public:
     virtual void setTransform(Transform t) {  m_transform = t; }
     virtual Transform getTransform(Transform current=Transform()) const;
     virtual void randomise(QVector3D bottomBackLeft=QVector3D(-5,-5,-5), QVector3D topFrontRight=QVector3D(5,5,5));
-    virtual void runStep(int deltaTms) { Q_UNUSED(deltaTms); }
+    virtual void runStep(int deltaTms);
 
     // Utility methods usin getTransform to be inheritance safe
     virtual void lookAt(QVector3D go, QVector3D target, QVector3D up);
