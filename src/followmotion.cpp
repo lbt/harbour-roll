@@ -27,5 +27,9 @@ void FollowMotion::follow(WorldItem* wi, QVector3D offset)
 {
     m_wi = wi;
     m_offset = offset;
+    if (m_offset.x() == 0.0 && m_offset.y() == 0.0) { // Avoid degenerate position
+        m_offset.setX(0.00001);
+        m_offset.setY(0.00001);
+    }
     runStep(0);
 }
