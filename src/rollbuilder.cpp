@@ -48,7 +48,7 @@ void RollBuilder::setup(){
 
     qDebug() << "Setup ball";
     PhysicsMotion* pm = new PhysicsMotion(m_assetStore->makeShape("Sphere", "btSphere", 0.4),
-                                    0.1);
+                                          0.1);
     RollBall* ball = new RollBall("ball", pm);
     ball->setCollisionType(WorldItem::WORLD_COLLISONS);
     ball->addRenderable(m_assetStore->getRenderable("Sphere"));
@@ -61,40 +61,40 @@ void RollBuilder::setup(){
 
     // This is oriented to point up (z=1) and set at offset (z=) -10
     pm = new PhysicsMotion(m_assetStore->makeShape(
-                                        "Floor", "btStaticPlane",
-                                        btVector3( 0, 0, 1 ), -10), 0.0);
+                               "Floor", "btStaticPlane",
+                               btVector3( 0, 0, 1 ), -10), 0.0);
     wi = new WorldItem("floor", pm);
     wi->addToWorld(m_rollworld);
     m_rollworld->m_floor = wi;
     wi->setCollisionType(WorldItem::WORLD_COLLISONS);
 
     pm = new PhysicsMotion(m_assetStore->makeShape(
-                                        "Floor2", "btStaticPlane",
-                                        btVector3( 0, 0,-1 ), -10), 0.0);
+                               "Floor2", "btStaticPlane",
+                               btVector3( 0, 0,-1 ), -10), 0.0);
     wi = new WorldItem("floor2", pm);
     wi->addToWorld(m_rollworld);
 
     pm = new PhysicsMotion(m_assetStore->makeShape(
-                                        "Floor3", "btStaticPlane",
-                                        btVector3( 0, 1, 0 ), -10), 0.0);
+                               "Floor3", "btStaticPlane",
+                               btVector3( 0, 1, 0 ), -10), 0.0);
     wi = new WorldItem("floor3", pm);
     wi->addToWorld(m_rollworld);
 
     pm = new PhysicsMotion(m_assetStore->makeShape(
-                                        "Floor4", "btStaticPlane",
-                                        btVector3( 0,-1, 0 ), -10), 0.0);
+                               "Floor4", "btStaticPlane",
+                               btVector3( 0,-1, 0 ), -10), 0.0);
     wi = new WorldItem("floor4", pm);
     wi->addToWorld(m_rollworld);
 
     pm = new PhysicsMotion(m_assetStore->makeShape(
-                                        "Floor5", "btStaticPlane",
-                                        btVector3( 1, 0, 0 ), -10), 0.0);
+                               "Floor5", "btStaticPlane",
+                               btVector3( 1, 0, 0 ), -10), 0.0);
     wi = new WorldItem("floor5", pm);
     wi->addToWorld(m_rollworld);
 
     pm = new PhysicsMotion(m_assetStore->makeShape(
-                                        "Floor6", "btStaticPlane",
-                                        btVector3(-1, 0, 0 ), -10), 0.0);
+                               "Floor6", "btStaticPlane",
+                               btVector3(-1, 0, 0 ), -10), 0.0);
     wi = new WorldItem("floor6", pm);
     wi->addToWorld(m_rollworld);
 
@@ -121,7 +121,7 @@ void RollBuilder::setup(){
 
     //    follower = new FollowMotion();
     follower = new DelayedMotion(10);
-    follower->follow(m_rollworld->m_ball, QVector3D(0,0,1)); // follow the ball from inside
+    follower->follow(m_rollworld->m_ball, QVector3D(0,0,1)); // follow the ball from just above
     o = new OrbitMotion();
     o->setup(QVector3D(0,0,1), QVector3D(0,1,0), 1.5, 300 );
     follower->setMotion(o);
@@ -146,7 +146,7 @@ void RollBuilder::setup(){
 
     m_rollworld->setActiveCamera(followCam);
 
-//    m_assetStore->load_finished();
+    //    m_assetStore->load_finished();
 
 }
 
@@ -191,7 +191,7 @@ void RollBuilder::setTrack(QString trackname)
     Track* t = m_tracks[trackname];
     if (!t) {
         qDebug() << "No track " << trackname;
-          return;
+        return;
     }
     qDebug() << "Setup track " << trackname;
 
