@@ -17,6 +17,12 @@
 	    "start": [3.5, -2.5, 1.0],
 	    "mesh": "track3Curve",
 	    "cameracurve": "camera3curve"
+	},
+	{
+	    "name": "Helter Skelter",
+	    "start": [2.0, -6.5, 0.0],
+	    "mesh": "track4Curve",
+	    "cameracurve": "camera3curve"
 	}
     ]
 }
