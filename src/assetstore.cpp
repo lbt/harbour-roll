@@ -268,7 +268,7 @@ bool AssetStore::load(QString filename)
     // propably to request more postprocessing than we do in this example.
 
     //    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
-    m_importer->SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT);
+    m_importer->SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, 0);
     const aiScene* scene = m_importer->ReadFile( filename.toStdString(),
                                               aiProcess_CalcTangentSpace |
                                               aiProcess_Triangulate |
@@ -354,7 +354,7 @@ void AssetStore::importChildren(const aiScene *scene, aiNode *node)  {
 
     // continue for all child nodes
     for( unsigned int a = 0; a < node->mNumChildren; a++) {
-        qDebug() << "found a child mesh";
+        qDebug() << "found child mesh " << a << " of " << name;
         importChildren(scene, node->mChildren[a]);
     }
 }
