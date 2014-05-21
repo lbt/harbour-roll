@@ -48,6 +48,7 @@ Renderable *AssetStore::makeRenderable(QString name, VAO *v)
     qDebug() <<"Make renderable " << name << " from V:" << v;
     if (m_renderables.contains(name)) {
         qDebug() <<"Existing renderable " << name;
+        return m_renderables[name];
     }
     Renderable *r = new RenderMeshShaded(name, v);
     m_renderables[name] = r;
@@ -59,6 +60,7 @@ Renderable *AssetStore::makeRenderable(QString name, VAO *v, Texture *t)
     qDebug() <<"Make renderable " << name << " from T:" << t->objectName() << " and V:" << v;
     if (m_renderables.contains(name)) {
         qDebug() <<"Existing renderable " << name;
+        return m_renderables[name];
     }
     Renderable *r = new RenderMeshTextured(name, v, t);
     m_renderables[name] = r;
@@ -69,6 +71,7 @@ Shader* AssetStore::makeShader(QString name, QUrl v_glsl_path, QUrl f_glsl_path)
     qDebug() <<"Make shader " << name;
     if (m_shaders.contains(name)) {
         qDebug() <<"Existing shader " << name;
+        return m_shaders[name];
     }
     Shader *s = new Shader(v_glsl_path, f_glsl_path, m_world);
     m_shaders[name] = s;
@@ -81,6 +84,7 @@ btCollisionShape* AssetStore::makeShape(QString name, QString modelType, btScala
     btSphereShape* shape = NULL;
     if (m_shapes.contains(name)) {
         qDebug() <<"Existing shape " << name;
+        return m_shapes[name];
     }
     if (modelType == "btSphere") {
         qDebug() <<"btSphereShape";
@@ -127,6 +131,7 @@ btCollisionShape* AssetStore::makeShape(QString name, QString modelType, btVecto
     btBoxShape* shape = NULL;
     if (m_shapes.contains(name)) {
         qDebug() <<"Existing shape " << name;
+        return m_shapes[name];
     }
     if (modelType == "btBox") {
         qDebug() <<"btBoxShape";
@@ -144,6 +149,7 @@ btCollisionShape *AssetStore::makeShape(QString name, QString modelType, btVecto
     btStaticPlaneShape* shape = NULL;
     if (m_shapes.contains(name)) {
         qDebug() <<"Existing shape " << name;
+        return m_shapes[name];
     }
     if (modelType == "btStaticPlane") {
         qDebug() <<"btStaticPlane";
@@ -225,6 +231,7 @@ Texture *AssetStore::makeTexture(QString name, QImage img)
     qDebug() <<"Make texture " << name;
     if (m_textures.contains(name)) {
         qDebug() <<"Existing texture " << name;
+        return m_textures[name];
     }
     Texture* t = new Texture(name, img);
     m_textures[name] = t;
@@ -233,6 +240,10 @@ Texture *AssetStore::makeTexture(QString name, QImage img)
 
 VAO* AssetStore::makeVAO(QString name, aiMesh* m) {
     qDebug() <<"Make VAO " << name;
+    if (m_vaos.contains(name)) {
+        qDebug() <<"Existing VAO " << name;
+        return m_vaos[name];
+    }
     VAO* v = new VAO(m);
     m_vaos[name] = v;
     return v;
@@ -245,14 +256,6 @@ VAO* AssetStore::makeVAO(QString name, aiMesh* m) {
 ///
 bool AssetStore::load(QString filename)
 {
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return false;
-
-    while (!file.atEnd()) {
-        QByteArray line = file.readLine();
-    }
-
     // Create an instance of the Importer class
     m_importer = new Assimp::Importer();
     m_importer->SetExtraVerbose(true);
