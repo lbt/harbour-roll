@@ -27,6 +27,7 @@ void RollBuilder::setup(){
     qDebug() << "Setup";
 
     m_assetStore->load(SailfishApp::pathTo("curve1.obj").toLocalFile());
+//    m_assetStore->load(SailfishApp::pathTo("curve1.blend").toLocalFile());
 
     // Simulate reading a json file:
 
@@ -146,7 +147,7 @@ void RollBuilder::setup(){
 
     m_rollworld->setActiveCamera(followCam);
 
-    //    m_assetStore->load_finished();
+    m_assetStore->load_finished();
 
 }
 
@@ -188,6 +189,8 @@ bool RollBuilder::loadTracks(QString jsonFile){
 
 void RollBuilder::setTrack(QString trackname)
 {
+    m_assetStore->load(SailfishApp::pathTo("curve1.obj").toLocalFile());
+
     Track* t = m_tracks[trackname];
     if (!t) {
         qDebug() << "No track " << trackname;
@@ -233,6 +236,9 @@ void RollBuilder::setTrack(QString trackname)
     m_world->getCamera("curvecam")->setMotion(curvy);
 
     m_currentTrack = t->name();
+
+    m_assetStore->load_finished();
+
 }
 
 QStringList RollBuilder::getTrackNames()
