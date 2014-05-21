@@ -13,6 +13,7 @@ public:
     QString name() const { return m_name; }
     QString mesh() const { return m_mesh; }
     QString cameraCurve() const { return m_cameraCurve; }
+    QString cameraLookAt() const { return m_cameraLookAt; }
     QVector3D start() const { return m_start; }
 
     void read(const QJsonObject &json);
@@ -22,6 +23,7 @@ protected:
     QString m_name;
     QString m_mesh;
     QString m_cameraCurve;
+    QString m_cameraLookAt;
     QVector3D m_start;
 
 };

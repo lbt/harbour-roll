@@ -43,10 +43,17 @@ void CurveMotion::runStep(int deltaTms) {
     } while (true);
     QVector3D vec[2];
     m_curveVAO->faceAt(m_lastSeenLine, vec);
+    QVector3D vec2[2];
+    m_curveVAO->faceAt((m_lastSeenLine + 1) % numLines , vec2);
     QVector3D res = vec[0] + (vec[1]-vec[0])* // line from point 1->2 * fraction of dist (always <1)
             ((m_currentDist - dist1)/(dist2 - dist1));
+    QVector3D interp = vec2[0] + (vec2[1]-vec2[0])* // line from point 1->2 * fraction of dist (always <1)
+            ((m_currentDist - dist1)/(dist2 - dist1));
+    interp.setZ(interp.z()-(dist2-dist1)/10); // tilt down
 
 //    qDebug() << "Point "<< m_lastSeenLine << " : distance " << m_currentDist<< "is between " <<  dist1 <<" and " << dist2 << " from " << vec[0] << " to " << vec[1];
     m_transform.setToIdentity();
-    m_transform.translate(res);
+    m_transform.lookAt(res, interp, QVector3D(0,0,1)); // look-at vec[1] is too jittery. Need to interpolate to vec[1]->vec[2]
+    m_transform = m_transform.inverted();
+//    m_transform.translate(res);
 }

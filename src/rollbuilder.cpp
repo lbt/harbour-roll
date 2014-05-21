@@ -62,7 +62,7 @@ void RollBuilder::setup(){
     // This is oriented to point up (z=1) and set at offset (z=) -10
     pm = new PhysicsMotion(m_assetStore->makeShape(
                                "Floor", "btStaticPlane",
-                               btVector3( 0, 0, 1 ), -10), 0.0);
+                               btVector3( 0, 0, 1 ), -20), 0.0);
     wi = new WorldItem("floor", pm);
     wi->addToWorld(m_rollworld);
     m_rollworld->m_floor = wi;
@@ -202,9 +202,15 @@ void RollBuilder::setTrack(QString trackname)
     }
 
     // Create a Shape and a PhysicsMotion and add to a new wi
-    m_assetStore->getRenderable(t->mesh())->setShader(m_assetStore->getShader("track"));
-    m_assetStore->getRenderable(t->mesh())->setTranslucent(true);
-
+    Renderable* r = m_assetStore->getRenderable(t->mesh());
+    if (QString(r->metaObject()->className()) == "RenderMeshShaded") {
+        r->setShader(m_assetStore->getShader("track"));
+        r->setTranslucent(true);
+        qDebug() << "Setup as track shader for track " << trackname;
+    } else {
+        qDebug() << "Setup as default shader for track " << trackname;
+        r->setShader(m_assetStore->getShader("default"));
+    }
     PhysicsMotion* pm =new PhysicsMotion(m_assetStore->makeShape(
                                              t->mesh(), "btBvhTriangleMesh",
                                              m_assetStore->getMesh(t->mesh())),
@@ -217,10 +223,12 @@ void RollBuilder::setTrack(QString trackname)
 
     CurveMotion* curvy = new CurveMotion();
     curvy->setCurve(m_assetStore->getVAO(t->cameraCurve()));
-    curvy->setSpeed(10);
-    LookAtMotion* looker = new LookAtMotion();
-    looker->setLookAt(QVector3D(0,0,0));
-    curvy->setMotion(looker);
+    curvy->setSpeed(5);
+    if (t->cameraLookAt() == "center") {
+        LookAtMotion* looker = new LookAtMotion();
+        looker->setLookAt(QVector3D(0,0,0));
+        curvy->setMotion(looker);
+    }
 
     m_world->getCamera("curvecam")->setMotion(curvy);
 
