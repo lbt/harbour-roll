@@ -69,7 +69,7 @@ glsl.files = \
     src/light_vert.glsl src/light_frag.glsl
 glsl.path = $$DEPLOYMENT_PATH
 
-model.files = model/*.png model/*.obj model/*.mtl tracks.json
+model.files = model/*.png model/*.obj model/*.mtl model/*.blend tracks.json
 model.path = $$DEPLOYMENT_PATH
 
 INSTALLS += glsl model
