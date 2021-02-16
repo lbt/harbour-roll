@@ -9,6 +9,7 @@ void Track::read(const QJsonObject &json)
     qreal version = json["version"].toDouble();
 
     m_name = json["name"].toString();
+    m_file = json["file"].toString();
     m_mesh = json["mesh"].toString();
     QJsonObject cam = json["camera"].toObject();
     m_cameraCurve = cam ["curve"].toString();
@@ -27,6 +28,7 @@ void Track::write(QJsonObject &json) const
 {
     json["version"] = 2.0;
     json["name"] = m_name;
+    json["file"] = m_file;
     json["mesh"] = m_mesh;
     json["cameracurve"] = m_cameraCurve;
     QJsonArray sA;

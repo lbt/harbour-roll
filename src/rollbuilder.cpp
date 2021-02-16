@@ -26,7 +26,7 @@ void RollBuilder::setup(){
 
     qDebug() << "Setup";
 
-    m_assetStore->load(SailfishApp::pathTo("curve1.obj").toLocalFile());
+    m_assetStore->load(SailfishApp::pathTo("assets.obj").toLocalFile());
 //    m_assetStore->load(SailfishApp::pathTo("curve1.blend").toLocalFile());
 
     // Simulate reading a json file:
@@ -189,14 +189,14 @@ bool RollBuilder::loadTracks(QString jsonFile){
 
 void RollBuilder::setTrack(QString trackname)
 {
-    m_assetStore->load(SailfishApp::pathTo("curve1.obj").toLocalFile());
-
     Track* t = m_tracks[trackname];
     if (!t) {
         qDebug() << "No track " << trackname;
         return;
     }
     qDebug() << "Setup track " << trackname;
+
+    m_assetStore->load(SailfishApp::pathTo(t->file()).toLocalFile());
 
     WorldItem* wi = m_rollworld->getItem(m_currentTrack);
     if (wi) {

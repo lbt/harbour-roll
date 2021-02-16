@@ -3,12 +3,14 @@
 	{
 	    "name": "The First One",
 	    "version": 2.0,
+	    "file":"curve1.obj",
 	    "start": [7.0, -5.0, 1.0],
 	    "mesh":"track1Curve",
 	    "camera": { "curve": "cameracurve", "lookat":"center" }
 	},
 	{
 	    "name": "Bow Tie",
+	    "file":"curve2.obj",
 	    "version": 2.0,
 	    "start": [3.0, -1.0, 1.0],
 	    "mesh": "track2Curve",
@@ -16,6 +18,7 @@
 	},
 	{
 	    "name": "Squiggle",
+	    "file":"curve3.obj",
 	    "version": 2.0,
 	    "start": [3.5, -2.5, 1.0],
 	    "mesh": "track3Curve",
@@ -23,10 +26,19 @@
 	},
 	{
 	    "name": "Helter Skelter",
+	    "file":"curve4.obj",
 	    "version": 2.0,
 	    "start": [2.0, -6.5, 0.0],
 	    "mesh": "track4Curve",
 	    "camera": { "curve": "camera4curve" }
+	},
+	{
+	    "name": "Leap",
+	    "file":"curve5.obj",
+	    "version": 2.0,
+	    "start": [5.0, -3.0, -0.5],
+	    "mesh": "track5Curve",
+	    "camera": { "curve": "cameracurve", "lookat":"center" }
 	}
     ]
 }

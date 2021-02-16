@@ -11,6 +11,7 @@ public:
     Track();
 
     QString name() const { return m_name; }
+    QString file() const { return m_file; }
     QString mesh() const { return m_mesh; }
     QString cameraCurve() const { return m_cameraCurve; }
     QString cameraLookAt() const { return m_cameraLookAt; }
@@ -21,6 +22,7 @@ public:
 
 protected:
     QString m_name;
+    QString m_file;
     QString m_mesh;
     QString m_cameraCurve;
     QString m_cameraLookAt;
